@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Software Alquileres</title>
+    <title>Software Alquileres - PropTech</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -17,302 +17,440 @@
             }
         }
     </script>
+    <!-- Leaflet Map CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen">
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container"></div>
 
     <!-- ══════════════════════════════════════════ -->
-    <!--  VISTA LOGIN                               -->
+    <!--  1. VISTA LOGIN                            -->
     <!-- ══════════════════════════════════════════ -->
-    <div id="login-view" class="w-full max-w-sm">
-
-        <div class="text-center mb-8">
-            <div class="flex items-center justify-center gap-2 mb-3">
-                <div class="logo-mark">SA</div>
-                <span class="text-xl font-bold text-navy">Software Alquileres</span>
-            </div>
-            <p class="text-sm text-gray-500">La plataforma PropTech para gestionar tus alquileres</p>
-        </div>
-
-        <div class="auth-card">
-            <h2 class="text-lg font-semibold text-navy mb-5">Iniciar sesión</h2>
-
-            <form id="login-form" class="space-y-4">
-                <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                    <input type="email" id="email" required placeholder="tu@email.com" class="input-base">
-                </div>
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
-                    <input type="password" id="password" required placeholder="••••••••" class="input-base">
-                </div>
-
-                <div id="error-message" class="hidden text-red-500 text-sm bg-red-50 border border-red-100 rounded-lg px-3 py-2"></div>
-                <div id="success-message" class="hidden text-brand-dark text-sm bg-brand-light border border-green-200 rounded-lg px-3 py-2"></div>
-
-                <button type="submit" class="btn-primary w-full mt-2 py-2.5">
-                    Iniciar sesión
-                </button>
-            </form>
-
-            <hr class="divider">
-
-            <p class="text-center text-sm text-gray-500">
-                ¿No tienes cuenta?
-                <button id="btn-go-register" class="text-brand font-semibold hover:text-brand-dark transition-colors ml-1">Regístrate gratis</button>
-            </p>
-        </div>
-
-        <p class="text-center text-xs text-gray-400 mt-6">© 2024 Software Alquileres · Todos los derechos reservados</p>
-    </div>
-
-    <!-- ══════════════════════════════════════════ -->
-    <!--  VISTA REGISTRO                            -->
-    <!-- ══════════════════════════════════════════ -->
-    <div id="register-view" class="hidden w-full max-w-md my-8">
-
-        <div class="text-center mb-8">
-            <div class="flex items-center justify-center gap-2 mb-3">
-                <div class="logo-mark">SA</div>
-                <span class="text-xl font-bold text-navy">Software Alquileres</span>
-            </div>
-            <p class="text-sm text-gray-500">Creá tu cuenta en menos de 2 minutos</p>
-        </div>
-
-        <div class="auth-card">
-            <h2 class="text-lg font-semibold text-navy mb-5">Crear cuenta</h2>
-
-            <form id="register-form" class="space-y-4">
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label for="reg-nombre" class="block text-sm font-medium text-gray-700">Nombre</label>
-                        <input type="text" id="reg-nombre" required placeholder="Juan" class="input-base">
-                    </div>
-                    <div>
-                        <label for="reg-apellido" class="block text-sm font-medium text-gray-700">Apellido</label>
-                        <input type="text" id="reg-apellido" required placeholder="García" class="input-base">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label for="reg-dni" class="block text-sm font-medium text-gray-700">DNI / CUIT</label>
-                        <input type="text" id="reg-dni" required placeholder="20123456" class="input-base">
-                    </div>
-                    <div>
-                        <label for="reg-telefono" class="block text-sm font-medium text-gray-700">Teléfono</label>
-                        <input type="text" id="reg-telefono" required placeholder="+54 9 11..." class="input-base">
-                    </div>
-                </div>
-
-                <div>
-                    <label for="reg-tipo" class="block text-sm font-medium text-gray-700">Soy...</label>
-                    <select id="reg-tipo" class="input-base">
-                        <option value="inquilino">Inquilino — busco alquilar</option>
-                        <option value="propietario">Propietario — tengo inmuebles</option>
-                        <option value="inmobiliaria">Inmobiliaria / Gestor</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label for="reg-email" class="block text-sm font-medium text-gray-700">Email</label>
-                    <input type="email" id="reg-email" required placeholder="tu@email.com" class="input-base">
-                </div>
-
-                <div>
-                    <label for="reg-password" class="block text-sm font-medium text-gray-700">Contraseña</label>
-                    <input type="password" id="reg-password" required placeholder="Mínimo 8 caracteres" class="input-base">
-                </div>
-
-                <div id="reg-error-message" class="hidden text-red-500 text-sm bg-red-50 border border-red-100 rounded-lg px-3 py-2"></div>
-
-                <button type="submit" class="btn-primary w-full py-2.5">
-                    Crear cuenta
-                </button>
-            </form>
-
-            <hr class="divider">
-
-            <p class="text-center text-sm text-gray-500">
-                ¿Ya tenés cuenta?
-                <button id="btn-go-login" class="text-brand font-semibold hover:text-brand-dark transition-colors ml-1">Iniciá sesión</button>
-            </p>
-        </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════ -->
-    <!--  VISTA DASHBOARD                           -->
-    <!-- ══════════════════════════════════════════ -->
-    <div id="dashboard-view" class="hidden w-full min-h-screen flex flex-col" style="background:#f7f8fa">
-
-        <!-- Navbar -->
-        <nav class="bg-white border-b border-gray-200 px-6 py-0 sticky top-0 z-10">
-            <div class="max-w-7xl mx-auto flex justify-between items-center h-16">
-                <div class="flex items-center gap-2.5">
+    <div id="login-view" class="min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-sm">
+            <div class="text-center mb-8">
+                <div class="flex items-center justify-center gap-2 mb-3">
                     <div class="logo-mark">SA</div>
-                    <span class="font-bold text-navy text-lg">Software Alquileres</span>
+                    <span class="text-xl font-bold text-navy">Software Alquileres</span>
                 </div>
-                <div class="flex items-center gap-5">
-                    <button id="btn-marketplace" class="flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-brand transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-                        Marketplace
-                    </button>
-                    <div class="h-5 w-px bg-gray-200"></div>
-                    <span id="user-email-display" class="text-sm text-gray-600 hidden sm:block"></span>
-                    <span id="user-role-display" class="role-badge"></span>
-                    <button onclick="cerrarSesion()" class="text-sm text-gray-400 hover:text-red-500 transition-colors font-medium">Salir</button>
-                </div>
-            </div>
-        </nav>
-
-        <!-- Content -->
-        <main class="flex-1 p-6 max-w-7xl mx-auto w-full">
-            <div class="flex justify-between items-center mb-6">
-                <div>
-                    <h1 class="text-2xl font-bold text-navy">Mi panel</h1>
-                    <p class="text-sm text-gray-500 mt-0.5">Gestioná tus propiedades y contratos</p>
-                </div>
-                <button id="btn-nueva-propiedad" class="hidden btn-primary flex items-center gap-2 text-sm px-4 py-2.5">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                    Nueva propiedad
-                </button>
+                <p class="text-sm text-gray-500">La plataforma PropTech para gestionar tus alquileres</p>
             </div>
 
-            <div id="dashboard-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                <!-- Contenido dinámico -->
-            </div>
-        </main>
-    </div>
+            <div class="auth-card">
+                <h2 class="text-lg font-semibold text-navy mb-5">Iniciar sesión</h2>
 
-    <!-- ══════════════════════════════════════════ -->
-    <!--  VISTA MARKETPLACE                         -->
-    <!-- ══════════════════════════════════════════ -->
-    <div id="marketplace-view" class="hidden w-full min-h-screen flex flex-col" style="background:#f7f8fa">
-
-        <nav class="bg-white border-b border-gray-200 px-6 py-0 sticky top-0 z-10">
-            <div class="max-w-7xl mx-auto flex justify-between items-center h-16">
-                <div class="flex items-center gap-2.5">
-                    <div class="logo-mark">SA</div>
-                    <span class="font-bold text-navy text-lg">Software Alquileres</span>
-                </div>
-                <div class="flex items-center gap-5">
-                    <button onclick="mostrarDashboard()" class="flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-brand transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                        Mi panel
-                    </button>
-                    <div class="h-5 w-px bg-gray-200"></div>
-                    <span id="mkt-user-email" class="text-sm text-gray-600 hidden sm:block"></span>
-                    <span id="mkt-user-role" class="role-badge"></span>
-                    <button onclick="cerrarSesion()" class="text-sm text-gray-400 hover:text-red-500 transition-colors font-medium">Salir</button>
-                </div>
-            </div>
-        </nav>
-
-        <main class="flex-1 p-6 max-w-7xl mx-auto w-full">
-            <div class="mb-6">
-                <h1 class="text-2xl font-bold text-navy">Propiedades disponibles</h1>
-                <p class="text-sm text-gray-500 mt-0.5">Encontrá tu próximo hogar</p>
-            </div>
-            <div id="marketplace-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                <!-- Cards dinámicas -->
-            </div>
-        </main>
-    </div>
-
-    <!-- ══════════════════════════════════════════ -->
-    <!--  VISTA NUEVA PROPIEDAD                     -->
-    <!-- ══════════════════════════════════════════ -->
-    <div id="nueva-propiedad-view" class="hidden w-full min-h-screen flex flex-col" style="background:#f7f8fa">
-
-        <nav class="bg-white border-b border-gray-200 px-6 py-0 sticky top-0 z-10">
-            <div class="max-w-7xl mx-auto flex justify-between items-center h-16">
-                <div class="flex items-center gap-2.5">
-                    <div class="logo-mark">SA</div>
-                    <span class="font-bold text-navy text-lg">Software Alquileres</span>
-                </div>
-                <div class="flex items-center gap-5">
-                    <button onclick="mostrarDashboard()" class="flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-brand transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                        Mi panel
-                    </button>
-                    <button onclick="cerrarSesion()" class="text-sm text-gray-400 hover:text-red-500 transition-colors font-medium">Salir</button>
-                </div>
-            </div>
-        </nav>
-
-        <main class="flex-1 p-6 max-w-2xl mx-auto w-full">
-            <div class="mb-6">
-                <h1 class="text-2xl font-bold text-navy">Publicar propiedad</h1>
-                <p class="text-sm text-gray-500 mt-0.5">Completá los datos del inmueble</p>
-            </div>
-
-            <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                <form id="nueva-propiedad-form" class="space-y-5">
-
-                    <!-- Sección: Ubicación -->
+                <form id="login-form" class="space-y-4">
                     <div>
-                        <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">Ubicación</h3>
-                        <div class="space-y-3">
-                            <div>
-                                <label for="prop-direccion" class="block text-sm font-medium text-gray-700">Dirección completa</label>
-                                <input type="text" id="prop-direccion" required placeholder="Ej: Av. Corrientes 1234, Piso 3, Dto A" class="input-base">
-                            </div>
-                            <div>
-                                <label for="prop-ciudad" class="block text-sm font-medium text-gray-700">Ciudad</label>
-                                <input type="text" id="prop-ciudad" required placeholder="Ej: Buenos Aires" class="input-base">
-                            </div>
-                        </div>
+                        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="email" required placeholder="tu@email.com" class="input-base">
                     </div>
-
-                    <hr class="divider my-0">
-
-                    <!-- Sección: Características -->
                     <div>
-                        <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">Características</h3>
-                        <div class="space-y-3">
-                            <div>
-                                <label for="prop-tipo" class="block text-sm font-medium text-gray-700">Tipo de inmueble</label>
-                                <select id="prop-tipo" class="input-base">
-                                    <option value="departamento">Departamento</option>
-                                    <option value="casa">Casa</option>
-                                    <option value="duplex">Dúplex</option>
-                                    <option value="local_comercial">Local Comercial</option>
-                                </select>
-                            </div>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label for="prop-precio" class="block text-sm font-medium text-gray-700">Alquiler mensual ($)</label>
-                                    <input type="number" id="prop-precio" required min="0" placeholder="150000" class="input-base">
-                                </div>
-                                <div>
-                                    <label for="prop-ingreso-minimo" class="block text-sm font-medium text-gray-700">Ingreso mínimo <span class="text-gray-400 font-normal">(opcional)</span></label>
-                                    <input type="number" id="prop-ingreso-minimo" min="0" placeholder="450000" class="input-base">
-                                </div>
-                            </div>
-                            <label class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-brand-light cursor-pointer transition-colors">
-                                <input type="checkbox" id="prop-mascotas" class="w-4 h-4 accent-brand rounded">
-                                <div>
-                                    <span class="text-sm font-medium text-gray-700">Acepta mascotas</span>
-                                    <p class="text-xs text-gray-400">El inmueble permite el ingreso de animales domésticos</p>
-                                </div>
-                            </label>
-                        </div>
+                        <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+                        <input type="password" id="password" required placeholder="••••••••" class="input-base">
                     </div>
 
-                    <div id="prop-error-message" class="hidden text-red-500 text-sm bg-red-50 border border-red-100 rounded-lg px-3 py-2"></div>
-                    <div id="prop-success-message" class="hidden text-brand-dark text-sm bg-brand-light border border-green-200 rounded-lg px-3 py-2"></div>
-
-                    <div class="flex gap-3 pt-1">
-                        <button type="button" onclick="mostrarDashboard()" class="flex-1 py-2.5 px-4 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 bg-white hover:bg-gray-50 transition-colors">
-                            Cancelar
-                        </button>
-                        <button type="submit" class="btn-primary flex-1 py-2.5 text-sm">
-                            Publicar propiedad
-                        </button>
-                    </div>
+                    <button type="submit" class="btn-primary w-full mt-2 py-2.5">
+                        Iniciar sesión
+                    </button>
                 </form>
+
+                <hr class="divider">
+
+                <p class="text-center text-sm text-gray-500">
+                    ¿No tienes cuenta?
+                    <button id="btn-go-register" class="text-brand font-semibold hover:text-brand-dark transition-colors ml-1">Regístrate gratis</button>
+                </p>
             </div>
-        </main>
+
+            <p class="text-center text-xs text-gray-400 mt-6">© 2024 Software Alquileres · PropTech MVP</p>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  2. VISTA REGISTRO                         -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="register-view" class="hidden min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-md my-8">
+            <div class="text-center mb-8">
+                <div class="flex items-center justify-center gap-2 mb-3">
+                    <div class="logo-mark">SA</div>
+                    <span class="text-xl font-bold text-navy">Software Alquileres</span>
+                </div>
+                <p class="text-sm text-gray-500">Creá tu cuenta en menos de 2 minutos</p>
+            </div>
+
+            <div class="auth-card">
+                <h2 class="text-lg font-semibold text-navy mb-5">Crear cuenta</h2>
+
+                <form id="register-form" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label for="reg-nombre" class="block text-sm font-medium text-gray-700">Nombre</label>
+                            <input type="text" id="reg-nombre" required placeholder="Juan" class="input-base">
+                        </div>
+                        <div>
+                            <label for="reg-apellido" class="block text-sm font-medium text-gray-700">Apellido</label>
+                            <input type="text" id="reg-apellido" required placeholder="García" class="input-base">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label for="reg-dni" class="block text-sm font-medium text-gray-700">DNI / CUIT</label>
+                            <input type="text" id="reg-dni" required placeholder="20123456" class="input-base">
+                        </div>
+                        <div>
+                            <label for="reg-telefono" class="block text-sm font-medium text-gray-700">Teléfono</label>
+                            <input type="text" id="reg-telefono" required placeholder="+54 9 11..." class="input-base">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="reg-tipo" class="block text-sm font-medium text-gray-700">Soy...</label>
+                        <select id="reg-tipo" class="input-base">
+                            <option value="inquilino">Inquilino — busco alquilar</option>
+                            <option value="propietario">Propietario — tengo inmuebles</option>
+                            <option value="inmobiliaria">Inmobiliaria / Gestor</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="reg-email" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="reg-email" required placeholder="tu@email.com" class="input-base">
+                    </div>
+
+                    <div>
+                        <label for="reg-password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+                        <input type="password" id="reg-password" required placeholder="Mínimo 8 caracteres" class="input-base">
+                    </div>
+
+                    <button type="submit" class="btn-primary w-full py-2.5">
+                        Crear cuenta
+                    </button>
+                </form>
+
+                <hr class="divider">
+
+                <p class="text-center text-sm text-gray-500">
+                    ¿Ya tenés cuenta?
+                    <button id="btn-go-login" class="text-brand font-semibold hover:text-brand-dark transition-colors ml-1">Iniciá sesión</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  NAVBAR PRINCIPAL PARA USUARIOS AUTENTICADOS -->
+    <!-- ══════════════════════════════════════════ -->
+    <nav id="app-nav" class="hidden main-nav">
+        <div class="nav-inner">
+            <div class="flex items-center gap-6">
+                <a href="#" onclick="navegarA('dashboard'); return false;" class="nav-brand">
+                    <div class="logo-mark">SA</div>
+                    <span>Software Alquileres</span>
+                </a>
+                <div class="nav-links hidden md:flex">
+                    <button onclick="navegarA('dashboard')" id="nav-btn-dashboard" class="nav-link">📊 Mi Panel</button>
+                    <button onclick="navegarA('marketplace')" id="nav-btn-marketplace" class="nav-link">🏘 Marketplace</button>
+                    <button onclick="navegarA('mapa')" id="nav-btn-mapa" class="nav-link">🗺 Mapa</button>
+                    <button onclick="navegarA('postulaciones')" id="nav-btn-postulaciones" class="nav-link">📋 Postulaciones</button>
+                    <button onclick="navegarA('contratos')" id="nav-btn-contratos" class="nav-link">📄 Contratos</button>
+                </div>
+            </div>
+            <div class="nav-right">
+                <span id="user-email-display" class="nav-email hidden sm:block"></span>
+                <span id="user-role-display" class="role-badge"></span>
+                <div class="nav-divider"></div>
+                <button onclick="cerrarSesion()" class="nav-exit">Salir</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Navigation Subbar -->
+    <div id="app-mobile-nav" class="hidden md:hidden bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-around gap-1 overflow-x-auto text-xs">
+        <button onclick="navegarA('dashboard')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">📊 Panel</button>
+        <button onclick="navegarA('marketplace')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">🏘 Marketplace</button>
+        <button onclick="navegarA('mapa')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">🗺 Mapa</button>
+        <button onclick="navegarA('postulaciones')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">📋 Postulaciones</button>
+        <button onclick="navegarA('contratos')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">📄 Contratos</button>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  3. VISTA DASHBOARD                        -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="dashboard-view" class="hidden page-content">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-navy">Mi Panel de Control</h1>
+                <p class="text-sm text-gray-500">Métricas y resumen general de tu actividad</p>
+            </div>
+            <button id="btn-nueva-propiedad" class="hidden btn-primary text-sm px-4 py-2.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                Nueva propiedad
+            </button>
+        </div>
+
+        <!-- Stat Cards con Métricas Reales -->
+        <div id="stat-cards-container" class="stat-cards">
+            <!-- Renderizado dinámico según rol -->
+        </div>
+
+        <!-- Contenido principal del dashboard -->
+        <div class="mt-8">
+            <h2 id="dashboard-section-title" class="text-lg font-bold text-navy mb-4">Mis Inmuebles</h2>
+            <div id="dashboard-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Cards dinámicas o empty state -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  4. VISTA MARKETPLACE                      -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="marketplace-view" class="hidden page-content">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-navy">Marketplace de Alquileres</h1>
+                <p class="text-sm text-gray-500">Explorá inmuebles disponibles verificados</p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="navegarA('mapa')" class="btn-secondary text-xs px-3 py-2 flex items-center gap-1.5">
+                    🗺 Ver en Mapa
+                </button>
+            </div>
+        </div>
+
+        <!-- Barra de Filtros Reactivos -->
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label class="filter-label">Ciudad</label>
+                <input type="text" id="filter-ciudad" placeholder="Ej: Buenos Aires, Rosario..." class="filter-input">
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Tipo de Inmueble</label>
+                <select id="filter-tipo" class="filter-input">
+                    <option value="">Todos los tipos</option>
+                    <option value="departamento">Departamento</option>
+                    <option value="casa">Casa</option>
+                    <option value="duplex">Dúplex</option>
+                    <option value="local_comercial">Local Comercial</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Precio Máximo ($)</label>
+                <input type="number" id="filter-precio" placeholder="Sin límite" class="filter-input">
+            </div>
+            <div class="filter-checkbox-group">
+                <input type="checkbox" id="filter-mascotas">
+                <label for="filter-mascotas" class="text-xs font-medium text-gray-700 cursor-pointer">🐾 Solo con mascotas</label>
+            </div>
+            <div class="flex gap-2 items-end">
+                <button id="btn-aplicar-filtros" class="btn-primary text-xs px-4 py-2">Buscar</button>
+                <button id="btn-limpiar-filtros" class="btn-secondary text-xs px-3 py-2">Limpiar</button>
+            </div>
+        </div>
+
+        <!-- Grid de Propiedades -->
+        <div id="marketplace-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <!-- Cards dinámicas con foto o placeholder -->
+        </div>
+
+        <!-- Paginación -->
+        <div id="marketplace-pagination" class="pagination">
+            <button id="btn-prev-page" disabled>← Anterior</button>
+            <span id="pagination-info" class="pagination-info">Página 1</span>
+            <button id="btn-next-page" disabled>Siguiente →</button>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  5. VISTA MAPA INTERACTIVO (LEAFLET)       -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="mapa-view" class="hidden page-content">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-navy">Mapa de Propiedades</h1>
+                <p class="text-sm text-gray-500">Explorá geográficamente las opciones de alquiler</p>
+            </div>
+            <button onclick="navegarA('marketplace')" class="btn-secondary text-xs px-3 py-2">
+                🏘 Ver en Lista
+            </button>
+        </div>
+        <div id="mapa-leaflet"></div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  6. VISTA DETALLE DE PROPIEDAD             -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="detalle-propiedad-view" class="hidden page-content max-w-4xl">
+        <div class="mb-4">
+            <button onclick="volverAtrasDetalle()" class="text-sm text-gray-500 hover:text-brand font-medium flex items-center gap-1">
+                ← Volver
+            </button>
+        </div>
+
+        <div id="detalle-content" class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 sm:p-8">
+            <!-- Renderizado dinámico del detalle -->
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  7. VISTA POSTULACIONES                    -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="postulaciones-view" class="hidden page-content">
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-navy">Gestión de Postulaciones</h1>
+            <p id="postulaciones-subtitle" class="text-sm text-gray-500">Postulaciones y solicitudes de alquiler</p>
+        </div>
+
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div id="postulaciones-table-container" class="overflow-x-auto">
+                <!-- Tabla dinámica -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  8. VISTA CONTRATOS                        -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="contratos-view" class="hidden page-content">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-navy">Gestión de Contratos</h1>
+                <p id="contratos-subtitle" class="text-sm text-gray-500">Contratos de alquiler registrados</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div id="contratos-table-container" class="overflow-x-auto">
+                <!-- Tabla dinámica -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  9. VISTA NUEVA PROPIEDAD                  -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="nueva-propiedad-view" class="hidden page-content max-w-2xl">
+        <div class="mb-6">
+            <button onclick="navegarA('dashboard')" class="text-sm text-gray-500 hover:text-brand font-medium flex items-center gap-1 mb-2">
+                ← Volver al panel
+            </button>
+            <h1 class="text-2xl font-bold text-navy">Publicar nueva propiedad</h1>
+            <p class="text-sm text-gray-500 mt-0.5">Completá los datos del inmueble para publicarlo</p>
+        </div>
+
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 sm:p-8">
+            <form id="nueva-propiedad-form" class="space-y-5">
+                <!-- Sección: Ubicación -->
+                <div>
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">1. Ubicación</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label for="prop-direccion" class="block text-sm font-medium text-gray-700">Dirección completa</label>
+                            <input type="text" id="prop-direccion" required placeholder="Ej: Av. Corrientes 1234, Piso 3, Dto A" class="input-base">
+                        </div>
+                        <div>
+                            <label for="prop-ciudad" class="block text-sm font-medium text-gray-700">Ciudad</label>
+                            <input type="text" id="prop-ciudad" required placeholder="Ej: Buenos Aires" class="input-base">
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="divider">
+
+                <!-- Sección: Características -->
+                <div>
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">2. Características y Precio</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label for="prop-tipo" class="block text-sm font-medium text-gray-700">Tipo de inmueble</label>
+                            <select id="prop-tipo" class="input-base">
+                                <option value="departamento">Departamento</option>
+                                <option value="casa">Casa</option>
+                                <option value="duplex">Dúplex</option>
+                                <option value="local_comercial">Local Comercial</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label for="prop-precio" class="block text-sm font-medium text-gray-700">Alquiler mensual ($)</label>
+                                <input type="number" id="prop-precio" required min="0" placeholder="150000" class="input-base">
+                            </div>
+                            <div>
+                                <label for="prop-ingreso-minimo" class="block text-sm font-medium text-gray-700">Ingreso mínimo <span class="text-gray-400 font-normal">(opcional)</span></label>
+                                <input type="number" id="prop-ingreso-minimo" min="0" placeholder="450000" class="input-base">
+                            </div>
+                        </div>
+                        <label class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-brand-light cursor-pointer transition-colors">
+                            <input type="checkbox" id="prop-mascotas" class="w-4 h-4 accent-brand rounded">
+                            <div>
+                                <span class="text-sm font-medium text-gray-700">Acepta mascotas 🐾</span>
+                                <p class="text-xs text-gray-400">El inmueble permite animales domésticos</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <hr class="divider">
+
+                <!-- Sección: Foto Opcional -->
+                <div>
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">3. Fotografía Principal</h3>
+                    <div>
+                        <label for="prop-foto" class="block text-sm font-medium text-gray-700 mb-1">Subir imagen</label>
+                        <input type="file" id="prop-foto" accept="image/jpeg,image/png,image/webp" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-brand-light file:text-brand-dark hover:file:bg-brand hover:file:text-white cursor-pointer">
+                        <p class="text-xs text-gray-400 mt-1">Formatos permitidos: JPG, PNG, WEBP (se subirá automáticamente al guardar)</p>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                    <button type="button" onclick="navegarA('dashboard')" class="btn-secondary flex-1 py-2.5">
+                        Cancelar
+                    </button>
+                    <button type="submit" id="btn-submit-propiedad" class="btn-primary flex-1 py-2.5">
+                        Publicar propiedad
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  MODAL: CREAR CONTRATO DESDE POSTULACIÓN   -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="modal-crear-contrato" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-xl">
+            <h3 class="text-lg font-bold text-navy mb-4">Generar Contrato de Alquiler</h3>
+            <form id="form-crear-contrato" class="space-y-4">
+                <input type="hidden" id="contrato-id-propiedad">
+                <input type="hidden" id="contrato-id-inquilino">
+                <input type="hidden" id="contrato-id-postulacion">
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase">Monto Mensual ($)</label>
+                    <input type="number" id="contrato-monto" required class="input-base">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase">Fecha Inicio</label>
+                        <input type="date" id="contrato-fecha-inicio" required class="input-base">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase">Fecha Fin</label>
+                        <input type="date" id="contrato-fecha-fin" required class="input-base">
+                    </div>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="cerrarModalContrato()" class="btn-secondary flex-1">Cancelar</button>
+                    <button type="submit" class="btn-primary flex-1">Crear Contrato</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script src="js/app.js"></script>

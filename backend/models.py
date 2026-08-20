@@ -16,7 +16,6 @@ class EstadoVerificacion(enum.Enum):
 
 class Usuario(Base):
     __tablename__ = "usuarios"
-
     id_usuario = Column(Integer, primary_key=True, index=True, autoincrement=True)
     tipo_usuario = Column(Enum(TipoUsuario), nullable=False)
     nombre = Column(String(100), nullable=False)
@@ -27,7 +26,6 @@ class Usuario(Base):
     password_hash = Column(String(255), nullable=False)
     estado_verificacion = Column(Enum(EstadoVerificacion), default=EstadoVerificacion.pendiente)
     fecha_registro = Column(DateTime, default=datetime.utcnow)
-
     propiedades = relationship("Propiedad", back_populates="propietario_gestor")
 
 class TipoInmueble(enum.Enum):
@@ -43,7 +41,6 @@ class EstadoPublicacion(enum.Enum):
 
 class Propiedad(Base):
     __tablename__ = "propiedades"
-
     id_propiedad = Column(Integer, primary_key=True, index=True, autoincrement=True)
     id_propietario_gestor = Column(Integer, ForeignKey("usuarios.id_usuario"), nullable=False)
     calle_direccion = Column(String(200), nullable=False)
@@ -54,7 +51,9 @@ class Propiedad(Base):
     ingreso_minimo_requerido = Column(Float)
     estado_publicacion = Column(Enum(EstadoPublicacion), default=EstadoPublicacion.activa)
     fecha_creacion = Column(DateTime, default=datetime.utcnow)
-
+    imagen_url = Column(String(500), nullable=True)
+    latitud = Column(Float, nullable=True)
+    longitud = Column(Float, nullable=True)
     propietario_gestor = relationship("Usuario", back_populates="propiedades")
 
 class EstadoPostulacion(enum.Enum):
@@ -64,7 +63,6 @@ class EstadoPostulacion(enum.Enum):
 
 class Postulacion(Base):
     __tablename__ = "postulaciones"
-
     id_postulacion = Column(Integer, primary_key=True, index=True, autoincrement=True)
     id_propiedad = Column(Integer, ForeignKey("propiedades.id_propiedad"), nullable=False)
     id_inquilino = Column(Integer, ForeignKey("usuarios.id_usuario"), nullable=False)
@@ -79,7 +77,6 @@ class EstadoContrato(enum.Enum):
 
 class Contrato(Base):
     __tablename__ = "contratos"
-
     id_contrato = Column(Integer, primary_key=True, index=True, autoincrement=True)
     id_propiedad = Column(Integer, ForeignKey("propiedades.id_propiedad"), nullable=False)
     id_inquilino = Column(Integer, ForeignKey("usuarios.id_usuario"), nullable=False)

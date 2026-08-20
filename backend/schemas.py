@@ -44,7 +44,6 @@ class UsuarioResponse(UsuarioBase):
     id_usuario: int
     estado_verificacion: str
     fecha_registro: datetime
-
     class Config:
         from_attributes = True
 
@@ -56,6 +55,9 @@ class PropiedadBase(BaseModel):
     acepta_mascotas: bool = False
     ingreso_minimo_requerido: Optional[float] = None
     estado_publicacion: EstadoPublicacionEnum = EstadoPublicacionEnum.activa
+    imagen_url: Optional[str] = None
+    latitud: Optional[float] = None
+    longitud: Optional[float] = None
 
 class PropiedadCreate(PropiedadBase):
     pass
@@ -64,7 +66,6 @@ class PropiedadResponse(PropiedadBase):
     id_propiedad: int
     id_propietario_gestor: int
     fecha_creacion: datetime
-
     class Config:
         from_attributes = True
 
@@ -80,7 +81,6 @@ class PostulacionResponse(PostulacionBase):
     id_inquilino: int
     estado: EstadoPostulacionEnum
     fecha_postulacion: datetime
-
     class Config:
         from_attributes = True
 
@@ -102,7 +102,6 @@ class ContratoResponse(ContratoBase):
     id_propietario_gestor: int
     estado: EstadoContratoEnum
     fecha_creacion: datetime
-
     class Config:
         from_attributes = True
 
