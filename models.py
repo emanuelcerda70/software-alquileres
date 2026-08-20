@@ -28,7 +28,6 @@ class Usuario(Base):
     estado_verificacion = Column(Enum(EstadoVerificacion), default=EstadoVerificacion.pendiente)
     fecha_registro = Column(DateTime, default=datetime.utcnow)
 
-    # Relaciones
     propiedades = relationship("Propiedad", back_populates="propietario_gestor")
 
 class TipoInmueble(enum.Enum):
@@ -56,5 +55,37 @@ class Propiedad(Base):
     estado_publicacion = Column(Enum(EstadoPublicacion), default=EstadoPublicacion.activa)
     fecha_creacion = Column(DateTime, default=datetime.utcnow)
 
-    # Relaciones
     propietario_gestor = relationship("Usuario", back_populates="propiedades")
+
+class EstadoPostulacion(enum.Enum):
+    pendiente = "pendiente"
+    aprobada = "aprobada"
+    rechazada = "rechazada"
+
+class Postulacion(Base):
+    __tablename__ = "postulaciones"
+
+    id_postulacion = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    id_propiedad = Column(Integer, ForeignKey("propiedades.id_propiedad"), nullable=False)
+    id_inquilino = Column(Integer, ForeignKey("usuarios.id_usuario"), nullable=False)
+    mensaje_inquilino = Column(Text, nullable=True)
+    estado = Column(Enum(EstadoPostulacion), default=EstadoPostulacion.pendiente)
+    fecha_postulacion = Column(DateTime, default=datetime.utcnow)
+
+class EstadoContrato(enum.Enum):
+    activo = "activo"
+    finalizado = "finalizado"
+    rescindido = "rescindido"
+
+class Contrato(Base):
+    __tablename__ = "contratos"
+
+    id_contrato = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    id_propiedad = Column(Integer, ForeignKey("propiedades.id_propiedad"), nullable=False)
+    id_inquilino = Column(Integer, ForeignKey("usuarios.id_usuario"), nullable=False)
+    id_propietario_gestor = Column(Integer, ForeignKey("usuarios.id_usuario"), nullable=False)
+    fecha_inicio = Column(Date, nullable=False)
+    fecha_fin = Column(Date, nullable=False)
+    monto_mensual = Column(Float, nullable=False)
+    estado = Column(Enum(EstadoContrato), default=EstadoContrato.activo)
+    fecha_creacion = Column(DateTime, default=datetime.utcnow)

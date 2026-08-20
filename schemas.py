@@ -1,6 +1,6 @@
 ﻿from pydantic import BaseModel, EmailStr
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, date
 import enum
 
 class TipoUsuarioEnum(str, enum.Enum):
@@ -18,6 +18,16 @@ class EstadoPublicacionEnum(str, enum.Enum):
     activa = "activa"
     pausada = "pausada"
     alquilada = "alquilada"
+
+class EstadoPostulacionEnum(str, enum.Enum):
+    pendiente = "pendiente"
+    aprobada = "aprobada"
+    rechazada = "rechazada"
+
+class EstadoContratoEnum(str, enum.Enum):
+    activo = "activo"
+    finalizado = "finalizado"
+    rescindido = "rescindido"
 
 class UsuarioBase(BaseModel):
     nombre: str
@@ -57,3 +67,44 @@ class PropiedadResponse(PropiedadBase):
 
     class Config:
         from_attributes = True
+
+class PostulacionBase(BaseModel):
+    id_propiedad: int
+    mensaje_inquilino: Optional[str] = None
+
+class PostulacionCreate(PostulacionBase):
+    pass
+
+class PostulacionResponse(PostulacionBase):
+    id_postulacion: int
+    id_inquilino: int
+    estado: EstadoPostulacionEnum
+    fecha_postulacion: datetime
+
+    class Config:
+        from_attributes = True
+
+class PostulacionEstadoUpdate(BaseModel):
+    estado: EstadoPostulacionEnum
+
+class ContratoBase(BaseModel):
+    id_propiedad: int
+    id_inquilino: int
+    fecha_inicio: date
+    fecha_fin: date
+    monto_mensual: float
+
+class ContratoCreate(ContratoBase):
+    pass
+
+class ContratoResponse(ContratoBase):
+    id_contrato: int
+    id_propietario_gestor: int
+    estado: EstadoContratoEnum
+    fecha_creacion: datetime
+
+    class Config:
+        from_attributes = True
+
+class ContratoEstadoUpdate(BaseModel):
+    estado: EstadoContratoEnum
