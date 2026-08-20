@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from database import engine
 import models
-from routers import usuarios, autenticacion
+from routers import usuarios, autenticacion, propiedades
 
 # Creamos las tablas en la base de datos si no existen
 models.Base.metadata.create_all(bind=engine)
@@ -15,7 +15,7 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Configuración de CORS (Permite que el frontend se comunique con el backend)
+# Configuración de CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -27,8 +27,9 @@ app.add_middleware(
 # Incluimos las rutas
 app.include_router(autenticacion.router)
 app.include_router(usuarios.router)
+app.include_router(propiedades.router)
 
-# Ruta de prueba para verificar que el servidor está vivo
+# Ruta de prueba
 @app.get("/")
 def read_root():
     return {
@@ -37,6 +38,6 @@ def read_root():
         "version": "1.0.0"
     }
 
-# Punto de entrada para ejecutar el servidor localmente
+# Punto de entrada
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
