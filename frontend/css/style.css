@@ -1,0 +1,14 @@
+﻿/* Estilos personalizados mínimos, el grueso lo maneja Tailwind CSS */
+:root {
+    --primary-color: #2563eb; /* Azul PropTech */
+}
+
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ocultar elementos dinámicamente */
+.hidden {
+    display: none !important;
+}
