@@ -1,6 +1,12 @@
 ﻿from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+from database import engine
+import models
+from routers import usuarios
+
+# Creamos las tablas en la base de datos si no existen
+models.Base.metadata.create_all(bind=engine)
 
 # Inicializamos la aplicación
 app = FastAPI(
@@ -17,6 +23,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Incluimos las rutas
+app.include_router(usuarios.router)
 
 # Ruta de prueba para verificar que el servidor está vivo
 @app.get("/")
