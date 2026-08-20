@@ -8,6 +8,7 @@ let previousView = 'dashboard';
 let leafletMap = null;
 let mapMarkers = [];
 const geocodeCache = {};
+let currentTicketsList = [];
 
 // ─── UTILIDAD: TOAST NOTIFICATIONS ─────────────────────────
 function showToast(message, type = 'success') {
@@ -45,6 +46,8 @@ const views = {
     detalle: document.getElementById('detalle-propiedad-view'),
     postulaciones: document.getElementById('postulaciones-view'),
     contratos: document.getElementById('contratos-view'),
+    tickets: document.getElementById('tickets-view'),
+    branding: document.getElementById('branding-view'),
     nuevaPropiedad: document.getElementById('nueva-propiedad-view')
 };
 
@@ -65,6 +68,9 @@ function navegarA(vistaNombre, params = {}) {
 
     const nav = document.getElementById('app-nav');
     const mobileNav = document.getElementById('app-mobile-nav');
+    const btnBranding = document.getElementById('nav-btn-branding');
+    const mobileBtnBranding = document.getElementById('mobile-nav-btn-branding');
+
     if (vistaNombre === 'login' || vistaNombre === 'register') {
         if (nav) nav.classList.add('hidden');
         if (mobileNav) mobileNav.classList.add('hidden');
@@ -77,6 +83,15 @@ function navegarA(vistaNombre, params = {}) {
         if (emailSpan) emailSpan.textContent = localStorage.getItem('userEmail') || '';
         if (roleSpan) roleSpan.textContent = rol || '';
         
+        // Pestaña de Branding exclusiva para Inmobiliarias
+        if (rol === 'inmobiliaria') {
+            if (btnBranding) btnBranding.classList.remove('hidden');
+            if (mobileBtnBranding) mobileBtnBranding.classList.remove('hidden');
+        } else {
+            if (btnBranding) btnBranding.classList.add('hidden');
+            if (mobileBtnBranding) mobileBtnBranding.classList.add('hidden');
+        }
+
         const activeNavBtn = document.getElementById(`nav-btn-${vistaNombre}`);
         if (activeNavBtn) activeNavBtn.classList.add('active');
     }
@@ -119,6 +134,16 @@ function navegarA(vistaNombre, params = {}) {
             previousView = 'contratos';
             cargarContratos();
             break;
+        case 'tickets':
+            if (views.tickets) views.tickets.classList.remove('hidden');
+            previousView = 'tickets';
+            cargarTickets();
+            break;
+        case 'branding':
+            if (views.branding) views.branding.classList.remove('hidden');
+            previousView = 'branding';
+            cargarBrandingView();
+            break;
         case 'nuevaPropiedad':
             if (views.nuevaPropiedad) views.nuevaPropiedad.classList.remove('hidden');
             prepararNuevaPropiedad();
@@ -132,6 +157,75 @@ function navegarA(vistaNombre, params = {}) {
 
 function volverAtrasDetalle() {
     navegarA(previousView || 'marketplace');
+}
+
+// ─── PERSONALIZACIÓN WHITE-LABEL ────────────────────────────
+function aplicarBranding(userData) {
+    if (!userData) return;
+    
+    // 1. Color Primario Dinámico
+    const colorPrimario = userData.color_primario || '#00a650';
+    document.documentElement.style.setProperty('--brand', colorPrimario);
+    
+    // Generar variante más oscura para hover
+    try {
+        const num = parseInt(colorPrimario.replace('#', ''), 16);
+        const r = Math.max(0, (num >> 16) - 25);
+        const g = Math.max(0, ((num >> 8) & 0x00FF) - 25);
+        const b = Math.max(0, (num & 0x0000FF) - 25);
+        const darkHex = '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        document.documentElement.style.setProperty('--brand-dark', darkHex);
+    } catch(e) {
+        document.documentElement.style.setProperty('--brand-dark', '#008c44');
+    }
+
+    // 2. Nombre de la Empresa / Marca
+    const companyName = userData.nombre_empresa || 'Software Alquileres';
+    const navCompany = document.getElementById('nav-company-name');
+    if (navCompany) navCompany.textContent = companyName;
+
+    // 3. Logotipo en Navbar
+    const navLogoMark = document.getElementById('nav-logo-mark');
+    if (navLogoMark) {
+        if (userData.logo_url) {
+            navLogoMark.innerHTML = `<img src="${API_URL}${userData.logo_url}" class="h-8 w-8 object-contain rounded-md" alt="Logo">`;
+            navLogoMark.style.background = 'transparent';
+        } else {
+            const initials = companyName.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'SA';
+            navLogoMark.textContent = initials;
+            navLogoMark.style.background = colorPrimario;
+        }
+    }
+}
+
+async function sincronizarPerfilUsuario() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+        const res = await fetch(`${API_URL}/usuarios/me`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+            const user = await res.json();
+            localStorage.setItem('userEmpresa', user.nombre_empresa || '');
+            localStorage.setItem('userColor', user.color_primario || '#00a650');
+            localStorage.setItem('userLogo', user.logo_url || '');
+            aplicarBranding(user);
+        }
+    } catch (e) {
+        console.error("Error sincronizando perfil de marca", e);
+    }
+}
+
+function toggleNombreEmpresa(tipo) {
+    const campo = document.getElementById('campo-empresa');
+    if (!campo) return;
+    if (tipo === 'inmobiliaria') {
+        campo.classList.remove('hidden');
+    } else {
+        campo.classList.add('hidden');
+    }
 }
 
 // ─── AUTENTICACIÓN (LOGIN Y REGISTRO) ────────────────────────
@@ -150,12 +244,17 @@ if (btnGoLogin) {
 if (registerForm) {
     registerForm.onsubmit = async (e) => {
         e.preventDefault();
+        const tipoUsuario = document.getElementById('reg-tipo').value;
+        const nombreEmpresa = document.getElementById('reg-empresa')?.value.trim() || null;
+
         const nuevoUsuario = {
             nombre: document.getElementById('reg-nombre').value.trim(),
             apellido: document.getElementById('reg-apellido').value.trim(),
             dni_cuit: document.getElementById('reg-dni').value.trim(),
             telefono: document.getElementById('reg-telefono').value.trim(),
-            tipo_usuario: document.getElementById('reg-tipo').value,
+            tipo_usuario: tipoUsuario,
+            nombre_empresa: tipoUsuario === 'inmobiliaria' ? nombreEmpresa : null,
+            color_primario: "#00a650",
             email: document.getElementById('reg-email').value.trim(),
             password: document.getElementById('reg-password').value
         };
@@ -206,6 +305,7 @@ if (loginForm) {
             localStorage.setItem('userId', tokenPayload.id_usuario);
 
             loginForm.reset();
+            await sincronizarPerfilUsuario();
             showToast(`¡Bienvenido de nuevo!`, "success");
             navegarA('dashboard');
         } catch (err) {
@@ -216,6 +316,8 @@ if (loginForm) {
 
 function cerrarSesion() {
     localStorage.clear();
+    document.documentElement.style.setProperty('--brand', '#00a650');
+    document.documentElement.style.setProperty('--brand-dark', '#008c44');
     showToast("Sesión cerrada", "info");
     navegarA('login');
 }
@@ -295,11 +397,11 @@ async function cargarDashboard() {
                 <p class="text-xs text-gray-500 mt-1">Buscá y postulate a departamentos o casas disponibles</p>
                 <span class="mt-4 text-brand text-xs font-semibold">Ir al Marketplace →</span>
             </div>
-            <div class="property-card p-6 flex flex-col items-center text-center justify-center cursor-pointer" onclick="navegarA('postulaciones')">
-                <span class="text-4xl mb-2">📋</span>
-                <h3 class="font-bold text-navy text-base">Mis Postulaciones</h3>
-                <p class="text-xs text-gray-500 mt-1">Revisá el estado de tus solicitudes de alquiler</p>
-                <span class="mt-4 text-brand text-xs font-semibold">Ver solicitudes →</span>
+            <div class="property-card p-6 flex flex-col items-center text-center justify-center cursor-pointer" onclick="navegarA('tickets')">
+                <span class="text-4xl mb-2">🛠</span>
+                <h3 class="font-bold text-navy text-base">Mantenimiento & Reclamos</h3>
+                <p class="text-xs text-gray-500 mt-1">Reportá incidencias o fallas en tu alquiler</p>
+                <span class="mt-4 text-brand text-xs font-semibold">Abrir Ticket →</span>
             </div>
             <div class="property-card p-6 flex flex-col items-center text-center justify-center cursor-pointer" onclick="navegarA('contratos')">
                 <span class="text-4xl mb-2">📄</span>
@@ -534,10 +636,10 @@ async function cargarDetallePropiedad(propiedadId) {
             ${rol === 'inquilino' ? `
                 <div class="mt-8 p-6 rounded-xl bg-blue-50 border border-blue-100">
                     <h3 class="text-base font-bold text-navy mb-1">¿Te interesa este alquiler?</h3>
-                    <p class="text-xs text-gray-500 mb-4">Envía tu postulación directa al propietario para coordinar una visita o iniciar el contrato.</p>
+                    <p class="text-xs text-gray-500 mb-4">Envía tu postulación directa al propietario o inmobiliaria para coordinar una visita.</p>
                     <form id="form-postulacion" onsubmit="enviarPostulacion(event, ${prop.id_propiedad})" class="space-y-3">
                         <div>
-                            <label class="block text-xs font-semibold text-gray-700 mb-1">Mensaje para el propietario (opcional)</label>
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">Mensaje de presentación (opcional)</label>
                             <textarea id="postulacion-mensaje" rows="2" placeholder="Hola, me interesa el departamento. Tengo recibo de sueldo y garantía..." class="input-base text-sm"></textarea>
                         </div>
                         <button type="submit" class="btn-primary text-sm w-full sm:w-auto">
@@ -604,7 +706,7 @@ async function enviarPostulacion(e, propiedadId) {
         const data = await res.json();
         if (!res.ok) throw new Error(data.detail || "Error al enviar la postulación");
 
-        showToast("¡Postulación enviada con éxito al propietario!", "success");
+        showToast("¡Postulación enviada con éxito!", "success");
         setTimeout(() => navegarA('postulaciones'), 1000);
     } catch (err) {
         showToast(err.message, "error");
@@ -698,7 +800,7 @@ async function cargarPostulaciones() {
     container.innerHTML = `<div class="text-center py-8 text-gray-400">Cargando postulaciones...</div>`;
 
     if (rol === 'inquilino') {
-        if (subtitle) subtitle.textContent = "Seguimiento de las solicitudes que enviaste a propietarios";
+        if (subtitle) subtitle.textContent = "Seguimiento de las solicitudes que enviaste a propietarios e inmobiliarias";
         try {
             const res = await fetch(`${API_URL}/postulaciones/mis-postulaciones`, {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -977,7 +1079,370 @@ async function cambiarEstadoContrato(contratoId, nuevoEstado) {
     }
 }
 
-// ─── 7. PUBLICACIÓN DE NUEVA PROPIEDAD CON FOTO ──────────────
+// ─── 7. TICKETS DE MANTENIMIENTO (HELPDESK) ──────────────────
+async function cargarTickets() {
+    const rol = localStorage.getItem('userRole');
+    const token = localStorage.getItem('token');
+    const container = document.getElementById('tickets-table-container');
+    const subtitle = document.getElementById('tickets-subtitle');
+    const btnNuevoTicket = document.getElementById('btn-nuevo-ticket');
+
+    container.innerHTML = `<div class="text-center py-8 text-gray-400">Cargando tickets de mantenimiento...</div>`;
+
+    if (rol === 'inquilino') {
+        if (btnNuevoTicket) btnNuevoTicket.classList.remove('hidden');
+        if (subtitle) subtitle.textContent = "Reportá fallas, roturas o solicitudes de reparación al propietario o inmobiliaria";
+        
+        try {
+            const res = await fetch(`${API_URL}/tickets/mis-tickets`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const tickets = await res.json();
+            currentTicketsList = tickets;
+
+            if (tickets.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state p-8">
+                        <div class="empty-icon">🛠</div>
+                        <h3>No tienes tickets de mantenimiento abiertos</h3>
+                        <p class="mb-3">Si tenés algún inconveniente en tu vivienda alquilada, podés reportarlo acá</p>
+                        <button onclick="abrirModalNuevoTicket()" class="btn-primary text-xs">+ Abrir Nuevo Ticket</button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Propiedad</th>
+                            <th>Título / Asunto</th>
+                            <th>Prioridad</th>
+                            <th>Estado</th>
+                            <th>Fecha</th>
+                            <th>Respuesta / Técnico</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tickets.map(t => `
+                            <tr>
+                                <td class="font-bold text-gray-500">#${t.id_ticket}</td>
+                                <td>Propiedad #${t.id_propiedad}</td>
+                                <td>
+                                    <div class="font-semibold text-navy text-sm">${t.titulo}</div>
+                                    <div class="text-xs text-gray-500 max-w-xs truncate">${t.descripcion}</div>
+                                </td>
+                                <td><span class="prioridad-badge prioridad-${t.prioridad}">${t.prioridad}</span></td>
+                                <td><span class="estado-badge estado-${t.estado}">${t.estado.replace('_', ' ')}</span></td>
+                                <td class="text-xs text-gray-500">${new Date(t.fecha_creacion).toLocaleDateString('es-AR')}</td>
+                                <td class="text-xs">
+                                    ${t.respuesta_gestor ? `<span class="text-gray-700 font-medium">${t.respuesta_gestor}</span>` : '<i class="text-gray-400">En revisión</i>'}
+                                    ${t.proveedor_asignado ? `<div class="text-brand font-semibold mt-0.5">👷 ${t.proveedor_asignado}</div>` : ''}
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        } catch (err) {
+            container.innerHTML = `<div class="text-red-500 text-center py-4">Error: ${err.message}</div>`;
+        }
+    } else {
+        // Propietario / Inmobiliaria
+        if (btnNuevoTicket) btnNuevoTicket.classList.add('hidden');
+        if (subtitle) {
+            subtitle.textContent = rol === 'inmobiliaria' 
+                ? "Mesa de ayuda: Asigná técnicos, registrá costos de reparación y respondé al inquilino"
+                : "Reclamos recibidos de tus inquilinos para atención directa";
+        }
+
+        try {
+            const res = await fetch(`${API_URL}/tickets/recibidos`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const tickets = await res.json();
+            currentTicketsList = tickets;
+
+            if (tickets.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state p-8">
+                        <div class="empty-icon">✅</div>
+                        <h3>¡Todo en orden! No hay tickets pendientes</h3>
+                        <p>Las incidencias reportadas por inquilinos aparecerán acá</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Propiedad</th>
+                            <th>Inquilino</th>
+                            <th>Título e Incidencia</th>
+                            <th>Prioridad</th>
+                            <th>Estado</th>
+                            ${rol === 'inmobiliaria' ? '<th>Técnico / Costo</th>' : ''}
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tickets.map(t => `
+                            <tr>
+                                <td class="font-bold text-gray-500">#${t.id_ticket}</td>
+                                <td>Propiedad #${t.id_propiedad}</td>
+                                <td>Inquilino #${t.id_inquilino}</td>
+                                <td>
+                                    <div class="font-semibold text-navy text-sm">${t.titulo}</div>
+                                    <div class="text-xs text-gray-500 max-w-sm">${t.descripcion}</div>
+                                </td>
+                                <td><span class="prioridad-badge prioridad-${t.prioridad}">${t.prioridad}</span></td>
+                                <td><span class="estado-badge estado-${t.estado}">${t.estado.replace('_', ' ')}</span></td>
+                                ${rol === 'inmobiliaria' ? `
+                                    <td class="text-xs">
+                                        <div>${t.proveedor_asignado ? `👷 ${t.proveedor_asignado}` : '<span class="text-gray-400">Sin asignar</span>'}</div>
+                                        ${t.costo_estimado ? `<div class="font-semibold text-gray-700">$${t.costo_estimado.toLocaleString('es-AR')}</div>` : ''}
+                                    </td>
+                                ` : ''}
+                                <td>
+                                    <button onclick="abrirModalGestionarTicket(${t.id_ticket})" class="btn-primary text-xs py-1 px-2.5">
+                                        Gestionar
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        } catch (err) {
+            container.innerHTML = `<div class="text-red-500 text-center py-4">Error: ${err.message}</div>`;
+        }
+    }
+}
+
+async function abrirModalNuevoTicket() {
+    const token = localStorage.getItem('token');
+    const select = document.getElementById('ticket-propiedad-select');
+    select.innerHTML = '<option value="">Cargando inmuebles alquilados...</option>';
+
+    try {
+        const res = await fetch(`${API_URL}/contratos/mis-contratos`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const contratos = await res.json();
+        const activos = contratos.filter(c => c.estado === 'activo');
+
+        if (activos.length === 0) {
+            showToast("No tienes contratos de alquiler activos para abrir un ticket", "error");
+            return;
+        }
+
+        select.innerHTML = activos.map(c => `
+            <option value="${c.id_propiedad}">Propiedad #${c.id_propiedad} (Contrato #${c.id_contrato})</option>
+        `).join('');
+
+        document.getElementById('form-nuevo-ticket')?.reset();
+        document.getElementById('modal-nuevo-ticket')?.classList.remove('hidden');
+    } catch (e) {
+        showToast("Error al cargar contratos", "error");
+    }
+}
+
+function cerrarModalNuevoTicket() {
+    document.getElementById('modal-nuevo-ticket')?.classList.add('hidden');
+}
+
+document.getElementById('form-nuevo-ticket')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+
+    const nuevoTicket = {
+        id_propiedad: parseInt(document.getElementById('ticket-propiedad-select').value),
+        titulo: document.getElementById('ticket-titulo').value.trim(),
+        prioridad: document.getElementById('ticket-prioridad').value,
+        descripcion: document.getElementById('ticket-descripcion').value.trim()
+    };
+
+    try {
+        const res = await fetch(`${API_URL}/tickets/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(nuevoTicket)
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Error al crear ticket");
+
+        cerrarModalNuevoTicket();
+        showToast("¡Ticket de mantenimiento enviado exitosamente!", "success");
+        cargarTickets();
+    } catch (err) {
+        showToast(err.message, "error");
+    }
+});
+
+function abrirModalGestionarTicket(ticketId) {
+    const ticket = currentTicketsList.find(t => t.id_ticket === ticketId);
+    if (!ticket) return;
+
+    document.getElementById('gestionar-ticket-id').value = ticket.id_ticket;
+    document.getElementById('gestionar-ticket-title').textContent = `Gestionar Ticket #${ticket.id_ticket}`;
+    
+    document.getElementById('gestionar-ticket-info').innerHTML = `
+        <div><strong>Asunto:</strong> ${ticket.titulo}</div>
+        <div><strong>Descripción:</strong> ${ticket.descripcion}</div>
+        <div><strong>Prioridad:</strong> <span class="prioridad-badge prioridad-${ticket.prioridad}">${ticket.prioridad}</span></div>
+    `;
+
+    document.getElementById('gestionar-ticket-estado').value = ticket.estado;
+    document.getElementById('gestionar-ticket-proveedor').value = ticket.proveedor_asignado || '';
+    document.getElementById('gestionar-ticket-costo').value = ticket.costo_estimado || '';
+    document.getElementById('gestionar-ticket-respuesta').value = ticket.respuesta_gestor || '';
+
+    document.getElementById('modal-gestionar-ticket')?.classList.remove('hidden');
+}
+
+function cerrarModalGestionarTicket() {
+    document.getElementById('modal-gestionar-ticket')?.classList.add('hidden');
+}
+
+document.getElementById('form-gestionar-ticket')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    const ticketId = parseInt(document.getElementById('gestionar-ticket-id').value);
+    const costoVal = document.getElementById('gestionar-ticket-costo').value;
+
+    const payload = {
+        estado: document.getElementById('gestionar-ticket-estado').value,
+        proveedor_asignado: document.getElementById('gestionar-ticket-proveedor').value.trim() || null,
+        costo_estimado: costoVal ? parseFloat(costoVal) : null,
+        respuesta_gestor: document.getElementById('gestionar-ticket-respuesta').value.trim() || null
+    };
+
+    try {
+        const res = await fetch(`${API_URL}/tickets/${ticketId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error("Error al actualizar ticket");
+
+        cerrarModalGestionarTicket();
+        showToast("¡Ticket actualizado exitosamente!", "success");
+        cargarTickets();
+    } catch (err) {
+        showToast(err.message, "error");
+    }
+});
+
+// ─── 8. VISTA MI MARCA (WHITE-LABEL ENTERPRISE) ─────────────
+function cargarBrandingView() {
+    const empresa = localStorage.getItem('userEmpresa') || '';
+    const color = localStorage.getItem('userColor') || '#00a650';
+    const logo = localStorage.getItem('userLogo') || '';
+
+    const inputEmpresa = document.getElementById('brand-empresa');
+    const inputColorPicker = document.getElementById('brand-color-picker');
+    const inputColorHex = document.getElementById('brand-color-hex');
+    const previewCircle = document.getElementById('brand-preview-circle');
+    const logoImg = document.getElementById('brand-logo-preview-img');
+    const logoText = document.getElementById('brand-logo-preview-text');
+
+    if (inputEmpresa) inputEmpresa.value = empresa;
+    if (inputColorPicker) inputColorPicker.value = color;
+    if (inputColorHex) inputColorHex.value = color;
+    if (previewCircle) previewCircle.style.background = color;
+
+    if (logo && logoImg && logoText) {
+        logoImg.src = `${API_URL}${logo}`;
+        logoImg.classList.remove('hidden');
+        logoText.classList.add('hidden');
+    }
+}
+
+// Sincronización reactiva del color picker
+document.getElementById('brand-color-picker')?.addEventListener('input', (e) => {
+    const val = e.target.value;
+    if (document.getElementById('brand-color-hex')) document.getElementById('brand-color-hex').value = val;
+    if (document.getElementById('brand-preview-circle')) document.getElementById('brand-preview-circle').style.background = val;
+    document.documentElement.style.setProperty('--brand', val);
+});
+
+document.getElementById('brand-color-hex')?.addEventListener('input', (e) => {
+    const val = e.target.value;
+    if (val.startsWith('#') && (val.length === 7 || val.length === 4)) {
+        if (document.getElementById('brand-color-picker')) document.getElementById('brand-color-picker').value = val;
+        if (document.getElementById('brand-preview-circle')) document.getElementById('brand-preview-circle').style.background = val;
+        document.documentElement.style.setProperty('--brand', val);
+    }
+});
+
+document.getElementById('form-branding')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    const nombreEmpresa = document.getElementById('brand-empresa').value.trim();
+    const colorPrimario = document.getElementById('brand-color-hex').value.trim() || '#00a650';
+    const logoFile = document.getElementById('brand-logo-file')?.files[0];
+
+    try {
+        // 1. Actualizar datos de branding
+        const res = await fetch(`${API_URL}/usuarios/branding`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                nombre_empresa: nombreEmpresa,
+                color_primario: colorPrimario
+            })
+        });
+
+        if (!res.ok) throw new Error("Error al guardar personalización de marca");
+        const user = await res.json();
+
+        // 2. Subir logo si fue seleccionado
+        if (logoFile) {
+            const formData = new FormData();
+            formData.append('file', logoFile);
+
+            const resLogo = await fetch(`${API_URL}/usuarios/logo`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+
+            if (resLogo.ok) {
+                const logoData = await resLogo.json();
+                user.logo_url = logoData.logo_url;
+            }
+        }
+
+        // 3. Aplicar en vivo
+        localStorage.setItem('userEmpresa', user.nombre_empresa || '');
+        localStorage.setItem('userColor', user.color_primario || '#00a650');
+        localStorage.setItem('userLogo', user.logo_url || '');
+
+        aplicarBranding(user);
+        showToast("¡Identidad de marca guardada y aplicada con éxito!", "success");
+        cargarBrandingView();
+    } catch (err) {
+        showToast(err.message, "error");
+    }
+});
+
+// ─── 9. PUBLICACIÓN DE NUEVA PROPIEDAD CON FOTO ──────────────
 function prepararNuevaPropiedad() {
     const form = document.getElementById('nueva-propiedad-form');
     if (form) form.reset();
@@ -1063,9 +1528,10 @@ function iconoTipo(tipo) {
 }
 
 // ─── INICIALIZACIÓN ──────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('token');
     if (token) {
+        await sincronizarPerfilUsuario();
         navegarA('dashboard');
     } else {
         navegarA('login');

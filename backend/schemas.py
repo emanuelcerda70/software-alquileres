@@ -29,6 +29,19 @@ class EstadoContratoEnum(str, enum.Enum):
     finalizado = "finalizado"
     rescindido = "rescindido"
 
+class PrioridadTicketEnum(str, enum.Enum):
+    baja = "baja"
+    media = "media"
+    alta = "alta"
+    urgente = "urgente"
+
+class EstadoTicketEnum(str, enum.Enum):
+    abierto = "abierto"
+    en_progreso = "en_progreso"
+    resuelto = "resuelto"
+    cancelado = "cancelado"
+
+# ─── USUARIOS & BRANDING ──────────────────────────────────
 class UsuarioBase(BaseModel):
     nombre: str
     apellido: str
@@ -36,6 +49,9 @@ class UsuarioBase(BaseModel):
     email: EmailStr
     telefono: str
     tipo_usuario: TipoUsuarioEnum
+    nombre_empresa: Optional[str] = None
+    logo_url: Optional[str] = None
+    color_primario: Optional[str] = "#00a650"
 
 class UsuarioCreate(UsuarioBase):
     password: str
@@ -47,6 +63,11 @@ class UsuarioResponse(UsuarioBase):
     class Config:
         from_attributes = True
 
+class UsuarioBrandingUpdate(BaseModel):
+    nombre_empresa: Optional[str] = None
+    color_primario: Optional[str] = "#00a650"
+
+# ─── PROPIEDADES ──────────────────────────────────────────
 class PropiedadBase(BaseModel):
     calle_direccion: str
     ciudad: str
@@ -69,6 +90,7 @@ class PropiedadResponse(PropiedadBase):
     class Config:
         from_attributes = True
 
+# ─── POSTULACIONES ────────────────────────────────────────
 class PostulacionBase(BaseModel):
     id_propiedad: int
     mensaje_inquilino: Optional[str] = None
@@ -87,6 +109,7 @@ class PostulacionResponse(PostulacionBase):
 class PostulacionEstadoUpdate(BaseModel):
     estado: EstadoPostulacionEnum
 
+# ─── CONTRATOS ────────────────────────────────────────────
 class ContratoBase(BaseModel):
     id_propiedad: int
     id_inquilino: int
@@ -107,3 +130,32 @@ class ContratoResponse(ContratoBase):
 
 class ContratoEstadoUpdate(BaseModel):
     estado: EstadoContratoEnum
+
+# ─── TICKETS DE MANTENIMIENTO ─────────────────────────────
+class TicketMantenimientoBase(BaseModel):
+    id_propiedad: int
+    titulo: str
+    descripcion: str
+    prioridad: PrioridadTicketEnum = PrioridadTicketEnum.media
+
+class TicketMantenimientoCreate(TicketMantenimientoBase):
+    pass
+
+class TicketMantenimientoResponse(TicketMantenimientoBase):
+    id_ticket: int
+    id_inquilino: int
+    id_destinatario: int
+    estado: EstadoTicketEnum
+    proveedor_asignado: Optional[str] = None
+    costo_estimado: Optional[float] = None
+    respuesta_gestor: Optional[str] = None
+    fecha_creacion: datetime
+    fecha_resolucion: Optional[datetime] = None
+    class Config:
+        from_attributes = True
+
+class TicketMantenimientoUpdate(BaseModel):
+    estado: Optional[EstadoTicketEnum] = None
+    proveedor_asignado: Optional[str] = None
+    costo_estimado: Optional[float] = None
+    respuesta_gestor: Optional[str] = None

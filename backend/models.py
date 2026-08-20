@@ -26,6 +26,12 @@ class Usuario(Base):
     password_hash = Column(String(255), nullable=False)
     estado_verificacion = Column(Enum(EstadoVerificacion), default=EstadoVerificacion.pendiente)
     fecha_registro = Column(DateTime, default=datetime.utcnow)
+    
+    # White-Label Branding (Inmobiliarias / Gestores)
+    nombre_empresa = Column(String(150), nullable=True)
+    logo_url = Column(String(500), nullable=True)
+    color_primario = Column(String(20), nullable=True, default="#00a650")
+
     propiedades = relationship("Propiedad", back_populates="propietario_gestor")
 
 class TipoInmueble(enum.Enum):
@@ -86,3 +92,31 @@ class Contrato(Base):
     monto_mensual = Column(Float, nullable=False)
     estado = Column(Enum(EstadoContrato), default=EstadoContrato.activo)
     fecha_creacion = Column(DateTime, default=datetime.utcnow)
+
+class PrioridadTicket(enum.Enum):
+    baja = "baja"
+    media = "media"
+    alta = "alta"
+    urgente = "urgente"
+
+class EstadoTicket(enum.Enum):
+    abierto = "abierto"
+    en_progreso = "en_progreso"
+    resuelto = "resuelto"
+    cancelado = "cancelado"
+
+class TicketMantenimiento(Base):
+    __tablename__ = "tickets_mantenimiento"
+    id_ticket = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    id_propiedad = Column(Integer, ForeignKey("propiedades.id_propiedad"), nullable=False)
+    id_inquilino = Column(Integer, ForeignKey("usuarios.id_usuario"), nullable=False)
+    id_destinatario = Column(Integer, ForeignKey("usuarios.id_usuario"), nullable=False)
+    titulo = Column(String(150), nullable=False)
+    descripcion = Column(Text, nullable=False)
+    prioridad = Column(Enum(PrioridadTicket), default=PrioridadTicket.media)
+    estado = Column(Enum(EstadoTicket), default=EstadoTicket.abierto)
+    proveedor_asignado = Column(String(150), nullable=True)
+    costo_estimado = Column(Float, nullable=True)
+    respuesta_gestor = Column(Text, nullable=True)
+    fecha_creacion = Column(DateTime, default=datetime.utcnow)
+    fecha_resolucion = Column(DateTime, nullable=True)

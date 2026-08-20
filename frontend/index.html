@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -34,8 +34,8 @@
         <div class="w-full max-w-sm">
             <div class="text-center mb-8">
                 <div class="flex items-center justify-center gap-2 mb-3">
-                    <div class="logo-mark">SA</div>
-                    <span class="text-xl font-bold text-navy">Software Alquileres</span>
+                    <div class="logo-mark" id="login-logo-mark">SA</div>
+                    <span class="text-xl font-bold text-navy" id="login-brand-title">Software Alquileres</span>
                 </div>
                 <p class="text-sm text-gray-500">La plataforma PropTech para gestionar tus alquileres</p>
             </div>
@@ -111,11 +111,16 @@
 
                     <div>
                         <label for="reg-tipo" class="block text-sm font-medium text-gray-700">Soy...</label>
-                        <select id="reg-tipo" class="input-base">
+                        <select id="reg-tipo" class="input-base" onchange="toggleNombreEmpresa(this.value)">
                             <option value="inquilino">Inquilino — busco alquilar</option>
-                            <option value="propietario">Propietario — tengo inmuebles</option>
-                            <option value="inmobiliaria">Inmobiliaria / Gestor</option>
+                            <option value="propietario">Propietario — dueño directo</option>
+                            <option value="inmobiliaria">Inmobiliaria / Administrador de Cartera</option>
                         </select>
+                    </div>
+
+                    <div id="campo-empresa" class="hidden">
+                        <label for="reg-empresa" class="block text-sm font-medium text-gray-700">Nombre de la Inmobiliaria</label>
+                        <input type="text" id="reg-empresa" placeholder="Ej: Inmobiliaria Central" class="input-base">
                     </div>
 
                     <div>
@@ -144,21 +149,23 @@
     </div>
 
     <!-- ══════════════════════════════════════════ -->
-    <!--  NAVBAR PRINCIPAL PARA USUARIOS AUTENTICADOS -->
+    <!--  NAVBAR PRINCIPAL (CON SOPORTE WHITE-LABEL) -->
     <!-- ══════════════════════════════════════════ -->
     <nav id="app-nav" class="hidden main-nav">
         <div class="nav-inner">
             <div class="flex items-center gap-6">
-                <a href="#" onclick="navegarA('dashboard'); return false;" class="nav-brand">
-                    <div class="logo-mark">SA</div>
-                    <span>Software Alquileres</span>
+                <a href="#" onclick="navegarA('dashboard'); return false;" class="nav-brand" id="nav-brand-container">
+                    <div class="logo-mark" id="nav-logo-mark">SA</div>
+                    <span id="nav-company-name">Software Alquileres</span>
                 </a>
-                <div class="nav-links hidden md:flex">
+                <div class="nav-links hidden lg:flex">
                     <button onclick="navegarA('dashboard')" id="nav-btn-dashboard" class="nav-link">📊 Mi Panel</button>
                     <button onclick="navegarA('marketplace')" id="nav-btn-marketplace" class="nav-link">🏘 Marketplace</button>
                     <button onclick="navegarA('mapa')" id="nav-btn-mapa" class="nav-link">🗺 Mapa</button>
                     <button onclick="navegarA('postulaciones')" id="nav-btn-postulaciones" class="nav-link">📋 Postulaciones</button>
                     <button onclick="navegarA('contratos')" id="nav-btn-contratos" class="nav-link">📄 Contratos</button>
+                    <button onclick="navegarA('tickets')" id="nav-btn-tickets" class="nav-link">🛠 Mantenimiento</button>
+                    <button onclick="navegarA('branding')" id="nav-btn-branding" class="nav-link hidden">🎨 Mi Marca</button>
                 </div>
             </div>
             <div class="nav-right">
@@ -171,12 +178,14 @@
     </nav>
 
     <!-- Mobile Navigation Subbar -->
-    <div id="app-mobile-nav" class="hidden md:hidden bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-around gap-1 overflow-x-auto text-xs">
+    <div id="app-mobile-nav" class="hidden lg:hidden bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-around gap-1 overflow-x-auto text-xs">
         <button onclick="navegarA('dashboard')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">📊 Panel</button>
         <button onclick="navegarA('marketplace')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">🏘 Marketplace</button>
         <button onclick="navegarA('mapa')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">🗺 Mapa</button>
         <button onclick="navegarA('postulaciones')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">📋 Postulaciones</button>
         <button onclick="navegarA('contratos')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">📄 Contratos</button>
+        <button onclick="navegarA('tickets')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">🛠 Mantenimiento</button>
+        <button onclick="navegarA('branding')" id="mobile-nav-btn-branding" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap hidden">🎨 Mi Marca</button>
     </div>
 
     <!-- ══════════════════════════════════════════ -->
@@ -185,7 +194,7 @@
     <div id="dashboard-view" class="hidden page-content">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-navy">Mi Panel de Control</h1>
+                <h1 class="text-2xl font-bold text-navy" id="dashboard-welcome-title">Mi Panel de Control</h1>
                 <p class="text-sm text-gray-500">Métricas y resumen general de tu actividad</p>
             </div>
             <button id="btn-nueva-propiedad" class="hidden btn-primary text-sm px-4 py-2.5">
@@ -194,16 +203,14 @@
             </button>
         </div>
 
-        <!-- Stat Cards con Métricas Reales -->
         <div id="stat-cards-container" class="stat-cards">
-            <!-- Renderizado dinámico según rol -->
+            <!-- Métricas dinámicas -->
         </div>
 
-        <!-- Contenido principal del dashboard -->
         <div class="mt-8">
             <h2 id="dashboard-section-title" class="text-lg font-bold text-navy mb-4">Mis Inmuebles</h2>
             <div id="dashboard-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                <!-- Cards dinámicas o empty state -->
+                <!-- Cards dinámicas -->
             </div>
         </div>
     </div>
@@ -224,7 +231,7 @@
             </div>
         </div>
 
-        <!-- Barra de Filtros Reactivos -->
+        <!-- Filtros -->
         <div class="filter-bar">
             <div class="filter-group">
                 <label class="filter-label">Ciudad</label>
@@ -254,12 +261,10 @@
             </div>
         </div>
 
-        <!-- Grid de Propiedades -->
         <div id="marketplace-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            <!-- Cards dinámicas con foto o placeholder -->
+            <!-- Cards de propiedades -->
         </div>
 
-        <!-- Paginación -->
         <div id="marketplace-pagination" class="pagination">
             <button id="btn-prev-page" disabled>← Anterior</button>
             <span id="pagination-info" class="pagination-info">Página 1</span>
@@ -268,7 +273,7 @@
     </div>
 
     <!-- ══════════════════════════════════════════ -->
-    <!--  5. VISTA MAPA INTERACTIVO (LEAFLET)       -->
+    <!--  5. VISTA MAPA INTERACTIVO                 -->
     <!-- ══════════════════════════════════════════ -->
     <div id="mapa-view" class="hidden page-content">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -292,7 +297,6 @@
                 ← Volver
             </button>
         </div>
-
         <div id="detalle-content" class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 sm:p-8">
             <!-- Renderizado dinámico del detalle -->
         </div>
@@ -306,7 +310,6 @@
             <h1 class="text-2xl font-bold text-navy">Gestión de Postulaciones</h1>
             <p id="postulaciones-subtitle" class="text-sm text-gray-500">Postulaciones y solicitudes de alquiler</p>
         </div>
-
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
             <div id="postulaciones-table-container" class="overflow-x-auto">
                 <!-- Tabla dinámica -->
@@ -318,13 +321,10 @@
     <!--  8. VISTA CONTRATOS                        -->
     <!-- ══════════════════════════════════════════ -->
     <div id="contratos-view" class="hidden page-content">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <div>
-                <h1 class="text-2xl font-bold text-navy">Gestión de Contratos</h1>
-                <p id="contratos-subtitle" class="text-sm text-gray-500">Contratos de alquiler registrados</p>
-            </div>
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-navy">Gestión de Contratos</h1>
+            <p id="contratos-subtitle" class="text-sm text-gray-500">Contratos de alquiler registrados</p>
         </div>
-
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
             <div id="contratos-table-container" class="overflow-x-auto">
                 <!-- Tabla dinámica -->
@@ -333,7 +333,78 @@
     </div>
 
     <!-- ══════════════════════════════════════════ -->
-    <!--  9. VISTA NUEVA PROPIEDAD                  -->
+    <!--  9. VISTA TICKETS (HELPDESK MANTENIMIENTO) -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="tickets-view" class="hidden page-content">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-navy">🛠 Mesa de Ayuda y Mantenimiento</h1>
+                <p id="tickets-subtitle" class="text-sm text-gray-500">Seguimiento, triage y resolución de reclamos e incidencias</p>
+            </div>
+            <button id="btn-nuevo-ticket" class="hidden btn-primary text-sm px-4 py-2.5" onclick="abrirModalNuevoTicket()">
+                + Abrir Ticket de Reclamo
+            </button>
+        </div>
+
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div id="tickets-table-container" class="overflow-x-auto">
+                <!-- Tabla de tickets dinámica -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  10. VISTA MI MARCA (WHITE-LABEL ENTERPRISE)-->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="branding-view" class="hidden page-content max-w-3xl">
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-navy">🎨 Personalización de Marca (White-Label)</h1>
+            <p class="text-sm text-gray-500">Configurá la identidad visual de tu inmobiliaria para tus clientes y paneles</p>
+        </div>
+
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 sm:p-8 space-y-6">
+            <form id="form-branding" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre Comercial de la Inmobiliaria</label>
+                    <input type="text" id="brand-empresa" placeholder="Ej: Inmobiliaria del Valle" class="input-base">
+                    <p class="text-xs text-gray-400 mt-1">Este nombre se mostrará en el encabezado de tu portal y contratos.</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Color Primario Corporativo</label>
+                    <div class="flex items-center gap-3 mt-1">
+                        <input type="color" id="brand-color-picker" value="#00a650" class="h-10 w-16 p-1 rounded border border-gray-300 cursor-pointer">
+                        <input type="text" id="brand-color-hex" value="#00a650" placeholder="#00a650" class="input-base w-32 uppercase font-mono">
+                        <div id="brand-preview-circle" class="color-preview-circle" style="background:#00a650"></div>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1">Se aplicará a botones, enlaces, tarjetas e insignias en tu panel.</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Logotipo de la Empresa</label>
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-2">
+                        <div id="brand-logo-preview-box" class="h-16 w-32 border border-dashed border-gray-300 rounded-lg flex items-center justify-center p-2 bg-gray-50 overflow-hidden">
+                            <span class="text-xs text-gray-400" id="brand-logo-preview-text">Sin Logo</span>
+                            <img id="brand-logo-preview-img" class="branding-logo-preview hidden" alt="Logo">
+                        </div>
+                        <div class="flex-1">
+                            <input type="file" id="brand-logo-file" accept="image/*" class="text-xs file:py-2 file:px-3 file:border-0 file:rounded-md file:bg-brand-light file:text-brand-dark file:font-semibold">
+                            <p class="text-xs text-gray-400 mt-1">Formato PNG transparente, SVG o JPG recomendado.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-gray-100 flex gap-3">
+                    <button type="submit" class="btn-primary flex-1 py-2.5">
+                        💾 Guardar y Aplicar Marca
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  11. VISTA NUEVA PROPIEDAD                 -->
     <!-- ══════════════════════════════════════════ -->
     <div id="nueva-propiedad-view" class="hidden page-content max-w-2xl">
         <div class="mb-6">
@@ -346,7 +417,6 @@
 
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 sm:p-8">
             <form id="nueva-propiedad-form" class="space-y-5">
-                <!-- Sección: Ubicación -->
                 <div>
                     <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">1. Ubicación</h3>
                     <div class="space-y-3">
@@ -363,7 +433,6 @@
 
                 <hr class="divider">
 
-                <!-- Sección: Características -->
                 <div>
                     <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">2. Características y Precio</h3>
                     <div class="space-y-3">
@@ -398,13 +467,11 @@
 
                 <hr class="divider">
 
-                <!-- Sección: Foto Opcional -->
                 <div>
                     <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">3. Fotografía Principal</h3>
                     <div>
                         <label for="prop-foto" class="block text-sm font-medium text-gray-700 mb-1">Subir imagen</label>
-                        <input type="file" id="prop-foto" accept="image/jpeg,image/png,image/webp" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-brand-light file:text-brand-dark hover:file:bg-brand hover:file:text-white cursor-pointer">
-                        <p class="text-xs text-gray-400 mt-1">Formatos permitidos: JPG, PNG, WEBP (se subirá automáticamente al guardar)</p>
+                        <input type="file" id="prop-foto" accept="image/jpeg,image/png,image/webp" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-brand-light file:text-brand-dark file:cursor-pointer">
                     </div>
                 </div>
 
@@ -421,7 +488,7 @@
     </div>
 
     <!-- ══════════════════════════════════════════ -->
-    <!--  MODAL: CREAR CONTRATO DESDE POSTULACIÓN   -->
+    <!--  MODAL 1: CREAR CONTRATO DESDE POSTULACIÓN -->
     <!-- ══════════════════════════════════════════ -->
     <div id="modal-crear-contrato" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-xl">
@@ -448,6 +515,98 @@
                 <div class="flex gap-3 pt-2">
                     <button type="button" onclick="cerrarModalContrato()" class="btn-secondary flex-1">Cancelar</button>
                     <button type="submit" class="btn-primary flex-1">Crear Contrato</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  MODAL 2: ABRIR TICKET DE MANTENIMIENTO    -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="modal-nuevo-ticket" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-navy">🛠 Reportar Incidencia / Mantenimiento</h3>
+                <button onclick="cerrarModalNuevoTicket()" class="text-gray-400 hover:text-gray-600 font-bold text-lg">&times;</button>
+            </div>
+            <form id="form-nuevo-ticket" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Propiedad Afectada</label>
+                    <select id="ticket-propiedad-select" required class="input-base">
+                        <!-- Opciones cargadas dinámicamente -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Título del Reclamo</label>
+                    <input type="text" id="ticket-titulo" required placeholder="Ej: Fuga de agua en bajo mesada" class="input-base">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Nivel de Prioridad</label>
+                    <select id="ticket-prioridad" class="input-base">
+                        <option value="baja">Baja (Detalle cosmético o no urgente)</option>
+                        <option value="media" selected>Media (Inconveniente habitual)</option>
+                        <option value="alta">Alta (Afecta el uso normal de la vivienda)</option>
+                        <option value="urgente">Urgente (Corte de suministro o riesgo)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Descripción detallada</label>
+                    <textarea id="ticket-descripcion" rows="3" required placeholder="Explicá lo sucedido, ubicación exacta del problema y disponibilidad horaria..." class="input-base text-sm"></textarea>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="cerrarModalNuevoTicket()" class="btn-secondary flex-1">Cancelar</button>
+                    <button type="submit" class="btn-primary flex-1">Enviar Ticket</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  MODAL 3: GESTIÓN DE TICKET (TRIAGE)       -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="modal-gestionar-ticket" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-navy" id="gestionar-ticket-title">Gestionar Ticket</h3>
+                <button onclick="cerrarModalGestionarTicket()" class="text-gray-400 hover:text-gray-600 font-bold text-lg">&times;</button>
+            </div>
+            
+            <div id="gestionar-ticket-info" class="p-3 bg-gray-50 rounded-lg text-xs space-y-1 mb-4">
+                <!-- Info del ticket -->
+            </div>
+
+            <form id="form-gestionar-ticket" class="space-y-4">
+                <input type="hidden" id="gestionar-ticket-id">
+                
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Estado del Ticket</label>
+                    <select id="gestionar-ticket-estado" class="input-base">
+                        <option value="abierto">Abierto</option>
+                        <option value="en_progreso">En Progreso / Asignado</option>
+                        <option value="resuelto">Resuelto</option>
+                        <option value="cancelado">Cancelado</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Proveedor / Técnico</label>
+                        <input type="text" id="gestionar-ticket-proveedor" placeholder="Ej: Plomería Gómez" class="input-base">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Costo Estimado ($)</label>
+                        <input type="number" id="gestionar-ticket-costo" placeholder="0" class="input-base">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Respuesta / Notas para el Inquilino</label>
+                    <textarea id="gestionar-ticket-respuesta" rows="2" placeholder="Ej: Se coordinó la visita del técnico para mañana a las 14hs..." class="input-base text-sm"></textarea>
+                </div>
+
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="cerrarModalGestionarTicket()" class="btn-secondary flex-1">Cancelar</button>
+                    <button type="submit" class="btn-primary flex-1">Guardar Cambios</button>
                 </div>
             </form>
         </div>

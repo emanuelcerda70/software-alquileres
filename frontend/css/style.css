@@ -324,3 +324,29 @@ input:focus, select:focus, textarea:focus {
     animation: shimmer 1.5s infinite;
     border-radius: 6px;
 }
+
+/* ─── TICKETS DE MANTENIMIENTO ──────── */
+.prioridad-badge {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 12px;
+}
+.prioridad-baja    { background: #f1f5f9; color: #475569; }
+.prioridad-media   { background: #e0f2fe; color: #0369a1; }
+.prioridad-alta    { background: #ffedd5; color: #c2410c; }
+.prioridad-urgente { background: #fee2e2; color: #b91c1c; font-weight: 800; animation: pulse 2s infinite; }
+
+.ticket-card {
+    background: white; border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px; transition: box-shadow 0.15s;
+}
+.ticket-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+
+/* ─── BRANDING PREVIEW ───────────────── */
+.color-preview-circle {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 2px solid white; box-shadow: 0 0 0 1px #cbd5e1;
+    display: inline-block; vertical-align: middle;
+}
+.branding-logo-preview {
+    max-height: 48px; max-width: 140px; object-fit: contain;
+}
