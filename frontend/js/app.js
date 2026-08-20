@@ -9,6 +9,8 @@ let leafletMap = null;
 let mapMarkers = [];
 const geocodeCache = {};
 let currentTicketsList = [];
+let currentProvidersList = [];
+let activeTicketForTriage = null;
 
 // ─── UTILIDAD: TOAST NOTIFICATIONS ─────────────────────────
 function showToast(message, type = 'success') {
@@ -47,6 +49,7 @@ const views = {
     postulaciones: document.getElementById('postulaciones-view'),
     contratos: document.getElementById('contratos-view'),
     tickets: document.getElementById('tickets-view'),
+    proveedores: document.getElementById('proveedores-view'),
     branding: document.getElementById('branding-view'),
     nuevaPropiedad: document.getElementById('nueva-propiedad-view')
 };
@@ -83,7 +86,6 @@ function navegarA(vistaNombre, params = {}) {
         if (emailSpan) emailSpan.textContent = localStorage.getItem('userEmail') || '';
         if (roleSpan) roleSpan.textContent = rol || '';
         
-        // Pestaña de Branding exclusiva para Inmobiliarias
         if (rol === 'inmobiliaria') {
             if (btnBranding) btnBranding.classList.remove('hidden');
             if (mobileBtnBranding) mobileBtnBranding.classList.remove('hidden');
@@ -139,6 +141,11 @@ function navegarA(vistaNombre, params = {}) {
             previousView = 'tickets';
             cargarTickets();
             break;
+        case 'proveedores':
+            if (views.proveedores) views.proveedores.classList.remove('hidden');
+            previousView = 'proveedores';
+            cargarProveedores();
+            break;
         case 'branding':
             if (views.branding) views.branding.classList.remove('hidden');
             previousView = 'branding';
@@ -163,11 +170,9 @@ function volverAtrasDetalle() {
 function aplicarBranding(userData) {
     if (!userData) return;
     
-    // 1. Color Primario Dinámico
     const colorPrimario = userData.color_primario || '#00a650';
     document.documentElement.style.setProperty('--brand', colorPrimario);
     
-    // Generar variante más oscura para hover
     try {
         const num = parseInt(colorPrimario.replace('#', ''), 16);
         const r = Math.max(0, (num >> 16) - 25);
@@ -179,12 +184,10 @@ function aplicarBranding(userData) {
         document.documentElement.style.setProperty('--brand-dark', '#008c44');
     }
 
-    // 2. Nombre de la Empresa / Marca
     const companyName = userData.nombre_empresa || 'Software Alquileres';
     const navCompany = document.getElementById('nav-company-name');
     if (navCompany) navCompany.textContent = companyName;
 
-    // 3. Logotipo en Navbar
     const navLogoMark = document.getElementById('nav-logo-mark');
     if (navLogoMark) {
         if (userData.logo_url) {
@@ -403,11 +406,11 @@ async function cargarDashboard() {
                 <p class="text-xs text-gray-500 mt-1">Reportá incidencias o fallas en tu alquiler</p>
                 <span class="mt-4 text-brand text-xs font-semibold">Abrir Ticket →</span>
             </div>
-            <div class="property-card p-6 flex flex-col items-center text-center justify-center cursor-pointer" onclick="navegarA('contratos')">
-                <span class="text-4xl mb-2">📄</span>
-                <h3 class="font-bold text-navy text-base">Mis Contratos</h3>
-                <p class="text-xs text-gray-500 mt-1">Gestioná tus contratos de alquiler vigentes</p>
-                <span class="mt-4 text-brand text-xs font-semibold">Ver contratos →</span>
+            <div class="property-card p-6 flex flex-col items-center text-center justify-center cursor-pointer" onclick="navegarA('proveedores')">
+                <span class="text-4xl mb-2">🔧</span>
+                <h3 class="font-bold text-navy text-base">Red de Profesionales</h3>
+                <p class="text-xs text-gray-500 mt-1">Contactá plomeros, electricistas y gasistas</p>
+                <span class="mt-4 text-brand text-xs font-semibold">Ver Profesionales →</span>
             </div>
         `;
     } else {
@@ -1150,11 +1153,10 @@ async function cargarTickets() {
             container.innerHTML = `<div class="text-red-500 text-center py-4">Error: ${err.message}</div>`;
         }
     } else {
-        // Propietario / Inmobiliaria
         if (btnNuevoTicket) btnNuevoTicket.classList.add('hidden');
         if (subtitle) {
             subtitle.textContent = rol === 'inmobiliaria' 
-                ? "Mesa de ayuda: Asigná técnicos, registrá costos de reparación y respondé al inquilino"
+                ? "Mesa de ayuda: Asigná técnicos de la red, registrá costos y notificá por WhatsApp"
                 : "Reclamos recibidos de tus inquilinos para atención directa";
         }
 
@@ -1288,14 +1290,17 @@ document.getElementById('form-nuevo-ticket')?.addEventListener('submit', async (
     }
 });
 
-function abrirModalGestionarTicket(ticketId) {
+async function abrirModalGestionarTicket(ticketId) {
     const ticket = currentTicketsList.find(t => t.id_ticket === ticketId);
     if (!ticket) return;
+
+    activeTicketForTriage = ticket;
 
     document.getElementById('gestionar-ticket-id').value = ticket.id_ticket;
     document.getElementById('gestionar-ticket-title').textContent = `Gestionar Ticket #${ticket.id_ticket}`;
     
     document.getElementById('gestionar-ticket-info').innerHTML = `
+        <div><strong>Propiedad:</strong> Inmueble #${ticket.id_propiedad} | <strong>Inquilino:</strong> Usuario #${ticket.id_inquilino}</div>
         <div><strong>Asunto:</strong> ${ticket.titulo}</div>
         <div><strong>Descripción:</strong> ${ticket.descripcion}</div>
         <div><strong>Prioridad:</strong> <span class="prioridad-badge prioridad-${ticket.prioridad}">${ticket.prioridad}</span></div>
@@ -1306,11 +1311,67 @@ function abrirModalGestionarTicket(ticketId) {
     document.getElementById('gestionar-ticket-costo').value = ticket.costo_estimado || '';
     document.getElementById('gestionar-ticket-respuesta').value = ticket.respuesta_gestor || '';
 
+    // Cargar proveedores en el selector rápido
+    await cargarProveedoresEnSelector();
+
     document.getElementById('modal-gestionar-ticket')?.classList.remove('hidden');
 }
 
 function cerrarModalGestionarTicket() {
+    activeTicketForTriage = null;
     document.getElementById('modal-gestionar-ticket')?.classList.add('hidden');
+}
+
+async function cargarProveedoresEnSelector() {
+    const select = document.getElementById('select-proveedor-sugerido');
+    if (!select) return;
+
+    select.innerHTML = '<option value="">Cargando profesionales...</option>';
+    try {
+        const res = await fetch(`${API_URL}/proveedores/`);
+        const provs = await res.json();
+        currentProvidersList = provs;
+
+        select.innerHTML = `<option value="">Seleccionar técnico del directorio...</option>` + 
+            provs.map(p => `
+                <option value="${p.id_proveedor}">${formatRubro(p.rubro)} - ${p.nombre_completo} (${p.ciudad})</option>
+            `).join('');
+
+        const btnWa = document.getElementById('btn-wa-notificar-tecnico');
+        if (btnWa) btnWa.disabled = true;
+    } catch(e) {
+        select.innerHTML = '<option value="">Error al cargar proveedores</option>';
+    }
+}
+
+function seleccionarProveedorParaTicket(provId) {
+    const btnWa = document.getElementById('btn-wa-notificar-tecnico');
+    if (!provId) {
+        if (btnWa) btnWa.disabled = true;
+        return;
+    }
+
+    const prov = currentProvidersList.find(p => p.id_proveedor === parseInt(provId));
+    if (prov) {
+        document.getElementById('gestionar-ticket-proveedor').value = `${prov.nombre_completo} (${prov.empresa || formatRubro(prov.rubro)})`;
+        if (prov.tarifa_visita_estimada && !document.getElementById('gestionar-ticket-costo').value) {
+            document.getElementById('gestionar-ticket-costo').value = prov.tarifa_visita_estimada;
+        }
+        if (btnWa) btnWa.disabled = false;
+    }
+}
+
+function notificarTecnicoPorWhatsApp() {
+    const provId = document.getElementById('select-proveedor-sugerido')?.value;
+    if (!provId || !activeTicketForTriage) return;
+
+    const prov = currentProvidersList.find(p => p.id_proveedor === parseInt(provId));
+    if (!prov) return;
+
+    const msg = `Hola ${prov.nombre_completo}, te contacto desde Software Alquileres por un servicio de ${formatRubro(prov.rubro)} en el Inmueble #${activeTicketForTriage.id_propiedad}. Problema reportado: ${activeTicketForTriage.titulo} - "${activeTicketForTriage.descripcion}". Prioridad: ${activeTicketForTriage.prioridad.toUpperCase()}. ¿Podrías coordinar una visita?`;
+    
+    const waUrl = `https://wa.me/${prov.whatsapp}?text=${encodeURIComponent(msg)}`;
+    window.open(waUrl, '_blank');
 }
 
 document.getElementById('form-gestionar-ticket')?.addEventListener('submit', async (e) => {
@@ -1346,7 +1407,118 @@ document.getElementById('form-gestionar-ticket')?.addEventListener('submit', asy
     }
 });
 
-// ─── 8. VISTA MI MARCA (WHITE-LABEL ENTERPRISE) ─────────────
+// ─── 8. RED DE PROVEEDORES & OFICIOS ────────────────────────
+async function cargarProveedores() {
+    const grid = document.getElementById('proveedores-content');
+    if (!grid) return;
+
+    const rubro = document.getElementById('filter-prov-rubro')?.value || '';
+    const ciudad = document.getElementById('filter-prov-ciudad')?.value.trim() || '';
+
+    grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400">Buscando especialistas...</div>`;
+
+    const params = new URLSearchParams();
+    if (rubro) params.append('rubro', rubro);
+    if (ciudad) params.append('ciudad', ciudad);
+
+    try {
+        const res = await fetch(`${API_URL}/proveedores/?${params.toString()}`);
+        const proveedores = await res.json();
+        currentProvidersList = proveedores;
+
+        if (proveedores.length === 0) {
+            grid.innerHTML = `
+                <div class="col-span-full empty-state bg-white rounded-xl border border-gray-200 p-12">
+                    <div class="empty-icon">🔍</div>
+                    <h3>No se encontraron profesionales con estos filtros</h3>
+                    <p>Probá cambiando la especialidad o la ciudad buscada</p>
+                </div>
+            `;
+            return;
+        }
+
+        grid.innerHTML = proveedores.map(p => `
+            <div class="provider-card">
+                <div>
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="rubro-badge">${formatRubro(p.rubro)}</span>
+                        <span class="text-xs font-bold text-yellow-500">★ ${p.calificacion.toFixed(1)}</span>
+                    </div>
+                    <h3 class="font-bold text-navy text-base">${p.nombre_completo}</h3>
+                    ${p.empresa ? `<p class="text-xs font-medium text-gray-500 mb-1">${p.empresa}</p>` : ''}
+                    ${p.matricula ? `<div class="text-[11px] font-semibold text-brand-dark bg-green-50 px-2 py-0.5 rounded inline-block mb-2">🛡 ${p.matricula}</div>` : ''}
+                    <div class="text-xs text-gray-500 space-y-0.5 mt-2">
+                        <div>📍 ${p.ciudad}</div>
+                        <div>📞 ${p.telefono}</div>
+                        ${p.tarifa_visita_estimada ? `<div class="font-bold text-navy pt-1">Visita / Diagnóstico: $${p.tarifa_visita_estimada.toLocaleString('es-AR')}</div>` : ''}
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-gray-100 flex gap-2">
+                    <a href="https://wa.me/${p.whatsapp}?text=${encodeURIComponent('Hola ' + p.nombre_completo + ', te contacto desde Software Alquileres para consultar por un servicio.')}" target="_blank" class="btn-whatsapp flex-1 text-center">
+                        💬 Contactar por WhatsApp
+                    </a>
+                </div>
+            </div>
+        `).join('');
+
+    } catch (err) {
+        grid.innerHTML = `<div class="col-span-full text-red-500 text-center py-6">Error: ${err.message}</div>`;
+    }
+}
+
+function limpiarFiltrosProveedores() {
+    if (document.getElementById('filter-prov-rubro')) document.getElementById('filter-prov-rubro').value = '';
+    if (document.getElementById('filter-prov-ciudad')) document.getElementById('filter-prov-ciudad').value = '';
+    cargarProveedores();
+}
+
+function abrirModalNuevoProveedor() {
+    document.getElementById('form-nuevo-proveedor')?.reset();
+    document.getElementById('modal-nuevo-proveedor')?.classList.remove('hidden');
+}
+
+function cerrarModalNuevoProveedor() {
+    document.getElementById('modal-nuevo-proveedor')?.classList.add('hidden');
+}
+
+document.getElementById('form-nuevo-proveedor')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    const tarifaVal = document.getElementById('prov-tarifa').value;
+
+    const nuevoProv = {
+        nombre_completo: document.getElementById('prov-nombre').value.trim(),
+        empresa: document.getElementById('prov-empresa').value.trim() || null,
+        rubro: document.getElementById('prov-rubro').value,
+        matricula: document.getElementById('prov-matricula').value.trim() || null,
+        ciudad: document.getElementById('prov-ciudad').value.trim(),
+        telefono: document.getElementById('prov-telefono').value.trim(),
+        whatsapp: document.getElementById('prov-whatsapp').value.trim(),
+        tarifa_visita_estimada: tarifaVal ? parseFloat(tarifaVal) : null
+    };
+
+    try {
+        const res = await fetch(`${API_URL}/proveedores/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(nuevoProv)
+        });
+
+        if (!res.ok) throw new Error("Error al registrar profesional");
+
+        cerrarModalNuevoProveedor();
+        showToast("¡Profesional registrado exitosamente en la red!", "success");
+        cargarProveedores();
+    } catch (err) {
+        showToast(err.message, "error");
+    }
+});
+
+// ─── 9. VISTA MI MARCA (WHITE-LABEL ENTERPRISE) ─────────────
 function cargarBrandingView() {
     const empresa = localStorage.getItem('userEmpresa') || '';
     const color = localStorage.getItem('userColor') || '#00a650';
@@ -1371,7 +1543,6 @@ function cargarBrandingView() {
     }
 }
 
-// Sincronización reactiva del color picker
 document.getElementById('brand-color-picker')?.addEventListener('input', (e) => {
     const val = e.target.value;
     if (document.getElementById('brand-color-hex')) document.getElementById('brand-color-hex').value = val;
@@ -1396,7 +1567,6 @@ document.getElementById('form-branding')?.addEventListener('submit', async (e) =
     const logoFile = document.getElementById('brand-logo-file')?.files[0];
 
     try {
-        // 1. Actualizar datos de branding
         const res = await fetch(`${API_URL}/usuarios/branding`, {
             method: 'PATCH',
             headers: {
@@ -1412,7 +1582,6 @@ document.getElementById('form-branding')?.addEventListener('submit', async (e) =
         if (!res.ok) throw new Error("Error al guardar personalización de marca");
         const user = await res.json();
 
-        // 2. Subir logo si fue seleccionado
         if (logoFile) {
             const formData = new FormData();
             formData.append('file', logoFile);
@@ -1429,7 +1598,6 @@ document.getElementById('form-branding')?.addEventListener('submit', async (e) =
             }
         }
 
-        // 3. Aplicar en vivo
         localStorage.setItem('userEmpresa', user.nombre_empresa || '');
         localStorage.setItem('userColor', user.color_primario || '#00a650');
         localStorage.setItem('userLogo', user.logo_url || '');
@@ -1442,7 +1610,7 @@ document.getElementById('form-branding')?.addEventListener('submit', async (e) =
     }
 });
 
-// ─── 9. PUBLICACIÓN DE NUEVA PROPIEDAD CON FOTO ──────────────
+// ─── 10. PUBLICACIÓN DE NUEVA PROPIEDAD CON FOTO ─────────────
 function prepararNuevaPropiedad() {
     const form = document.getElementById('nueva-propiedad-form');
     if (form) form.reset();
@@ -1525,6 +1693,21 @@ function iconoTipo(tipo) {
         'local_comercial': '🏪'
     };
     return iconos[tipo] || '🏠';
+}
+
+function formatRubro(rubro) {
+    const rubros = {
+        'plomero': '🔧 Plomería',
+        'electricista': '⚡ Electricidad',
+        'gasista': '🔥 Gasista Matriculado',
+        'cerrajero': '🔑 Cerrajería',
+        'aire_acondicionado': '❄️ Aire Acondicionado',
+        'pintor': '🎨 Pintura',
+        'albanileria': '🧱 Albañilería',
+        'limpieza': '🧹 Limpieza',
+        'otro': '🛠 Mantenimiento General'
+    };
+    return rubros[rubro] || rubro;
 }
 
 // ─── INICIALIZACIÓN ──────────────────────────────────────────

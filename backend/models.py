@@ -120,3 +120,30 @@ class TicketMantenimiento(Base):
     respuesta_gestor = Column(Text, nullable=True)
     fecha_creacion = Column(DateTime, default=datetime.utcnow)
     fecha_resolucion = Column(DateTime, nullable=True)
+
+class RubroServicio(enum.Enum):
+    electricista = "electricista"
+    plomero = "plomero"
+    gasista = "gasista"
+    pintor = "pintor"
+    cerrajero = "cerrajero"
+    aire_acondicionado = "aire_acondicionado"
+    albanileria = "albanileria"
+    limpieza = "limpieza"
+    otro = "otro"
+
+class ProveedorServicio(Base):
+    __tablename__ = "proveedores_servicio"
+    id_proveedor = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    id_inmobiliaria_creadora = Column(Integer, ForeignKey("usuarios.id_usuario"), nullable=True)
+    nombre_completo = Column(String(150), nullable=False)
+    empresa = Column(String(150), nullable=True)
+    rubro = Column(Enum(RubroServicio), nullable=False)
+    matricula = Column(String(100), nullable=True)
+    ciudad = Column(String(100), nullable=False)
+    telefono = Column(String(30), nullable=False)
+    whatsapp = Column(String(30), nullable=False)
+    tarifa_visita_estimada = Column(Float, nullable=True)
+    calificacion = Column(Float, default=5.0)
+    activo = Column(Boolean, default=True)
+    fecha_registro = Column(DateTime, default=datetime.utcnow)

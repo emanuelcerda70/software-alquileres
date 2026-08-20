@@ -41,6 +41,17 @@ class EstadoTicketEnum(str, enum.Enum):
     resuelto = "resuelto"
     cancelado = "cancelado"
 
+class RubroServicioEnum(str, enum.Enum):
+    electricista = "electricista"
+    plomero = "plomero"
+    gasista = "gasista"
+    pintor = "pintor"
+    cerrajero = "cerrajero"
+    aire_acondicionado = "aire_acondicionado"
+    albanileria = "albanileria"
+    limpieza = "limpieza"
+    otro = "otro"
+
 # ─── USUARIOS & BRANDING ──────────────────────────────────
 class UsuarioBase(BaseModel):
     nombre: str
@@ -159,3 +170,37 @@ class TicketMantenimientoUpdate(BaseModel):
     proveedor_asignado: Optional[str] = None
     costo_estimado: Optional[float] = None
     respuesta_gestor: Optional[str] = None
+
+# ─── PROVEEDORES DE SERVICIOS ─────────────────────────────
+class ProveedorBase(BaseModel):
+    nombre_completo: str
+    empresa: Optional[str] = None
+    rubro: RubroServicioEnum
+    matricula: Optional[str] = None
+    ciudad: str
+    telefono: str
+    whatsapp: str
+    tarifa_visita_estimada: Optional[float] = None
+
+class ProveedorCreate(ProveedorBase):
+    pass
+
+class ProveedorResponse(ProveedorBase):
+    id_proveedor: int
+    id_inmobiliaria_creadora: Optional[int] = None
+    calificacion: float
+    activo: bool
+    fecha_registro: datetime
+    class Config:
+        from_attributes = True
+
+class ProveedorUpdate(BaseModel):
+    nombre_completo: Optional[str] = None
+    empresa: Optional[str] = None
+    rubro: Optional[RubroServicioEnum] = None
+    matricula: Optional[str] = None
+    ciudad: Optional[str] = None
+    telefono: Optional[str] = None
+    whatsapp: Optional[str] = None
+    tarifa_visita_estimada: Optional[float] = None
+    activo: Optional[bool] = None
