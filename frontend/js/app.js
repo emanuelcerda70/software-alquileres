@@ -1,4 +1,4 @@
-﻿const API_URL = "http://localhost:8000";
+const API_URL = "http://localhost:8000";
 
 // Vistas
 const loginView = document.getElementById('login-view');
@@ -191,23 +191,22 @@ async function cargarMarketplace() {
         }
 
         content.innerHTML = propiedades.map(prop => `
-            <div class="bg-white rounded-lg shadow border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow duration-200">
-                <div class="bg-gradient-to-r from-blue-50 to-blue-100 px-5 py-3 border-b border-gray-100 flex justify-between items-center">
-                    <span class="text-xs font-bold uppercase text-blue-700 bg-white px-2 py-1 rounded-full shadow-sm">${formatTipo(prop.tipo_inmueble)}</span>
-                    <span class="text-xs text-green-600 font-semibold bg-green-50 px-2 py-1 rounded-full">● Disponible</span>
+            <div class="property-card">
+                <div class="property-img-placeholder">
+                    <span>${iconoTipo(prop.tipo_inmueble)}</span>
+                    <span class="absolute top-3 left-3 text-xs font-semibold px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.92);color:#008c44">${formatTipo(prop.tipo_inmueble)}</span>
+                    <span class="absolute top-3 right-3 text-xs font-medium px-2 py-1 rounded-full" style="background:#e8f5ee;color:#00a650">● Disponible</span>
                 </div>
-                <div class="p-5">
-                    <h3 class="font-semibold text-gray-800 text-base leading-tight mb-1">${prop.calle_direccion}</h3>
-                    <p class="text-gray-400 text-sm mb-4">📍 ${prop.ciudad}</p>
-                    <div class="flex justify-between items-end mb-4">
-                        <div>
-                            <span class="text-2xl font-bold text-blue-600">$${prop.precio_alquiler_base.toLocaleString('es-AR')}</span>
-                            <span class="text-gray-400 text-xs ml-1">/ mes</span>
-                        </div>
+                <div class="p-4">
+                    <h3 class="font-semibold text-sm leading-tight" style="color:#1a1f36">${prop.calle_direccion}</h3>
+                    <p class="text-xs text-gray-400 mt-1 mb-3">📍 ${prop.ciudad}</p>
+                    <div class="flex items-baseline gap-1 mb-3 pb-3 border-b border-gray-100">
+                        <span class="text-xl font-bold" style="color:#1a1f36">$${prop.precio_alquiler_base.toLocaleString('es-AR')}</span>
+                        <span class="text-xs text-gray-400">/mes</span>
                     </div>
-                    <div class="flex flex-wrap gap-2 text-xs text-gray-500">
-                        <span class="bg-gray-50 border border-gray-100 px-2 py-1 rounded-full">${prop.acepta_mascotas ? '🐾 Mascotas OK' : '🚫 Sin mascotas'}</span>
-                        ${prop.ingreso_minimo_requerido ? `<span class="bg-gray-50 border border-gray-100 px-2 py-1 rounded-full">💰 Ing. mín: $${prop.ingreso_minimo_requerido.toLocaleString('es-AR')}</span>` : ''}
+                    <div class="flex flex-wrap gap-1.5">
+                        <span class="text-xs px-2 py-0.5 rounded-full" style="background:#f1f5f9;color:#64748b">${prop.acepta_mascotas ? '🐾 Mascotas OK' : '🚫 Sin mascotas'}</span>
+                        ${prop.ingreso_minimo_requerido ? `<span class="text-xs px-2 py-0.5 rounded-full" style="background:#f1f5f9;color:#64748b">💰 $${prop.ingreso_minimo_requerido.toLocaleString('es-AR')} ing. mín.</span>` : ''}
                     </div>
                 </div>
             </div>
@@ -288,6 +287,16 @@ function formatTipo(tipo) {
         'local_comercial': 'Local Comercial'
     };
     return tipos[tipo] || tipo;
+}
+
+function iconoTipo(tipo) {
+    const iconos = {
+        'departamento': '🏢',
+        'casa': '🏡',
+        'duplex': '🏘',
+        'local_comercial': '🏪'
+    };
+    return iconos[tipo] || '🏠';
 }
 
 function cerrarSesion() {
