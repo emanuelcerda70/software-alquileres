@@ -15,26 +15,21 @@
             <h1 class="text-2xl font-bold text-blue-600">Software Alquileres</h1>
             <p class="text-gray-500 text-sm mt-2">Ingresa a tu panel de gestión</p>
         </div>
-
         <form id="login-form" class="space-y-6">
             <div>
                 <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
                 <input type="email" id="email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
             </div>
-
             <div>
                 <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
                 <input type="password" id="password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
             </div>
-
             <div id="error-message" class="hidden text-red-500 text-sm text-center font-medium"></div>
             <div id="success-message" class="hidden text-green-600 text-sm text-center font-medium"></div>
-
             <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                 Iniciar Sesión
             </button>
         </form>
-        
         <div class="mt-6 text-center">
             <p class="text-sm text-gray-600">¿No tienes cuenta? <button id="btn-go-register" class="text-blue-600 hover:text-blue-800 font-medium">Regístrate aquí</button></p>
         </div>
@@ -46,7 +41,6 @@
             <h1 class="text-2xl font-bold text-blue-600">Crear Cuenta</h1>
             <p class="text-gray-500 text-sm mt-2">Únete a la plataforma PropTech</p>
         </div>
-
         <form id="register-form" class="space-y-4">
             <div class="grid grid-cols-2 gap-4">
                 <div>
@@ -58,17 +52,14 @@
                     <input type="text" id="reg-apellido" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500">
                 </div>
             </div>
-
             <div>
                 <label for="reg-dni" class="block text-sm font-medium text-gray-700">DNI / CUIT</label>
                 <input type="text" id="reg-dni" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500">
             </div>
-
             <div>
                 <label for="reg-telefono" class="block text-sm font-medium text-gray-700">Teléfono</label>
                 <input type="text" id="reg-telefono" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500">
             </div>
-            
             <div>
                 <label for="reg-tipo" class="block text-sm font-medium text-gray-700">Tipo de Perfil</label>
                 <select id="reg-tipo" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 bg-white">
@@ -77,24 +68,19 @@
                     <option value="inmobiliaria">Inmobiliaria / Gestor</option>
                 </select>
             </div>
-
             <div>
                 <label for="reg-email" class="block text-sm font-medium text-gray-700">Email</label>
                 <input type="email" id="reg-email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500">
             </div>
-
             <div>
                 <label for="reg-password" class="block text-sm font-medium text-gray-700">Contraseña</label>
                 <input type="password" id="reg-password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500">
             </div>
-
             <div id="reg-error-message" class="hidden text-red-500 text-sm text-center font-medium"></div>
-
             <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                 Registrarse
             </button>
         </form>
-        
         <div class="mt-6 text-center">
             <p class="text-sm text-gray-600">¿Ya tienes cuenta? <button id="btn-go-login" class="text-blue-600 hover:text-blue-800 font-medium">Inicia sesión</button></p>
         </div>
@@ -105,20 +91,95 @@
         <nav class="bg-white shadow-sm px-6 py-4 flex justify-between items-center">
             <h1 class="text-xl font-bold text-blue-600">Software Alquileres</h1>
             <div class="flex items-center gap-4">
+                <button id="btn-marketplace" class="text-sm text-blue-600 hover:text-blue-800 font-medium border border-blue-200 px-3 py-1 rounded-md hover:bg-blue-50">🏘 Marketplace</button>
                 <span id="user-email-display" class="text-gray-600 text-sm font-medium"></span>
                 <span id="user-role-display" class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full uppercase font-bold"></span>
-                <button onclick="cerrarSesion()" class="text-sm text-red-500 hover:text-red-700 font-medium ml-4">Cerrar Sesión</button>
+                <button onclick="cerrarSesion()" class="text-sm text-red-500 hover:text-red-700 font-medium ml-2">Cerrar Sesión</button>
             </div>
         </nav>
-
         <main class="flex-1 p-6 max-w-7xl mx-auto w-full">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-gray-800">Panel de Control</h2>
-                <button id="btn-nueva-propiedad" class="hidden bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700">+ Nueva Propiedad</button>
+                <button id="btn-nueva-propiedad" class="hidden bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 text-sm font-medium">+ Nueva Propiedad</button>
             </div>
-            
             <div id="dashboard-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Contenido dinámico -->
+            </div>
+        </main>
+    </div>
+
+    <!-- VISTA MARKETPLACE -->
+    <div id="marketplace-view" class="hidden w-full min-h-screen bg-gray-100 flex flex-col">
+        <nav class="bg-white shadow-sm px-6 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-blue-600">Software Alquileres</h1>
+            <div class="flex items-center gap-4">
+                <button onclick="mostrarDashboard()" class="text-sm text-blue-600 hover:text-blue-800 font-medium">← Volver al Panel</button>
+                <span id="mkt-user-email" class="text-gray-600 text-sm font-medium"></span>
+                <span id="mkt-user-role" class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full uppercase font-bold"></span>
+                <button onclick="cerrarSesion()" class="text-sm text-red-500 hover:text-red-700 font-medium ml-2">Cerrar Sesión</button>
+            </div>
+        </nav>
+        <main class="flex-1 p-6 max-w-7xl mx-auto w-full">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">🏘 Marketplace de Alquileres</h2>
+            <div id="marketplace-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Cards dinámicas -->
+            </div>
+        </main>
+    </div>
+
+    <!-- VISTA NUEVA PROPIEDAD -->
+    <div id="nueva-propiedad-view" class="hidden w-full min-h-screen bg-gray-100 flex flex-col">
+        <nav class="bg-white shadow-sm px-6 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-blue-600">Software Alquileres</h1>
+            <div class="flex items-center gap-4">
+                <button onclick="mostrarDashboard()" class="text-sm text-blue-600 hover:text-blue-800 font-medium">← Volver al Panel</button>
+                <button onclick="cerrarSesion()" class="text-sm text-red-500 hover:text-red-700 font-medium">Cerrar Sesión</button>
+            </div>
+        </nav>
+        <main class="flex-1 p-6 max-w-2xl mx-auto w-full">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Publicar Nueva Propiedad</h2>
+            <div class="bg-white rounded-lg shadow p-8">
+                <form id="nueva-propiedad-form" class="space-y-5">
+                    <div>
+                        <label for="prop-direccion" class="block text-sm font-medium text-gray-700">Dirección</label>
+                        <input type="text" id="prop-direccion" required placeholder="Ej: Av. Corrientes 1234, Piso 3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="prop-ciudad" class="block text-sm font-medium text-gray-700">Ciudad</label>
+                        <input type="text" id="prop-ciudad" required placeholder="Ej: Buenos Aires" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="prop-tipo" class="block text-sm font-medium text-gray-700">Tipo de Inmueble</label>
+                        <select id="prop-tipo" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 bg-white">
+                            <option value="departamento">Departamento</option>
+                            <option value="casa">Casa</option>
+                            <option value="duplex">Dúplex</option>
+                            <option value="local_comercial">Local Comercial</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="prop-precio" class="block text-sm font-medium text-gray-700">Precio de Alquiler Base ($ / mes)</label>
+                        <input type="number" id="prop-precio" required min="0" placeholder="Ej: 150000" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="prop-ingreso-minimo" class="block text-sm font-medium text-gray-700">Ingreso Mínimo Requerido <span class="text-gray-400 font-normal">(opcional)</span></label>
+                        <input type="number" id="prop-ingreso-minimo" min="0" placeholder="Ej: 450000" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500">
+                    </div>
+                    <div class="flex items-center gap-3 pt-1">
+                        <input type="checkbox" id="prop-mascotas" class="h-4 w-4 text-blue-600 border-gray-300 rounded">
+                        <label for="prop-mascotas" class="text-sm font-medium text-gray-700">Acepta mascotas 🐾</label>
+                    </div>
+                    <div id="prop-error-message" class="hidden text-red-500 text-sm text-center font-medium"></div>
+                    <div id="prop-success-message" class="hidden text-green-600 text-sm text-center font-medium"></div>
+                    <div class="flex gap-4 pt-2">
+                        <button type="button" onclick="mostrarDashboard()" class="flex-1 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="flex-1 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                            Publicar Propiedad
+                        </button>
+                    </div>
+                </form>
             </div>
         </main>
     </div>
