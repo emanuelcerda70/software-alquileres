@@ -1,6 +1,6 @@
 ﻿from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-import models, schemas
+import models, schemas, seguridad
 from database import get_db
 
 router = APIRouter(
@@ -18,6 +18,9 @@ def create_usuario(usuario: schemas.UsuarioCreate, db: Session = Depends(get_db)
     if db_usuario:
         raise HTTPException(status_code=400, detail="El email o DNI/CUIT ya está registrado")
     
+    # Hashear la contraseña antes de guardar
+    hashed_password = seguridad.get_password_hash(usuario.password)
+    
     # Crear nuevo usuario
     nuevo_usuario = models.Usuario(
         tipo_usuario=usuario.tipo_usuario,
@@ -26,7 +29,7 @@ def create_usuario(usuario: schemas.UsuarioCreate, db: Session = Depends(get_db)
         dni_cuit=usuario.dni_cuit,
         email=usuario.email,
         telefono=usuario.telefono,
-        password_hash=usuario.password  # TODO: Hashear esto en el paso de autenticación
+        password_hash=hashed_password
     )
     
     db.add(nuevo_usuario)

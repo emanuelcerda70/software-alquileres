@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from database import engine
 import models
-from routers import usuarios
+from routers import usuarios, autenticacion
 
 # Creamos las tablas en la base de datos si no existen
 models.Base.metadata.create_all(bind=engine)
@@ -25,6 +25,7 @@ app.add_middleware(
 )
 
 # Incluimos las rutas
+app.include_router(autenticacion.router)
 app.include_router(usuarios.router)
 
 # Ruta de prueba para verificar que el servidor está vivo
