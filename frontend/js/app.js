@@ -267,15 +267,18 @@ function reiniciarFlujoOTP() {
 
 // ─── AUTENTICACIÓN: 2. GOOGLE LOGIN (ONE-TAP / GIS) ─────────
 document.getElementById('btn-google-login')?.addEventListener('click', () => {
-    // Si Google Identity Services está cargado
-    if (window.google && google.accounts && google.accounts.id) {
+    const GOOGLE_CLIENT_ID = "108394857392-mockclientid.apps.googleusercontent.com";
+    
+    if (GOOGLE_CLIENT_ID.includes("mockclientid")) {
+        // Modo demo inteligente: solicitar el email de Google y autenticar en 1 clic
+        iniciarDemoGoogle();
+    } else if (window.google && google.accounts && google.accounts.id) {
         google.accounts.id.initialize({
-            client_id: "108394857392-mockclientid.apps.googleusercontent.com", // Reemplazable con Client ID real de Google Cloud
+            client_id: GOOGLE_CLIENT_ID,
             callback: handleGoogleCredentialResponse
         });
         google.accounts.id.prompt((notification) => {
             if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                // Fallback directo: simular inicio rápido con Google para demo
                 iniciarDemoGoogle();
             }
         });
@@ -459,8 +462,20 @@ function completarInicioSesionExitoso(token, usuario) {
     localStorage.setItem('userId', usuario.id_usuario || tokenPayload.id_usuario);
 
     sincronizarPerfilUsuario();
-    showToast(`¡Bienvenido a Kelvi!`, "success");
     sugerirActivarBiometria(token, usuario);
+
+    // Si es un usuario recién creado por OTP o Google, ofrecerle configurar su rol
+    if (usuario.nombre === 'Kelvi' || usuario.apellido === 'Kelvi' || usuario.dni_cuit?.startsWith('OTP') || usuario.dni_cuit?.startsWith('GGL')) {
+        const modalOnboarding = document.getElementById('modal-completar-perfil');
+        if (modalOnboarding) {
+            modalOnboarding.classList.remove('hidden');
+            const inpNombre = document.getElementById('onboarding-nombre');
+            if (inpNombre) inpNombre.value = (usuario.nombre && usuario.nombre !== 'Kelvi') ? usuario.nombre : '';
+            return;
+        }
+    }
+
+    showToast(`¡Bienvenido a Kelvi!`, "success");
     navegarA('dashboard');
 }
 
@@ -2197,5 +2212,47 @@ document.addEventListener('DOMContentLoaded', async () => {
         navegarA('dashboard');
     } else {
         navegarA('login');
+    }
+});
+
+function toggleOnboardingEmpresa(rol) {
+    const campo = document.getElementById('onboarding-campo-empresa');
+    if (!campo) return;
+    if (rol === 'inmobiliaria') {
+        campo.classList.remove('hidden');
+    } else {
+        campo.classList.add('hidden');
+    }
+}
+
+document.getElementById('form-completar-perfil')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    const nombre = document.getElementById('onboarding-nombre').value.trim();
+    const apellido = document.getElementById('onboarding-apellido').value.trim();
+    const rol = document.getElementById('onboarding-rol').value;
+    const empresa = document.getElementById('onboarding-empresa')?.value.trim() || null;
+
+    try {
+        const res = await fetch(`${API_URL}/usuarios/branding`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                nombre_empresa: rol === 'inmobiliaria' ? empresa : null
+            })
+        });
+
+        localStorage.setItem('userRole', rol);
+        if (empresa) localStorage.setItem('userEmpresa', empresa);
+
+        document.getElementById('modal-completar-perfil')?.classList.add('hidden');
+        showToast(`¡Perfil configurado! Bienvenido a Kelvi.`, "success");
+        navegarA('dashboard');
+    } catch (err) {
+        document.getElementById('modal-completar-perfil')?.classList.add('hidden');
+        navegarA('dashboard');
     }
 });
