@@ -176,7 +176,7 @@ def verificar_codigo_otp(payload: schemas.VerificarOTPRequest, db: Session = Dep
     
     # Generar JWT
     access_token_expires = timedelta(minutes=seguridad.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = seguridad.crear_access_token(
+    access_token = seguridad.create_access_token(
         data={"sub": usuario.email, "id_usuario": usuario.id_usuario, "rol": usuario.tipo_usuario.value},
         expires_delta=access_token_expires
     )
@@ -234,7 +234,7 @@ def google_login(payload: schemas.GoogleAuthRequest, db: Session = Depends(get_d
         
     # Generar JWT de Kelvi
     access_token_expires = timedelta(minutes=seguridad.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = seguridad.crear_access_token(
+    access_token = seguridad.create_access_token(
         data={"sub": usuario.email, "id_usuario": usuario.id_usuario, "rol": usuario.tipo_usuario.value},
         expires_delta=access_token_expires
     )
