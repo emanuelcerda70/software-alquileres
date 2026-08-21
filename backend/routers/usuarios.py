@@ -91,7 +91,7 @@ def upload_logo(
     return {"logo_url": usuario_actual.logo_url}
 
 import random
-from datetime import timedelta
+from datetime import datetime, timedelta
 import base64
 import json
 
