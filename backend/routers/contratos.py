@@ -1,4 +1,4 @@
-﻿from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 import models, schemas, seguridad
@@ -30,6 +30,16 @@ def create_contrato(
     db.commit()
     db.refresh(nuevo_contrato)
     return nuevo_contrato
+
+@router.get("/mis-contratos-propietario", response_model=List[schemas.ContratoResponse])
+def get_mis_contratos_propietario(
+    db: Session = Depends(get_db),
+    usuario_actual: models.Usuario = Depends(seguridad.get_usuario_actual)
+):
+    contratos = db.query(models.Contrato).filter(
+        models.Contrato.id_propietario_gestor == usuario_actual.id_usuario
+    ).all()
+    return contratos
 
 @router.get("/mis-contratos", response_model=List[schemas.ContratoResponse])
 def get_mis_contratos(
