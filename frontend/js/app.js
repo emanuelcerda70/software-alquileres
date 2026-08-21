@@ -258,6 +258,7 @@ document.getElementById('form-corroborar-google')?.addEventListener('submit', as
     const token = localStorage.getItem('token');
     const rol = document.getElementById('google-rol').value;
     const empresa = document.getElementById('google-empresa')?.value.trim() || null;
+    const submitBtn = e.target.querySelector('button[type="submit"]');
 
     const payload = {
         nombre: document.getElementById('google-nombre').value.trim(),
@@ -267,6 +268,11 @@ document.getElementById('form-corroborar-google')?.addEventListener('submit', as
         tipo_usuario: rol,
         nombre_empresa: rol === 'inmobiliaria' ? empresa : null
     };
+
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Guardando tus datos...';
+    }
 
     try {
         const res = await fetch(`${API_URL}/usuarios/completar-datos-google`, {
@@ -279,8 +285,8 @@ document.getElementById('form-corroborar-google')?.addEventListener('submit', as
         });
 
         if (!res.ok) {
-            const d = await res.json();
-            throw new Error(d.detail || "Error al guardar datos");
+            const d = await res.json().catch(() => ({}));
+            throw new Error(d.detail || "Error al corroborar datos. Intentá nuevamente.");
         }
 
         const userActualizado = await res.json();
@@ -291,7 +297,12 @@ document.getElementById('form-corroborar-google')?.addEventListener('submit', as
 
         completarInicioSesionExitoso(token, userActualizado);
     } catch (err) {
-        showToast(err.message, "error");
+        showToast(err.message || "Error de conexión. Por favor reintentá en un instante.", "error");
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Confirmar y Comenzar →';
+        }
     }
 });
 
