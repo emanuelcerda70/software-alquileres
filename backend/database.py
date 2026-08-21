@@ -4,24 +4,22 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from dotenv import load_dotenv
 
-# Cargamos las variables de entorno desde el archivo .env
 load_dotenv(dotenv_path=Path(__file__).parent / ".env")
 
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./alquileres.db")
 
-# Motor de conexión a la base de datos (con soporte para SQLite)
+# Ajuste para URLs de postgres de proveedores que usan postgres:// en vez de postgresql://
+if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
+    SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
 if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
     engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 else:
-    engine = create_engine(SQLALCHEMY_DATABASE_URL)
+    engine = create_engine(SQLALCHEMY_DATABASE_URL, pool_pre_ping=True)
 
-# Creador de sesiones para interactuar con la BD
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Clase base de la que heredarán todos los modelos
 Base = declarative_base()
 
-# Dependencia para inyectar la sesión en las rutas de FastAPI
 def get_db():
     db = SessionLocal()
     try:
