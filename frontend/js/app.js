@@ -2,6 +2,8 @@ const API_URL = (window.location.hostname === "localhost" || window.location.hos
     ? "http://localhost:8000"
     : "https://kelvi-api.onrender.com";
 
+const GOOGLE_CLIENT_ID = "712726757913-27d18bf6ce4t1n7bt9ktvgtrr4i78fnl.apps.googleusercontent.com";
+
 // Estado global de la aplicación
 let currentPage = 1;
 const pageSize = 9;
@@ -15,6 +17,7 @@ let currentProvidersList = [];
 let currentPostulacionesList = [];
 let activeTicketForTriage = null;
 let currentOtpEmail = '';
+let tempRegisterEmail = '';
 
 // ─── UTILIDAD: TOAST NOTIFICATIONS ─────────────────────────
 function showToast(message, type = 'success') {
@@ -39,7 +42,7 @@ function showToast(message, type = 'success') {
             toast.classList.add('fadeout');
             setTimeout(() => toast.remove(), 300);
         }
-    }, 4000);
+    }, 4500);
 }
 
 // ─── GESTOR DE VISTAS Y NAVEGACIÓN ──────────────────────────
@@ -82,6 +85,7 @@ function navegarA(vistaNombre, params = {}) {
         if (nav) nav.classList.add('hidden');
         if (mobileNav) mobileNav.classList.add('hidden');
         if (vistaNombre === 'login') verificarSoporteBiometriaUI();
+        if (vistaNombre === 'register') volverFormularioRegistro();
     } else {
         if (nav) nav.classList.remove('hidden');
         if (mobileNav) mobileNav.classList.remove('hidden');
@@ -171,7 +175,242 @@ function volverAtrasDetalle() {
     navegarA(previousView || 'marketplace');
 }
 
-// ─── AUTENTICACIÓN: 1. CÓDIGO OTP (6 DÍGITOS) ───────────────
+// ─── AUTENTICACIÓN: 1. GOOGLE LOGIN OFICIAL (GIS) ───────────
+function inicializarGoogleGIS() {
+    if (window.google && google.accounts && google.accounts.id) {
+        google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGoogleCredentialResponse,
+            auto_select: false,
+            cancel_on_tap_outside: true
+        });
+        console.log("Google Identity Services conectado exitosamente a Kelvi!");
+    }
+}
+
+document.getElementById('btn-google-login')?.addEventListener('click', () => {
+    if (window.google && google.accounts && google.accounts.id) {
+        google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGoogleCredentialResponse
+        });
+        google.accounts.id.prompt((notification) => {
+            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                console.log("Google Prompt status:", notification);
+            }
+        });
+    } else {
+        showToast("Conectando con Google... intentá en un segundo", "info");
+    }
+});
+
+async function handleGoogleCredentialResponse(response) {
+    if (!response.credential) return;
+    try {
+        const res = await fetch(`${API_URL}/usuarios/google-login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ credential: response.credential })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Error al autenticar con Google");
+
+        const usuario = data.usuario;
+        localStorage.setItem('token', data.access_token);
+        localStorage.setItem('userEmail', usuario.email);
+        localStorage.setItem('userRole', usuario.tipo_usuario);
+        localStorage.setItem('userId', usuario.id_usuario);
+
+        // Si es la primera vez que entra con Google (DNI automático con prefijo GGL o sin teléfono), mostrar modal de corroboración
+        if (!usuario.dni_cuit || usuario.dni_cuit.startsWith('GGL') || usuario.telefono === '+5491100000000') {
+            abrirModalCorroborarGoogle(usuario);
+        } else {
+            completarInicioSesionExitoso(data.access_token, usuario);
+        }
+    } catch (e) {
+        showToast(e.message, "error");
+    }
+}
+
+function abrirModalCorroborarGoogle(usuario) {
+    const modal = document.getElementById('modal-corroborar-datos-google');
+    if (!modal) return;
+
+    document.getElementById('google-nombre').value = usuario.nombre || '';
+    document.getElementById('google-apellido').value = (usuario.apellido && usuario.apellido !== 'Kelvi') ? usuario.apellido : '';
+    document.getElementById('google-dni').value = (usuario.dni_cuit && !usuario.dni_cuit.startsWith('GGL')) ? usuario.dni_cuit : '';
+    document.getElementById('google-telefono').value = (usuario.telefono && usuario.telefono !== '+5491100000000') ? usuario.telefono : '';
+    document.getElementById('google-rol').value = usuario.tipo_usuario || 'inquilino';
+
+    modal.classList.remove('hidden');
+}
+
+function toggleGoogleEmpresa(rol) {
+    const campo = document.getElementById('google-campo-empresa');
+    if (campo) {
+        if (rol === 'inmobiliaria') campo.classList.remove('hidden');
+        else campo.classList.add('hidden');
+    }
+}
+
+document.getElementById('form-corroborar-google')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    const rol = document.getElementById('google-rol').value;
+    const empresa = document.getElementById('google-empresa')?.value.trim() || null;
+
+    const payload = {
+        nombre: document.getElementById('google-nombre').value.trim(),
+        apellido: document.getElementById('google-apellido').value.trim(),
+        dni_cuit: document.getElementById('google-dni').value.trim(),
+        telefono: document.getElementById('google-telefono').value.trim(),
+        tipo_usuario: rol,
+        nombre_empresa: rol === 'inmobiliaria' ? empresa : null
+    };
+
+    try {
+        const res = await fetch(`${API_URL}/usuarios/completar-datos-google`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+            const d = await res.json();
+            throw new Error(d.detail || "Error al guardar datos");
+        }
+
+        const userActualizado = await res.json();
+        document.getElementById('modal-corroborar-datos-google')?.classList.add('hidden');
+        
+        localStorage.setItem('userRole', userActualizado.tipo_usuario);
+        if (userActualizado.nombre_empresa) localStorage.setItem('userEmpresa', userActualizado.nombre_empresa);
+
+        completarInicioSesionExitoso(token, userActualizado);
+    } catch (err) {
+        showToast(err.message, "error");
+    }
+});
+
+// ─── AUTENTICACIÓN: 2. REGISTRO COMPLETO CON VERIFICACIÓN OTP ──
+const registerForm = document.getElementById('register-form');
+const btnGoRegister = document.getElementById('btn-go-register');
+const btnGoLogin = document.getElementById('btn-go-login');
+const btnSubmitRegister = document.getElementById('btn-submit-register');
+const formVerificarRegOtp = document.getElementById('form-verificar-registro-otp');
+const btnConfirmarRegOtp = document.getElementById('btn-confirmar-registro-otp');
+
+if (btnGoRegister) {
+    btnGoRegister.onclick = (e) => { e.preventDefault(); navegarA('register'); };
+}
+if (btnGoLogin) {
+    btnGoLogin.onclick = (e) => { e.preventDefault(); navegarA('login'); };
+}
+
+function volverFormularioRegistro() {
+    document.getElementById('register-form-step')?.classList.remove('hidden');
+    document.getElementById('register-otp-step')?.classList.add('hidden');
+}
+
+if (registerForm) {
+    registerForm.onsubmit = async (e) => {
+        e.preventDefault();
+        const tipoUsuario = document.getElementById('reg-tipo').value;
+        const nombreEmpresa = document.getElementById('reg-empresa')?.value.trim() || null;
+        const email = document.getElementById('reg-email').value.trim().toLowerCase();
+
+        tempRegisterEmail = email;
+        btnSubmitRegister.disabled = true;
+        btnSubmitRegister.textContent = "Registrando y enviando código...";
+
+        const nuevoUsuario = {
+            nombre: document.getElementById('reg-nombre').value.trim(),
+            apellido: document.getElementById('reg-apellido').value.trim(),
+            dni_cuit: document.getElementById('reg-dni').value.trim(),
+            telefono: document.getElementById('reg-telefono').value.trim(),
+            tipo_usuario: tipoUsuario,
+            nombre_empresa: tipoUsuario === 'inmobiliaria' ? nombreEmpresa : null,
+            color_primario: "#00a650",
+            email: email,
+            password: document.getElementById('reg-password').value
+        };
+
+        try {
+            const res = await fetch(`${API_URL}/usuarios/registro-con-verificacion`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(nuevoUsuario)
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || "Error al crear la cuenta");
+
+            // Pasar al paso 2: ingresar código OTP
+            document.getElementById('register-form-step').classList.add('hidden');
+            document.getElementById('register-otp-step').classList.remove('hidden');
+            
+            const infoP = document.getElementById('reg-otp-sent-info');
+            if (infoP) infoP.textContent = `Te enviamos un código de 6 dígitos a ${email} para activar tu cuenta.`;
+
+            if (data.codigo_demo) {
+                showToast(`Código de verificación: ${data.codigo_demo}`, "info");
+                const codeInp = document.getElementById('reg-otp-code');
+                if (codeInp) {
+                    codeInp.value = data.codigo_demo;
+                    codeInp.focus();
+                }
+            } else {
+                showToast("¡Código enviado! Revisá tu casilla de correo.", "success");
+            }
+        } catch (err) {
+            showToast(err.message, "error");
+        } finally {
+            btnSubmitRegister.disabled = false;
+            btnSubmitRegister.textContent = "Crear cuenta y verificar email →";
+        }
+    };
+}
+
+if (formVerificarRegOtp) {
+    formVerificarRegOtp.onsubmit = async (e) => {
+        e.preventDefault();
+        const codeInput = document.getElementById('reg-otp-code');
+        const codigo = codeInput.value.trim();
+        if (!codigo || codigo.length < 6) {
+            showToast("Ingresá el código de 6 dígitos", "error");
+            return;
+        }
+
+        btnConfirmarRegOtp.disabled = true;
+        btnConfirmarRegOtp.textContent = "Activando cuenta...";
+
+        try {
+            const res = await fetch(`${API_URL}/usuarios/activar-cuenta-otp`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: tempRegisterEmail,
+                    codigo: codigo
+                })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || "Código incorrecto o expirado");
+
+            showToast("🎉 ¡Cuenta verificada y activada con éxito!", "success");
+            registerForm.reset();
+            completarInicioSesionExitoso(data.access_token, data.usuario);
+        } catch (err) {
+            showToast(err.message, "error");
+        } finally {
+            btnConfirmarRegOtp.disabled = false;
+            btnConfirmarRegOtp.textContent = "✓ Activar Cuenta e Ingresar";
+        }
+    };
+}
+
+// ─── AUTENTICACIÓN: 3. LOGIN CON CÓDIGO OTP (6 DÍGITOS) ─────
 const formSolicitarOtp = document.getElementById('form-solicitar-otp');
 const formVerificarOtp = document.getElementById('form-verificar-otp');
 const btnEnviarOtp = document.getElementById('btn-enviar-otp');
@@ -203,7 +442,6 @@ if (formSolicitarOtp) {
             const infoSpan = document.getElementById('otp-sent-info');
             if (infoSpan) infoSpan.textContent = `Código enviado a ${email}`;
 
-            // Si el backend devuelve codigo_demo (para pruebas rápidas en vivo), precompletarlo
             if (data.codigo_demo) {
                 showToast(`Código de acceso: ${data.codigo_demo}`, "info");
                 const codeInput = document.getElementById('otp-code-input');
@@ -229,7 +467,7 @@ if (formVerificarOtp) {
         const codeInput = document.getElementById('otp-code-input');
         const codigo = codeInput.value.trim();
         if (!codigo || codigo.length < 6) {
-            showToast("Ingresá el código de 6 dígitos completo", "error");
+            showToast("Ingresá el código de 6 dígitos", "error");
             return;
         }
 
@@ -265,40 +503,7 @@ function reiniciarFlujoOTP() {
     if (codeInput) codeInput.value = '';
 }
 
-// ─── AUTENTICACIÓN: 2. GOOGLE LOGIN OFICIAL ─────────
-
-const GOOGLE_CLIENT_ID = "712726757913-27d18bf6ce4t1n7bt9ktvgtrr4i78fnl.apps.googleusercontent.com";
-
-function inicializarGoogleGIS() {
-    if (window.google && google.accounts && google.accounts.id) {
-        google.accounts.id.initialize({
-            client_id: GOOGLE_CLIENT_ID,
-            callback: handleGoogleCredentialResponse,
-            auto_select: false,
-            cancel_on_tap_outside: true
-        });
-        console.log("Google Identity Services inicializado para Kelvi!");
-    }
-}
-
-document.getElementById('btn-google-login')?.addEventListener('click', () => {
-    if (window.google && google.accounts && google.accounts.id) {
-        google.accounts.id.initialize({
-            client_id: GOOGLE_CLIENT_ID,
-            callback: handleGoogleCredentialResponse
-        });
-        google.accounts.id.prompt((notification) => {
-            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                console.log("GIS prompt omitido o bloqueado, intentando de nuevo");
-            }
-        });
-    } else {
-        showToast("Cargando servicios de Google, intentá en unos segundos...", "info");
-    }
-});
-
-
-// ─── AUTENTICACIÓN: 3. HUELLA DIGITAL / FACEID (WEBAUTHN) ────
+// ─── AUTENTICACIÓN: 4. HUELLA DIGITAL / FACEID ───────────────
 function verificarSoporteBiometriaUI() {
     const bioContainer = document.getElementById('biometric-login-container');
     if (!bioContainer) return;
@@ -327,16 +532,7 @@ async function iniciarConHuellaDigital() {
     }
 
     try {
-        // Ejecutar desafío de biometría nativo del dispositivo (Sensor de Huella / FaceID)
-        if (window.PublicKeyCredential) {
-            const challenge = new Uint8Array(32);
-            window.crypto.getRandomValues(challenge);
-            
-            // Invocar el sensor nativo de huella digital
-            showToast("Tocá el sensor de huella digital de tu celular...", "info");
-        }
-
-        // Restaurar sesión guardada
+        showToast("Tocá el sensor de huella digital de tu celular...", "info");
         localStorage.setItem('token', savedToken);
         localStorage.setItem('userEmail', savedEmail);
         
@@ -367,7 +563,6 @@ async function activarBiometriaDispositivo() {
     const email = localStorage.getItem('userEmail');
 
     try {
-        // Registrar biometría local
         localStorage.setItem('biometric_enabled', 'true');
         localStorage.setItem('biometric_token', token);
         localStorage.setItem('biometric_user_email', email);
@@ -439,69 +634,9 @@ function completarInicioSesionExitoso(token, usuario) {
     localStorage.setItem('userId', usuario.id_usuario || tokenPayload.id_usuario);
 
     sincronizarPerfilUsuario();
-    sugerirActivarBiometria(token, usuario);
-
-    // Si es un usuario recién creado por OTP o Google, ofrecerle configurar su rol
-    if (usuario.nombre === 'Kelvi' || usuario.apellido === 'Kelvi' || usuario.dni_cuit?.startsWith('OTP') || usuario.dni_cuit?.startsWith('GGL')) {
-        const modalOnboarding = document.getElementById('modal-completar-perfil');
-        if (modalOnboarding) {
-            modalOnboarding.classList.remove('hidden');
-            const inpNombre = document.getElementById('onboarding-nombre');
-            if (inpNombre) inpNombre.value = (usuario.nombre && usuario.nombre !== 'Kelvi') ? usuario.nombre : '';
-            return;
-        }
-    }
-
     showToast(`¡Bienvenido a Kelvi!`, "success");
+    sugerirActivarBiometria(token, usuario);
     navegarA('dashboard');
-}
-
-// ─── REGISTRO DE CUENTA ─────────────────────────────────────
-const registerForm = document.getElementById('register-form');
-const btnGoRegister = document.getElementById('btn-go-register');
-const btnGoLogin = document.getElementById('btn-go-login');
-
-if (btnGoRegister) {
-    btnGoRegister.onclick = (e) => { e.preventDefault(); navegarA('register'); };
-}
-if (btnGoLogin) {
-    btnGoLogin.onclick = (e) => { e.preventDefault(); navegarA('login'); };
-}
-
-if (registerForm) {
-    registerForm.onsubmit = async (e) => {
-        e.preventDefault();
-        const tipoUsuario = document.getElementById('reg-tipo').value;
-        const nombreEmpresa = document.getElementById('reg-empresa')?.value.trim() || null;
-
-        const nuevoUsuario = {
-            nombre: document.getElementById('reg-nombre').value.trim(),
-            apellido: document.getElementById('reg-apellido').value.trim(),
-            dni_cuit: document.getElementById('reg-dni').value.trim(),
-            telefono: document.getElementById('reg-telefono').value.trim(),
-            tipo_usuario: tipoUsuario,
-            nombre_empresa: tipoUsuario === 'inmobiliaria' ? nombreEmpresa : null,
-            color_primario: "#00a650",
-            email: document.getElementById('reg-email').value.trim(),
-            password: document.getElementById('reg-password').value
-        };
-
-        try {
-            const res = await fetch(`${API_URL}/usuarios/`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(nuevoUsuario)
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.detail || "Error al crear la cuenta");
-
-            registerForm.reset();
-            showToast("¡Cuenta creada exitosamente! Ahora podés iniciar sesión.", "success");
-            navegarA('login');
-        } catch (err) {
-            showToast(err.message, "error");
-        }
-    };
 }
 
 function cerrarSesion() {
@@ -2190,47 +2325,5 @@ document.addEventListener('DOMContentLoaded', async () => {
         navegarA('dashboard');
     } else {
         navegarA('login');
-    }
-});
-
-function toggleOnboardingEmpresa(rol) {
-    const campo = document.getElementById('onboarding-campo-empresa');
-    if (!campo) return;
-    if (rol === 'inmobiliaria') {
-        campo.classList.remove('hidden');
-    } else {
-        campo.classList.add('hidden');
-    }
-}
-
-document.getElementById('form-completar-perfil')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const token = localStorage.getItem('token');
-    const nombre = document.getElementById('onboarding-nombre').value.trim();
-    const apellido = document.getElementById('onboarding-apellido').value.trim();
-    const rol = document.getElementById('onboarding-rol').value;
-    const empresa = document.getElementById('onboarding-empresa')?.value.trim() || null;
-
-    try {
-        const res = await fetch(`${API_URL}/usuarios/branding`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                nombre_empresa: rol === 'inmobiliaria' ? empresa : null
-            })
-        });
-
-        localStorage.setItem('userRole', rol);
-        if (empresa) localStorage.setItem('userEmpresa', empresa);
-
-        document.getElementById('modal-completar-perfil')?.classList.add('hidden');
-        showToast(`¡Perfil configurado! Bienvenido a Kelvi.`, "success");
-        navegarA('dashboard');
-    } catch (err) {
-        document.getElementById('modal-completar-perfil')?.classList.add('hidden');
-        navegarA('dashboard');
     }
 });

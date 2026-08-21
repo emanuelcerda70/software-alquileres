@@ -1,3 +1,5 @@
+from pydantic import BaseModel
+from typing import Optional
 ﻿from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
 from sqlalchemy.orm import Session
 from typing import List
@@ -244,3 +246,135 @@ def google_login(payload: schemas.GoogleAuthRequest, db: Session = Depends(get_d
         "token_type": "bearer",
         "usuario": usuario
     }
+
+
+# ─── 4. REGISTRO COMPLETO CON VERIFICACIÓN DE CÓDIGO POR EMAIL ───
+@router.post("/registro-con-verificacion", status_code=status.HTTP_201_CREATED)
+def registro_con_verificacion(usuario: schemas.UsuarioCreate, db: Session = Depends(get_db)):
+    email_clean = usuario.email.lower().strip()
+    
+    # 1. Validar que no exista
+    if db.query(models.Usuario).filter(models.Usuario.email == email_clean).first():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El email ya está registrado en Kelvi"
+        )
+    
+    if db.query(models.Usuario).filter(models.Usuario.dni_cuit == usuario.dni_cuit.strip()).first():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El DNI o CUIT ya está registrado"
+        )
+    
+    # 2. Crear usuario en estado PENDIENTE de verificación
+    nuevo_usuario = models.Usuario(
+        nombre=usuario.nombre.strip(),
+        apellido=usuario.apellido.strip(),
+        dni_cuit=usuario.dni_cuit.strip(),
+        email=email_clean,
+        telefono=usuario.telefono.strip(),
+        tipo_usuario=usuario.tipo_usuario.value if hasattr(usuario.tipo_usuario, 'value') else usuario.tipo_usuario,
+        password_hash=seguridad.get_password_hash(usuario.password),
+        nombre_empresa=usuario.nombre_empresa.strip() if usuario.nombre_empresa else None,
+        color_primario=usuario.color_primario or "#00a650",
+        estado_verificacion=models.EstadoVerificacion.pendiente
+    )
+    db.add(nuevo_usuario)
+    db.commit()
+    db.refresh(nuevo_usuario)
+    
+    # 3. Generar código OTP de 6 dígitos
+    codigo_6_digitos = f"{random.randint(100000, 999999)}"
+    expiracion = datetime.utcnow() + timedelta(minutes=15)
+    
+    db.query(models.CodigoAcceso).filter(
+        models.CodigoAcceso.email == email_clean,
+        models.CodigoAcceso.usado == False
+    ).update({"usado": True})
+    
+    nuevo_codigo = models.CodigoAcceso(
+        email=email_clean,
+        codigo=codigo_6_digitos,
+        fecha_expiracion=expiracion,
+        usado=False
+    )
+    db.add(nuevo_codigo)
+    db.commit()
+    
+    print(f"📧 [KELVI REGISTRO] Código de activación para {email_clean}: {codigo_6_digitos}")
+    
+    return {
+        "status": "ok",
+        "mensaje": f"Usuario registrado. Te enviamos un código de verificación a {email_clean}",
+        "email": email_clean,
+        "codigo_demo": codigo_6_digitos
+    }
+
+# ─── 5. ACTIVAR CUENTA TRAS VERIFICAR CÓDIGO EMAIL ──────────
+@router.post("/activar-cuenta-otp", response_model=schemas.TokenResponse)
+def activar_cuenta_otp(payload: schemas.VerificarOTPRequest, db: Session = Depends(get_db)):
+    email_clean = payload.email.lower().strip()
+    codigo = payload.codigo.strip()
+    
+    registro = db.query(models.CodigoAcceso).filter(
+        models.CodigoAcceso.email == email_clean,
+        models.CodigoAcceso.codigo == codigo,
+        models.CodigoAcceso.usado == False,
+        models.CodigoAcceso.fecha_expiracion > datetime.utcnow()
+    ).first()
+    
+    if not registro:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Código de verificación inválido o expirado"
+        )
+    
+    registro.usado = True
+    
+    usuario = db.query(models.Usuario).filter(models.Usuario.email == email_clean).first()
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+        
+    usuario.estado_verificacion = models.EstadoVerificacion.verificado
+    db.commit()
+    db.refresh(usuario)
+    
+    access_token_expires = timedelta(minutes=seguridad.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = seguridad.create_access_token(
+        data={"sub": usuario.email, "id_usuario": usuario.id_usuario, "rol": usuario.tipo_usuario.value},
+        expires_delta=access_token_expires
+    )
+    
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "usuario": usuario
+    }
+
+# ─── 6. CORROBORAR / COMPLETAR DATOS TRAS LOGIN GOOGLE ──────
+class CorroborarDatosGoogleRequest(BaseModel):
+    nombre: str
+    apellido: str
+    dni_cuit: str
+    telefono: str
+    tipo_usuario: schemas.TipoUsuarioEnum
+    nombre_empresa: Optional[str] = None
+
+@router.patch("/completar-datos-google", response_model=schemas.UsuarioResponse)
+def completar_datos_google(
+    payload: CorroborarDatosGoogleRequest,
+    db: Session = Depends(get_db),
+    usuario_actual: models.Usuario = Depends(seguridad.get_usuario_actual)
+):
+    usuario_actual.nombre = payload.nombre.strip()
+    usuario_actual.apellido = payload.apellido.strip()
+    usuario_actual.dni_cuit = payload.dni_cuit.strip()
+    usuario_actual.telefono = payload.telefono.strip()
+    usuario_actual.tipo_usuario = payload.tipo_usuario.value if hasattr(payload.tipo_usuario, 'value') else payload.tipo_usuario
+    if payload.nombre_empresa:
+        usuario_actual.nombre_empresa = payload.nombre_empresa.strip()
+    
+    usuario_actual.estado_verificacion = models.EstadoVerificacion.verificado
+    db.commit()
+    db.refresh(usuario_actual)
+    return usuario_actual
