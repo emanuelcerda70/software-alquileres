@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
-﻿from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
+from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
 from sqlalchemy.orm import Session
 from typing import List
 import models, schemas, seguridad
