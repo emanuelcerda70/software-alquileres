@@ -625,6 +625,89 @@ if (loginFormTrad) {
     };
 }
 
+// ─── RECUPERACIÓN DE CONTRASEÑA ───────────────────────────────
+document.getElementById('btn-olvide-password')?.addEventListener('click', () => {
+    mostrarVista('recovery-view');
+    document.getElementById('recovery-step-email').classList.remove('hidden');
+    document.getElementById('recovery-step-codigo').classList.add('hidden');
+    document.getElementById('recovery-email').value = document.getElementById('email')?.value || '';
+});
+
+let recoveryEmail = '';
+
+const formRecoveryEmail = document.getElementById('form-recovery-email');
+if (formRecoveryEmail) {
+    formRecoveryEmail.onsubmit = async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('recovery-email').value.trim();
+        const btn = formRecoveryEmail.querySelector('button[type=submit]');
+        btn.disabled = true;
+        btn.textContent = 'Enviando...';
+        try {
+            const res = await fetch(`${API_URL}/usuarios/recuperar-contrasena`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            const data = await res.json();
+            recoveryEmail = email;
+            document.getElementById('recovery-sent-info').textContent =
+                `Te enviamos un código de 6 dígitos a ${email}`;
+            document.getElementById('recovery-step-email').classList.add('hidden');
+            document.getElementById('recovery-step-codigo').classList.remove('hidden');
+            showToast('Código enviado. Revisá tu email.', 'success');
+        } catch (err) {
+            showToast('Error al enviar. Intentá de nuevo.', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '📩 Enviar código de recuperación';
+        }
+    };
+}
+
+const formRecoveryReset = document.getElementById('form-recovery-reset');
+if (formRecoveryReset) {
+    formRecoveryReset.onsubmit = async (e) => {
+        e.preventDefault();
+        const codigo = document.getElementById('recovery-codigo').value.trim();
+        const nuevaPass = document.getElementById('recovery-nueva-pass').value;
+        const confirmarPass = document.getElementById('recovery-confirmar-pass').value;
+
+        if (nuevaPass !== confirmarPass) {
+            showToast('Las contraseñas no coinciden', 'error');
+            return;
+        }
+        if (nuevaPass.length < 8) {
+            showToast('La contraseña debe tener al menos 8 caracteres', 'error');
+            return;
+        }
+
+        const btn = formRecoveryReset.querySelector('button[type=submit]');
+        btn.disabled = true;
+        btn.textContent = 'Guardando...';
+        try {
+            const res = await fetch(`${API_URL}/usuarios/reset-contrasena`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: recoveryEmail, codigo, nueva_password: nuevaPass })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || 'Error al resetear');
+            showToast('¡Contraseña actualizada! Ya podés iniciar sesión.', 'success');
+            mostrarVista('login-view');
+            // Pre-completar email en login
+            const emailInput = document.getElementById('email');
+            if (emailInput) emailInput.value = recoveryEmail;
+            document.getElementById('btn-toggle-password-mode')?.click();
+        } catch (err) {
+            showToast(err.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '✓ Guardar nueva contraseña';
+        }
+    };
+}
+
 function completarInicioSesionExitoso(token, usuario) {
     const tokenPayload = JSON.parse(atob(token.split('.')[1]));
 

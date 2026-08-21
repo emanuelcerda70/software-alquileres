@@ -93,25 +93,113 @@ def upload_logo(
     return {"logo_url": usuario_actual.logo_url}
 
 import random
+import os
 from datetime import datetime, timedelta
 import base64
 import json
+import httpx
+
+# ─── HELPER: ENVÍO DE EMAIL VÍA RESEND ──────────────────────
+RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
+FROM_EMAIL = os.getenv("FROM_EMAIL", "Kelvi <onboarding@resend.dev>")
+APP_URL = os.getenv("APP_URL", "https://kelvi-app.vercel.app")
+
+def _html_email(titulo: str, cuerpo: str, codigo: str, tipo_accion: str) -> str:
+    return f"""
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:32px 16px">
+    <tr><td align="center">
+      <table width="100%" style="max-width:480px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)">
+        <tr><td style="background:#00a650;padding:24px 32px;text-align:center">
+          <img src="https://kelvi-app.vercel.app/img/logo.png" alt="Kelvi" height="52" style="display:block;margin:0 auto">
+        </td></tr>
+        <tr><td style="padding:32px">
+          <h2 style="margin:0 0 8px;color:#1a1f36;font-size:20px">{titulo}</h2>
+          <p style="margin:0 0 24px;color:#6b7280;font-size:14px;line-height:1.6">{cuerpo}</p>
+          <div style="background:#f0fdf4;border:2px solid #00a650;border-radius:12px;padding:20px;text-align:center;margin-bottom:24px">
+            <p style="margin:0 0 4px;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em">Tu código {tipo_accion}</p>
+            <p style="margin:0;font-size:36px;font-weight:700;letter-spacing:.25em;color:#00a650">{codigo}</p>
+            <p style="margin:8px 0 0;font-size:11px;color:#9ca3af">Válido por 15 minutos</p>
+          </div>
+          <p style="margin:0;color:#9ca3af;font-size:12px;text-align:center">
+            Si no solicitaste este código, ignorá este mensaje.<br>
+            <a href="{APP_URL}" style="color:#00a650">Ir a Kelvi</a>
+          </p>
+        </td></tr>
+        <tr><td style="background:#f9fafb;padding:16px 32px;text-align:center;border-top:1px solid #e5e7eb">
+          <p style="margin:0;font-size:11px;color:#9ca3af">© 2026 Kelvi · El alquiler, simple para todos</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>"""
+
+def enviar_email_otp(email: str, codigo: str, tipo: str = "registro"):
+    """Envía código OTP por email via Resend. Si no hay API key, lo loguea."""
+    if tipo == "registro":
+        titulo = "Verificá tu cuenta en Kelvi"
+        cuerpo = "Usá este código para activar tu cuenta. Solo lleva un momento."
+        tipo_accion = "de activación"
+        asunto = f"Tu código de verificación Kelvi: {codigo}"
+    elif tipo == "recuperacion":
+        titulo = "Recuperá tu contraseña"
+        cuerpo = "Recibiste este email porque pediste restablecer tu contraseña en Kelvi."
+        tipo_accion = "de recuperación"
+        asunto = f"Recuperá tu contraseña Kelvi: {codigo}"
+    else:  # login
+        titulo = "Tu código de acceso a Kelvi"
+        cuerpo = "Usá este código para ingresar a tu cuenta. No lo compartas con nadie."
+        tipo_accion = "de acceso"
+        asunto = f"Tu código de acceso Kelvi: {codigo}"
+
+    html = _html_email(titulo, cuerpo, codigo, tipo_accion)
+
+    if not RESEND_API_KEY:
+        # Modo desarrollo / sin key: mostrar en logs del servidor
+        print(f"[KELVI EMAIL - MODO DEMO] Para: {email} | Asunto: {asunto} | Codigo: {codigo}")
+        return
+
+    try:
+        with httpx.Client(timeout=8.0) as client:
+            resp = client.post(
+                "https://api.resend.com/emails",
+                headers={"Authorization": f"Bearer {RESEND_API_KEY}", "Content-Type": "application/json"},
+                json={"from": FROM_EMAIL, "to": [email], "subject": asunto, "html": html}
+            )
+            if resp.status_code not in (200, 201):
+                print(f"[KELVI EMAIL ERROR] Status {resp.status_code}: {resp.text[:200]}")
+            else:
+                print(f"[KELVI EMAIL OK] Enviado a {email}")
+    except Exception as e:
+        print(f"[KELVI EMAIL ERROR] {e}")
 
 # ─── 1. SOLICITAR CÓDIGO OTP (6 DÍGITOS) POR EMAIL ─────────
 @router.post("/solicitar-codigo-otp")
 def solicitar_codigo_otp(payload: schemas.SolicitarOTPRequest, db: Session = Depends(get_db)):
     email = payload.email.lower().strip()
-    
+
+    # Verificar que el usuario existe y está verificado
+    usuario = db.query(models.Usuario).filter(models.Usuario.email == email).first()
+    if not usuario:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No encontramos una cuenta con ese email"
+        )
+
     # Generar código de 6 dígitos
     codigo_6_digitos = f"{random.randint(100000, 999999)}"
-    expiracion = datetime.utcnow() + timedelta(minutes=10)
-    
-    # Desactivar códigos anteriores sin usar para este email
+    expiracion = datetime.utcnow() + timedelta(minutes=15)
+
+    # Desactivar códigos anteriores
     db.query(models.CodigoAcceso).filter(
         models.CodigoAcceso.email == email,
         models.CodigoAcceso.usado == False
     ).update({"usado": True})
-    
+
     nuevo_codigo = models.CodigoAcceso(
         email=email,
         codigo=codigo_6_digitos,
@@ -120,15 +208,14 @@ def solicitar_codigo_otp(payload: schemas.SolicitarOTPRequest, db: Session = Dep
     )
     db.add(nuevo_codigo)
     db.commit()
-    
-    # Simulación de envío de correo (en producción con Resend/SMTP)
-    print(f"📧 [KELVI OTP] Código de acceso generado para {email}: {codigo_6_digitos}")
-    
+
+    # Enviar email real (o loguear si no hay API key)
+    enviar_email_otp(email, codigo_6_digitos, tipo="login")
+
     return {
         "status": "ok",
         "mensaje": f"Código de acceso enviado a {email}",
-        "codigo_demo": codigo_6_digitos, # Retornado para pruebas inmediatas y desarrollo
-        "expira_en_minutos": 10
+        "expira_en_minutos": 15
     }
 
 # ─── 2. VERIFICAR CÓDIGO OTP (6 DÍGITOS) & LOGIN ───────────
@@ -301,13 +388,13 @@ def registro_con_verificacion(usuario: schemas.UsuarioCreate, db: Session = Depe
     db.add(nuevo_codigo)
     db.commit()
     
-    print(f"📧 [KELVI REGISTRO] Código de activación para {email_clean}: {codigo_6_digitos}")
+    # Enviar email de verificación real
+    enviar_email_otp(email_clean, codigo_6_digitos, tipo="registro")
     
     return {
         "status": "ok",
-        "mensaje": f"Usuario registrado. Te enviamos un código de verificación a {email_clean}",
-        "email": email_clean,
-        "codigo_demo": codigo_6_digitos
+        "mensaje": f"Cuenta creada. Te enviamos un código de verificación a {email_clean}",
+        "email": email_clean
     }
 
 # ─── 5. ACTIVAR CUENTA TRAS VERIFICAR CÓDIGO EMAIL ──────────
@@ -373,8 +460,77 @@ def completar_datos_google(
     usuario_actual.tipo_usuario = payload.tipo_usuario.value if hasattr(payload.tipo_usuario, 'value') else payload.tipo_usuario
     if payload.nombre_empresa:
         usuario_actual.nombre_empresa = payload.nombre_empresa.strip()
-    
+
     usuario_actual.estado_verificacion = models.EstadoVerificacion.verificado
     db.commit()
     db.refresh(usuario_actual)
     return usuario_actual
+
+
+# ─── 7. SOLICITAR RECUPERACIÓN DE CONTRASEÑA ────────────────
+class RecuperarPasswordRequest(BaseModel):
+    email: str
+
+@router.post("/recuperar-contrasena")
+def recuperar_contrasena(payload: RecuperarPasswordRequest, db: Session = Depends(get_db)):
+    email = payload.email.lower().strip()
+
+    usuario = db.query(models.Usuario).filter(models.Usuario.email == email).first()
+    # Siempre respondemos OK por seguridad (no revelar si el email existe)
+    if not usuario:
+        return {"status": "ok", "mensaje": "Si existe una cuenta con ese email, recibirás instrucciones"}
+
+    codigo_6_digitos = f"{random.randint(100000, 999999)}"
+    expiracion = datetime.utcnow() + timedelta(minutes=15)
+
+    db.query(models.CodigoAcceso).filter(
+        models.CodigoAcceso.email == email,
+        models.CodigoAcceso.usado == False
+    ).update({"usado": True})
+
+    db.add(models.CodigoAcceso(
+        email=email,
+        codigo=codigo_6_digitos,
+        fecha_expiracion=expiracion,
+        usado=False
+    ))
+    db.commit()
+
+    enviar_email_otp(email, codigo_6_digitos, tipo="recuperacion")
+
+    return {"status": "ok", "mensaje": "Si existe una cuenta con ese email, recibirás instrucciones"}
+
+
+# ─── 8. RESETEAR CONTRASEÑA CON CÓDIGO OTP ──────────────────
+class ResetPasswordRequest(BaseModel):
+    email: str
+    codigo: str
+    nueva_password: str
+
+@router.post("/reset-contrasena")
+def reset_contrasena(payload: ResetPasswordRequest, db: Session = Depends(get_db)):
+    email = payload.email.lower().strip()
+    codigo = payload.codigo.strip()
+
+    if len(payload.nueva_password) < 8:
+        raise HTTPException(status_code=400, detail="La contraseña debe tener al menos 8 caracteres")
+
+    registro = db.query(models.CodigoAcceso).filter(
+        models.CodigoAcceso.email == email,
+        models.CodigoAcceso.codigo == codigo,
+        models.CodigoAcceso.usado == False,
+        models.CodigoAcceso.fecha_expiracion > datetime.utcnow()
+    ).first()
+
+    if not registro:
+        raise HTTPException(status_code=400, detail="Código inválido o expirado")
+
+    usuario = db.query(models.Usuario).filter(models.Usuario.email == email).first()
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    registro.usado = True
+    usuario.password_hash = seguridad.get_password_hash(payload.nueva_password)
+    db.commit()
+
+    return {"status": "ok", "mensaje": "Contraseña actualizada correctamente. Ya podés iniciar sesión"}
