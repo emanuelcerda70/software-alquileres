@@ -265,61 +265,38 @@ function reiniciarFlujoOTP() {
     if (codeInput) codeInput.value = '';
 }
 
-// ─── AUTENTICACIÓN: 2. GOOGLE LOGIN (ONE-TAP / GIS) ─────────
+// ─── AUTENTICACIÓN: 2. GOOGLE LOGIN OFICIAL ─────────
+
+const GOOGLE_CLIENT_ID = "712726757913-27d18bf6ce4t1n7bt9ktvgtrr4i78fnl.apps.googleusercontent.com";
+
+function inicializarGoogleGIS() {
+    if (window.google && google.accounts && google.accounts.id) {
+        google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGoogleCredentialResponse,
+            auto_select: false,
+            cancel_on_tap_outside: true
+        });
+        console.log("Google Identity Services inicializado para Kelvi!");
+    }
+}
+
 document.getElementById('btn-google-login')?.addEventListener('click', () => {
-    const GOOGLE_CLIENT_ID = "108394857392-mockclientid.apps.googleusercontent.com";
-    
-    if (GOOGLE_CLIENT_ID.includes("mockclientid")) {
-        // Modo demo inteligente: solicitar el email de Google y autenticar en 1 clic
-        iniciarDemoGoogle();
-    } else if (window.google && google.accounts && google.accounts.id) {
+    if (window.google && google.accounts && google.accounts.id) {
         google.accounts.id.initialize({
             client_id: GOOGLE_CLIENT_ID,
             callback: handleGoogleCredentialResponse
         });
         google.accounts.id.prompt((notification) => {
             if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                iniciarDemoGoogle();
+                console.log("GIS prompt omitido o bloqueado, intentando de nuevo");
             }
         });
     } else {
-        iniciarDemoGoogle();
+        showToast("Cargando servicios de Google, intentá en unos segundos...", "info");
     }
 });
 
-async function handleGoogleCredentialResponse(response) {
-    if (!response.credential) return;
-    try {
-        const res = await fetch(`${API_URL}/usuarios/google-login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ credential: response.credential })
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || "Error al autenticar con Google");
-
-        completarInicioSesionExitoso(data.access_token, data.usuario);
-    } catch (e) {
-        showToast(e.message, "error");
-    }
-}
-
-function iniciarDemoGoogle() {
-    const emailPrompt = prompt("Ingresá tu correo de Google para acceder en 1 clic:", "usuario.google@gmail.com");
-    if (!emailPrompt) return;
-
-    // Crear mock JWT payload para Google login
-    const header = btoa(JSON.stringify({ alg: "RS256", typ: "JWT" }));
-    const payload = btoa(JSON.stringify({
-        email: emailPrompt.toLowerCase().trim(),
-        given_name: emailPrompt.split("@")[0].capitalize(),
-        family_name: "GoogleUser",
-        picture: "https://lh3.googleusercontent.com/a/default-user=s96-c"
-    }));
-    const mockGoogleJwt = `${header}.${payload}.mocksignature`;
-
-    handleGoogleCredentialResponse({ credential: mockGoogleJwt });
-}
 
 // ─── AUTENTICACIÓN: 3. HUELLA DIGITAL / FACEID (WEBAUTHN) ────
 function verificarSoporteBiometriaUI() {
@@ -2206,6 +2183,7 @@ String.prototype.capitalize = function() {
 
 // ─── INICIALIZACIÓN ──────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
+    inicializarGoogleGIS();
     const token = localStorage.getItem('token');
     if (token) {
         await sincronizarPerfilUsuario();
