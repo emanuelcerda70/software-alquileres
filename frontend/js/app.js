@@ -10,6 +10,7 @@ let mapMarkers = [];
 const geocodeCache = {};
 let currentTicketsList = [];
 let currentProvidersList = [];
+let currentPostulacionesList = [];
 let activeTicketForTriage = null;
 
 // ─── UTILIDAD: TOAST NOTIFICATIONS ─────────────────────────
@@ -354,7 +355,7 @@ async function cargarDashboard() {
                     <div class="stat-card">
                         <span class="stat-icon">📋</span>
                         <span class="stat-value">${m.postulaciones_pendientes || 0}</span>
-                        <span class="stat-label">Postulaciones en espera</span>
+                        <span class="stat-label">Visitas / Postulaciones</span>
                     </div>
                     <div class="stat-card">
                         <span class="stat-icon">📄</span>
@@ -372,7 +373,7 @@ async function cargarDashboard() {
                     <div class="stat-card">
                         <span class="stat-icon">📋</span>
                         <span class="stat-value">${m.postulaciones_pendientes || 0}</span>
-                        <span class="stat-label">Postulaciones por revisar</span>
+                        <span class="stat-label">Visitas & Legajos</span>
                     </div>
                     <div class="stat-card">
                         <span class="stat-icon">📄</span>
@@ -397,20 +398,20 @@ async function cargarDashboard() {
             <div class="property-card p-6 flex flex-col items-center text-center justify-center cursor-pointer" onclick="navegarA('marketplace')">
                 <span class="text-4xl mb-2">🏘</span>
                 <h3 class="font-bold text-navy text-base">Explorar Marketplace</h3>
-                <p class="text-xs text-gray-500 mt-1">Buscá y postulate a departamentos o casas disponibles</p>
+                <p class="text-xs text-gray-500 mt-1">Buscá y agendá visitas a inmuebles disponibles</p>
                 <span class="mt-4 text-brand text-xs font-semibold">Ir al Marketplace →</span>
+            </div>
+            <div class="property-card p-6 flex flex-col items-center text-center justify-center cursor-pointer" onclick="navegarA('postulaciones')">
+                <span class="text-4xl mb-2">📋</span>
+                <h3 class="font-bold text-navy text-base">Mis Visitas & Legajos</h3>
+                <p class="text-xs text-gray-500 mt-1">Seguimiento de visitas y carga de garantes</p>
+                <span class="mt-4 text-brand text-xs font-semibold">Ver Visitas →</span>
             </div>
             <div class="property-card p-6 flex flex-col items-center text-center justify-center cursor-pointer" onclick="navegarA('tickets')">
                 <span class="text-4xl mb-2">🛠</span>
                 <h3 class="font-bold text-navy text-base">Mantenimiento & Reclamos</h3>
                 <p class="text-xs text-gray-500 mt-1">Reportá incidencias o fallas en tu alquiler</p>
                 <span class="mt-4 text-brand text-xs font-semibold">Abrir Ticket →</span>
-            </div>
-            <div class="property-card p-6 flex flex-col items-center text-center justify-center cursor-pointer" onclick="navegarA('proveedores')">
-                <span class="text-4xl mb-2">🔧</span>
-                <h3 class="font-bold text-navy text-base">Red de Profesionales</h3>
-                <p class="text-xs text-gray-500 mt-1">Contactá plomeros, electricistas y gasistas</p>
-                <span class="mt-4 text-brand text-xs font-semibold">Ver Profesionales →</span>
             </div>
         `;
     } else {
@@ -428,7 +429,7 @@ async function cargarDashboard() {
                     <div class="col-span-full bg-white rounded-xl border border-dashed border-gray-300 p-8 text-center">
                         <span class="text-4xl mb-2 inline-block">🏠</span>
                         <h3 class="font-bold text-navy text-base">Aún no has publicado inmuebles</h3>
-                        <p class="text-xs text-gray-400 mt-1 mb-4">Comenzá a recibir postulaciones publicando tu primera propiedad</p>
+                        <p class="text-xs text-gray-400 mt-1 mb-4">Comenzá a recibir solicitudes de visita publicando tu primera propiedad</p>
                         <button onclick="navegarA('nuevaPropiedad')" class="btn-primary text-xs">+ Publicar Inmueble</button>
                     </div>
                 `;
@@ -638,17 +639,15 @@ async function cargarDetallePropiedad(propiedadId) {
 
             ${rol === 'inquilino' ? `
                 <div class="mt-8 p-6 rounded-xl bg-blue-50 border border-blue-100">
-                    <h3 class="text-base font-bold text-navy mb-1">¿Te interesa este alquiler?</h3>
-                    <p class="text-xs text-gray-500 mb-4">Envía tu postulación directa al propietario o inmobiliaria para coordinar una visita.</p>
-                    <form id="form-postulacion" onsubmit="enviarPostulacion(event, ${prop.id_propiedad})" class="space-y-3">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-gray-700 mb-1">Mensaje de presentación (opcional)</label>
-                            <textarea id="postulacion-mensaje" rows="2" placeholder="Hola, me interesa el departamento. Tengo recibo de sueldo y garantía..." class="input-base text-sm"></textarea>
+                            <h3 class="text-base font-bold text-navy mb-1">¿Te interesa este inmueble?</h3>
+                            <p class="text-xs text-gray-600">Coordiná una visita presencial con la inmobiliaria para conocer la propiedad antes de postularte.</p>
                         </div>
-                        <button type="submit" class="btn-primary text-sm w-full sm:w-auto">
-                            ✉ Postularme a esta propiedad
+                        <button onclick="abrirModalSolicitarVisita(${prop.id_propiedad})" class="btn-primary text-sm px-5 py-3 whitespace-nowrap">
+                            📅 Solicitar Visita Presencial
                         </button>
-                    </form>
+                    </div>
                 </div>
             ` : ''}
         `;
@@ -688,134 +687,85 @@ async function subirFotoPropiedad(propiedadId) {
     }
 }
 
-async function enviarPostulacion(e, propiedadId) {
+// ─── 4. SOLICITUD DE VISITA PRESENCIAL (INQUILINO) ──────────
+function abrirModalSolicitarVisita(propiedadId) {
+    document.getElementById('visita-id-propiedad').value = propiedadId;
+    
+    // Setear fecha mínima a mañana
+    const manana = new Date();
+    manana.setDate(manana.getDate() + 1);
+    const mananaStr = manana.toISOString().split('T')[0];
+    const inputFecha = document.getElementById('visita-fecha-propuesta');
+    if (inputFecha) {
+        inputFecha.min = mananaStr;
+        inputFecha.value = mananaStr;
+    }
+
+    document.getElementById('modal-solicitar-visita')?.classList.remove('hidden');
+}
+
+function cerrarModalSolicitarVisita() {
+    document.getElementById('modal-solicitar-visita')?.classList.add('hidden');
+}
+
+document.getElementById('form-solicitar-visita')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
-    const mensaje = document.getElementById('postulacion-mensaje')?.value.trim() || '';
+    const propId = parseInt(document.getElementById('visita-id-propiedad').value);
+    const fechaProp = document.getElementById('visita-fecha-propuesta').value;
+    const franja = document.getElementById('visita-franja-horaria').value;
+    const mensaje = document.getElementById('visita-mensaje')?.value.trim() || '';
 
     try {
-        const res = await fetch(`${API_URL}/postulaciones/`, {
+        const res = await fetch(`${API_URL}/postulaciones/solicitar-visita`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
-                id_propiedad: propiedadId,
+                id_propiedad: propId,
+                fecha_visita_propuesta: fechaProp,
+                franja_horaria: franja,
                 mensaje_inquilino: mensaje
             })
         });
 
         const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || "Error al enviar la postulación");
+        if (!res.ok) throw new Error(data.detail || "Error al solicitar visita");
 
-        showToast("¡Postulación enviada con éxito!", "success");
-        setTimeout(() => navegarA('postulaciones'), 1000);
+        cerrarModalSolicitarVisita();
+        showToast("¡Solicitud de visita enviada con éxito! La inmobiliaria confirmará el horario.", "success");
+        setTimeout(() => navegarA('postulaciones'), 800);
     } catch (err) {
         showToast(err.message, "error");
     }
-}
+});
 
-// ─── 4. MAPA INTERACTIVO (LEAFLET + NOMINATIM) ──────────────
-async function cargarMapa() {
-    const mapDiv = document.getElementById('mapa-leaflet');
-    if (!mapDiv) return;
-
-    if (!leafletMap) {
-        leafletMap = L.map('mapa-leaflet').setView([-34.6037, -58.3816], 12);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(leafletMap);
-    } else {
-        setTimeout(() => leafletMap.invalidateSize(), 200);
-    }
-
-    mapMarkers.forEach(m => leafletMap.removeLayer(m));
-    mapMarkers = [];
-
-    try {
-        const res = await fetch(`${API_URL}/propiedades/?limit=100`);
-        const propiedades = await res.json();
-
-        if (propiedades.length === 0) return;
-
-        const bounds = [];
-
-        for (const prop of propiedades) {
-            let lat = prop.latitud;
-            let lon = prop.longitud;
-
-            if (!lat || !lon) {
-                const queryKey = `${prop.ciudad}, Argentina`;
-                if (geocodeCache[queryKey]) {
-                    lat = geocodeCache[queryKey].lat + (Math.random() - 0.5) * 0.02;
-                    lon = geocodeCache[queryKey].lon + (Math.random() - 0.5) * 0.02;
-                } else {
-                    try {
-                        const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(queryKey)}&limit=1`);
-                        const geoData = await geoRes.json();
-                        if (geoData && geoData.length > 0) {
-                            lat = parseFloat(geoData[0].lat) + (Math.random() - 0.5) * 0.02;
-                            lon = parseFloat(geoData[0].lon) + (Math.random() - 0.5) * 0.02;
-                            geocodeCache[queryKey] = { lat: parseFloat(geoData[0].lat), lon: parseFloat(geoData[0].lon) };
-                        }
-                    } catch (e) {
-                        lat = -34.6037 + (Math.random() - 0.5) * 0.05;
-                        lon = -58.3816 + (Math.random() - 0.5) * 0.05;
-                    }
-                }
-            }
-
-            if (lat && lon) {
-                bounds.push([lat, lon]);
-                const marker = L.marker([lat, lon]).addTo(leafletMap);
-                
-                const popupContent = `
-                    <div class="popup-content">
-                        <span class="popup-badge">${formatTipo(prop.tipo_inmueble)}</span>
-                        <div class="popup-price">$${prop.precio_alquiler_base.toLocaleString('es-AR')}/mes</div>
-                        <div class="popup-address">${prop.calle_direccion}</div>
-                        <div class="popup-city">📍 ${prop.ciudad}</div>
-                        <button onclick="navegarA('detalle', { id: ${prop.id_propiedad} })" class="btn-primary text-xs w-full py-1 mt-2">Ver Inmueble</button>
-                    </div>
-                `;
-                marker.bindPopup(popupContent);
-                mapMarkers.push(marker);
-            }
-        }
-
-        if (bounds.length > 0) {
-            leafletMap.fitBounds(bounds, { padding: [40, 40] });
-        }
-    } catch (err) {
-        console.error("Error al cargar propiedades en mapa", err);
-    }
-}
-
-// ─── 5. POSTULACIONES (INQUILINO & PROPIETARIO) ──────────────
+// ─── 5. VISITAS & LEGAJOS (INQUILINO & PROPIETARIO) ──────────
 async function cargarPostulaciones() {
     const rol = localStorage.getItem('userRole');
     const token = localStorage.getItem('token');
     const container = document.getElementById('postulaciones-table-container');
     const subtitle = document.getElementById('postulaciones-subtitle');
 
-    container.innerHTML = `<div class="text-center py-8 text-gray-400">Cargando postulaciones...</div>`;
+    container.innerHTML = `<div class="text-center py-8 text-gray-400">Cargando visitas y legajos...</div>`;
 
     if (rol === 'inquilino') {
-        if (subtitle) subtitle.textContent = "Seguimiento de las solicitudes que enviaste a propietarios e inmobiliarias";
+        if (subtitle) subtitle.textContent = "Seguimiento de tus visitas presenciales y carga de garantes para alquiler";
         try {
             const res = await fetch(`${API_URL}/postulaciones/mis-postulaciones`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const posts = await res.json();
+            currentPostulacionesList = posts;
 
             if (posts.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state p-8">
-                        <div class="empty-icon">📋</div>
-                        <h3>No tienes postulaciones realizadas</h3>
-                        <p class="mb-3">Explorá el marketplace para encontrar inmuebles y postularte</p>
+                        <div class="empty-icon">📅</div>
+                        <h3>No tienes visitas ni postulaciones activas</h3>
+                        <p class="mb-3">Explorá el marketplace para agendar visitas a los inmuebles que te gusten</p>
                         <button onclick="navegarA('marketplace')" class="btn-primary text-xs">Ir al Marketplace</button>
                     </div>
                 `;
@@ -827,10 +777,10 @@ async function cargarPostulaciones() {
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Propiedad #</th>
-                            <th>Mensaje enviado</th>
-                            <th>Fecha</th>
-                            <th>Estado</th>
+                            <th>Propiedad</th>
+                            <th>Estado del Proceso</th>
+                            <th>Visita Agendada</th>
+                            <th>Legajo de Garantes</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -839,11 +789,33 @@ async function cargarPostulaciones() {
                             <tr>
                                 <td class="font-bold text-gray-500">#${p.id_postulacion}</td>
                                 <td>Propiedad #${p.id_propiedad}</td>
-                                <td class="text-xs text-gray-600">${p.mensaje_inquilino || '<i>Sin mensaje</i>'}</td>
-                                <td class="text-xs text-gray-500">${new Date(p.fecha_postulacion).toLocaleDateString('es-AR')}</td>
-                                <td><span class="estado-badge estado-${p.estado}">${p.estado}</span></td>
+                                <td>${renderBadgeEstadoPostulacion(p.estado)}</td>
+                                <td class="text-xs">
+                                    ${p.fecha_visita_confirmada 
+                                        ? `<span class="text-brand-dark font-bold">🗓 ${p.fecha_visita_confirmada}</span>`
+                                        : (p.fecha_visita_propuesta ? `Propuesto: ${p.fecha_visita_propuesta} (${p.franja_horaria})` : 'A coordinar')}
+                                </td>
+                                <td class="text-xs">
+                                    ${p.tipo_garantia 
+                                        ? `<span class="text-blue-700 font-semibold">🛡 ${p.tipo_garantia} (${p.nombre_garante})</span>`
+                                        : (p.estado === 'visita_realizada' ? '<span class="text-yellow-600 font-medium">⚠️ Pendiente de carga</span>' : '<span class="text-gray-400">Post-visita</span>')}
+                                </td>
                                 <td>
-                                    <button onclick="navegarA('detalle', { id: ${p.id_propiedad} })" class="text-xs text-brand font-semibold hover:underline">Ver Inmueble</button>
+                                    ${p.estado === 'visita_confirmada' ? `
+                                        <button onclick="marcarVisitaRealizada(${p.id_postulacion})" class="text-xs bg-green-50 text-green-700 border border-green-200 px-2 py-1 rounded font-semibold hover:bg-green-100">
+                                            ✓ Ya visité la propiedad
+                                        </button>
+                                    ` : (p.estado === 'visita_realizada' ? `
+                                        <button onclick="abrirModalCargarLegajo(${p.id_postulacion})" class="btn-primary text-xs py-1 px-2.5">
+                                            📎 Cargar Garantes
+                                        </button>
+                                    ` : (p.estado === 'aprobada' ? `
+                                        <button onclick="navegarA('contratos')" class="text-xs text-brand font-bold hover:underline">
+                                            Ver Contrato →
+                                        </button>
+                                    ` : `
+                                        <button onclick="navegarA('detalle', { id: ${p.id_propiedad} })" class="text-xs text-gray-500 hover:underline">Ver Inmueble</button>
+                                    `))}
                                 </td>
                             </tr>
                         `).join('')}
@@ -854,19 +826,21 @@ async function cargarPostulaciones() {
             container.innerHTML = `<div class="text-red-500 text-center py-4">Error: ${err.message}</div>`;
         }
     } else {
-        if (subtitle) subtitle.textContent = "Solicitudes recibidas de inquilinos interesados en tus inmuebles";
+        // Propietario / Inmobiliaria
+        if (subtitle) subtitle.textContent = "Coordinación de visitas y evaluación de solvencia de garantes de interesados";
         try {
             const res = await fetch(`${API_URL}/postulaciones/recibidas`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const posts = await res.json();
+            currentPostulacionesList = posts;
 
             if (posts.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state p-8">
                         <div class="empty-icon">📭</div>
-                        <h3>No has recibido postulaciones aún</h3>
-                        <p>Cuando los inquilinos se postulen a tus inmuebles aparecerán aquí</p>
+                        <h3>No hay solicitudes de visita pendientes</h3>
+                        <p>Cuando los interesados soliciten visitas a tus inmuebles aparecerán aquí</p>
                     </div>
                 `;
                 return;
@@ -877,11 +851,11 @@ async function cargarPostulaciones() {
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Inquilino (ID)</th>
-                            <th>Propiedad (ID)</th>
-                            <th>Mensaje</th>
-                            <th>Fecha</th>
-                            <th>Estado</th>
+                            <th>Inquilino</th>
+                            <th>Propiedad</th>
+                            <th>Estado del Proceso</th>
+                            <th>Fecha de Visita</th>
+                            <th>Garantía & Solvencia</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -891,18 +865,35 @@ async function cargarPostulaciones() {
                                 <td class="font-bold text-gray-500">#${p.id_postulacion}</td>
                                 <td>Inquilino #${p.id_inquilino}</td>
                                 <td>Propiedad #${p.id_propiedad}</td>
-                                <td class="text-xs text-gray-600">${p.mensaje_inquilino || '<i>Sin mensaje</i>'}</td>
-                                <td class="text-xs text-gray-500">${new Date(p.fecha_postulacion).toLocaleDateString('es-AR')}</td>
-                                <td><span class="estado-badge estado-${p.estado}">${p.estado}</span></td>
+                                <td>${renderBadgeEstadoPostulacion(p.estado)}</td>
+                                <td class="text-xs">
+                                    ${p.fecha_visita_confirmada 
+                                        ? `<span class="text-brand-dark font-bold">🗓 ${p.fecha_visita_confirmada}</span>`
+                                        : (p.fecha_visita_propuesta ? `Solicitado: <strong>${p.fecha_visita_propuesta}</strong><br><span class="text-gray-500">${p.franja_horaria}</span>` : 'A coordinar')}
+                                </td>
+                                <td class="text-xs">
+                                    ${p.tipo_garantia 
+                                        ? `<div><strong>${p.tipo_garantia}</strong></div><div class="text-gray-500">Garante: ${p.nombre_garante} ($${(p.ingresos_garante || 0).toLocaleString('es-AR')})</div>`
+                                        : (p.estado === 'solicitud_visita' || p.estado === 'visita_confirmada' ? '<span class="text-gray-400">Etapa de visita</span>' : '<span class="text-yellow-600">Esperando legajo</span>')}
+                                </td>
                                 <td>
-                                    ${p.estado === 'pendiente' ? `
-                                        <div class="flex gap-2">
-                                            <button onclick="cambiarEstadoPostulacion(${p.id_postulacion}, 'aprobada', ${p.id_propiedad}, ${p.id_inquilino})" class="text-xs bg-green-50 text-green-700 border border-green-200 px-2 py-1 rounded font-semibold hover:bg-green-100">Aprobar</button>
-                                            <button onclick="cambiarEstadoPostulacion(${p.id_postulacion}, 'rechazada')" class="text-xs bg-red-50 text-red-700 border border-red-200 px-2 py-1 rounded font-semibold hover:bg-red-100">Rechazar</button>
-                                        </div>
+                                    ${p.estado === 'solicitud_visita' ? `
+                                        <button onclick="abrirModalConfirmarVisita(${p.id_postulacion}, ${p.id_propiedad}, '${p.fecha_visita_propuesta}', '${p.franja_horaria}')" class="btn-primary text-xs py-1 px-2">
+                                            Confirmar Horario
+                                        </button>
+                                    ` : (p.estado === 'visita_confirmada' ? `
+                                        <button onclick="marcarVisitaRealizada(${p.id_postulacion})" class="text-xs bg-green-50 text-green-700 border border-green-200 px-2 py-1 rounded font-semibold hover:bg-green-100">
+                                            ✓ Marcar Realizada
+                                        </button>
+                                    ` : (p.estado === 'en_evaluacion' ? `
+                                        <button onclick="abrirModalVerLegajo(${p.id_postulacion})" class="btn-primary text-xs py-1 px-2.5">
+                                            🔍 Evaluar Garantes
+                                        </button>
                                     ` : (p.estado === 'aprobada' ? `
-                                        <button onclick="abrirModalContrato(${p.id_propiedad}, ${p.id_inquilino}, ${p.id_postulacion})" class="btn-primary text-xs py-1 px-2">Generar Contrato</button>
-                                    ` : '<span class="text-xs text-gray-400">-</span>')}
+                                        <button onclick="abrirModalContrato(${p.id_propiedad}, ${p.id_inquilino}, ${p.id_postulacion})" class="btn-primary text-xs py-1 px-2">
+                                            Generar Contrato
+                                        </button>
+                                    ` : '<span class="text-xs text-gray-400">-</span>')))}
                                 </td>
                             </tr>
                         `).join('')}
@@ -913,6 +904,157 @@ async function cargarPostulaciones() {
             container.innerHTML = `<div class="text-red-500 text-center py-4">Error: ${err.message}</div>`;
         }
     }
+}
+
+function renderBadgeEstadoPostulacion(estado) {
+    const badges = {
+        'solicitud_visita': '<span class="estado-badge estado-pendiente">📅 Visita Solicitada</span>',
+        'visita_confirmada': '<span class="estado-badge estado-activo">🗓 Visita Confirmada</span>',
+        'visita_realizada': '<span class="estado-badge" style="background:#e0f2fe;color:#0369a1;">✅ Visita Realizada</span>',
+        'en_evaluacion': '<span class="estado-badge" style="background:#fef3c7;color:#92400e;">🔍 Garantes en Evaluación</span>',
+        'aprobada': '<span class="estado-badge estado-aprobada">✓ Aprobada</span>',
+        'rechazada': '<span class="estado-badge estado-rechazada">✕ Rechazada</span>'
+    };
+    return badges[estado] || `<span class="estado-badge">${estado}</span>`;
+}
+
+// ─── 6. CONFIRMAR VISITA & LEGAJOS ──────────────────────────
+function abrirModalConfirmarVisita(idPostulacion, idPropiedad, fechaPropuesta, franja) {
+    document.getElementById('confirmar-visita-id-postulacion').value = idPostulacion;
+    document.getElementById('confirmar-visita-info').innerHTML = `
+        <div><strong>Propiedad:</strong> Inmueble #${idPropiedad}</div>
+        <div><strong>Fecha solicitada por inquilino:</strong> ${fechaPropuesta}</div>
+        <div><strong>Turno preferido:</strong> ${franja}</div>
+    `;
+    document.getElementById('confirmar-visita-texto').value = `${fechaPropuesta} (${franja})`;
+    document.getElementById('modal-confirmar-visita')?.classList.remove('hidden');
+}
+
+function cerrarModalConfirmarVisita() {
+    document.getElementById('modal-confirmar-visita')?.classList.add('hidden');
+}
+
+document.getElementById('form-confirmar-visita')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    const idPostulacion = parseInt(document.getElementById('confirmar-visita-id-postulacion').value);
+    const textoConfirmado = document.getElementById('confirmar-visita-texto').value.trim();
+
+    try {
+        const res = await fetch(`${API_URL}/postulaciones/${idPostulacion}/confirmar-visita`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ fecha_visita_confirmada: textoConfirmado })
+        });
+
+        if (!res.ok) throw new Error("Error al confirmar horario");
+
+        cerrarModalConfirmarVisita();
+        showToast("¡Visita confirmada y notificada al inquilino!", "success");
+        cargarPostulaciones();
+    } catch (err) {
+        showToast(err.message, "error");
+    }
+});
+
+async function marcarVisitaRealizada(idPostulacion) {
+    const token = localStorage.getItem('token');
+    try {
+        const res = await fetch(`${API_URL}/postulaciones/${idPostulacion}/marcar-visita-realizada`, {
+            method: 'PATCH',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!res.ok) throw new Error("Error al actualizar estado");
+
+        showToast("¡Visita marcada como realizada! Se habilitó la carga de garantes.", "success");
+        cargarPostulaciones();
+    } catch (err) {
+        showToast(err.message, "error");
+    }
+}
+
+function abrirModalCargarLegajo(idPostulacion) {
+    document.getElementById('legajo-id-postulacion').value = idPostulacion;
+    document.getElementById('form-cargar-legajo')?.reset();
+    document.getElementById('modal-cargar-legajo')?.classList.remove('hidden');
+}
+
+function cerrarModalCargarLegajo() {
+    document.getElementById('modal-cargar-legajo')?.classList.add('hidden');
+}
+
+document.getElementById('form-cargar-legajo')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    const idPostulacion = parseInt(document.getElementById('legajo-id-postulacion').value);
+
+    const legajoData = {
+        ingresos_mensuales: parseFloat(document.getElementById('legajo-ingresos').value),
+        tipo_garantia: document.getElementById('legajo-tipo-garantia').value,
+        nombre_garante: document.getElementById('legajo-nombre-garante').value.trim(),
+        dni_garante: document.getElementById('legajo-dni-garante').value.trim(),
+        telefono_garante: document.getElementById('legajo-telefono-garante').value.trim(),
+        ingresos_garante: parseFloat(document.getElementById('legajo-ingresos-garante').value),
+        notas_garantia: document.getElementById('legajo-notas-garantia')?.value.trim() || null
+    };
+
+    try {
+        const res = await fetch(`${API_URL}/postulaciones/${idPostulacion}/cargar-garantes`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(legajoData)
+        });
+
+        if (!res.ok) throw new Error("Error al cargar legajo de garantes");
+
+        cerrarModalCargarLegajo();
+        showToast("¡Legajo enviado exitosamente para evaluación de la inmobiliaria!", "success");
+        cargarPostulaciones();
+    } catch (err) {
+        showToast(err.message, "error");
+    }
+});
+
+function abrirModalVerLegajo(idPostulacion) {
+    const post = currentPostulacionesList.find(p => p.id_postulacion === idPostulacion);
+    if (!post) return;
+
+    document.getElementById('ver-legajo-content').innerHTML = `
+        <div class="p-3 bg-blue-50 rounded-lg text-xs space-y-1">
+            <div class="font-bold text-navy text-sm mb-1">Inquilino (Usuario #${post.id_inquilino})</div>
+            <div><strong>Ingresos Demostrables:</strong> $${(post.ingresos_mensuales || 0).toLocaleString('es-AR')}</div>
+            <div><strong>Mensaje inicial:</strong> "${post.mensaje_inquilino || 'Sin mensaje'}"</div>
+        </div>
+
+        <div class="p-3 bg-gray-50 rounded-lg text-xs space-y-1 border border-gray-200">
+            <div class="font-bold text-navy text-sm mb-1">Garantía Presentada: ${post.tipo_garantia || 'No especificada'}</div>
+            <div><strong>Nombre del Garante:</strong> ${post.nombre_garante || 'N/A'}</div>
+            <div><strong>DNI / CUIT:</strong> ${post.dni_garante || 'N/A'}</div>
+            <div><strong>Teléfono de Contacto:</strong> ${post.telefono_garante || 'N/A'}</div>
+            <div><strong>Ingresos del Garante:</strong> $${(post.ingresos_garante || 0).toLocaleString('es-AR')}</div>
+            ${post.notas_garantia ? `<div><strong>Notas de respaldo:</strong> ${post.notas_garantia}</div>` : ''}
+        </div>
+    `;
+
+    document.getElementById('ver-legajo-actions').innerHTML = `
+        <button onclick="cambiarEstadoPostulacion(${post.id_postulacion}, 'rechazada')" class="btn-secondary flex-1 text-red-600">Rechazar Legajo</button>
+        <button onclick="cerrarModalVerLegajo(); cambiarEstadoPostulacion(${post.id_postulacion}, 'aprobada', ${post.id_propiedad}, ${post.id_inquilino})" class="btn-primary flex-1">
+            ✓ Aprobar y Generar Contrato
+        </button>
+    `;
+
+    document.getElementById('modal-ver-legajo')?.classList.remove('hidden');
+}
+
+function cerrarModalVerLegajo() {
+    document.getElementById('modal-ver-legajo')?.classList.add('hidden');
 }
 
 async function cambiarEstadoPostulacion(postulacionId, nuevoEstado, idPropiedad = null, idInquilino = null) {
@@ -940,7 +1082,7 @@ async function cambiarEstadoPostulacion(postulacionId, nuevoEstado, idPropiedad 
     }
 }
 
-// ─── 6. CONTRATOS & MODAL DE GENERACIÓN ─────────────────────
+// ─── 7. CONTRATOS & MODAL DE GENERACIÓN ─────────────────────
 function abrirModalContrato(idPropiedad, idInquilino, idPostulacion) {
     document.getElementById('contrato-id-propiedad').value = idPropiedad;
     document.getElementById('contrato-id-inquilino').value = idInquilino;
@@ -1082,7 +1224,84 @@ async function cambiarEstadoContrato(contratoId, nuevoEstado) {
     }
 }
 
-// ─── 7. TICKETS DE MANTENIMIENTO (HELPDESK) ──────────────────
+// ─── 8. MAPA INTERACTIVO (LEAFLET) ──────────────────────────
+async function cargarMapa() {
+    const mapDiv = document.getElementById('mapa-leaflet');
+    if (!mapDiv) return;
+
+    if (!leafletMap) {
+        leafletMap = L.map('mapa-leaflet').setView([-34.6037, -58.3816], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(leafletMap);
+    } else {
+        setTimeout(() => leafletMap.invalidateSize(), 200);
+    }
+
+    mapMarkers.forEach(m => leafletMap.removeLayer(m));
+    mapMarkers = [];
+
+    try {
+        const res = await fetch(`${API_URL}/propiedades/?limit=100`);
+        const propiedades = await res.json();
+
+        if (propiedades.length === 0) return;
+
+        const bounds = [];
+
+        for (const prop of propiedades) {
+            let lat = prop.latitud;
+            let lon = prop.longitud;
+
+            if (!lat || !lon) {
+                const queryKey = `${prop.ciudad}, Argentina`;
+                if (geocodeCache[queryKey]) {
+                    lat = geocodeCache[queryKey].lat + (Math.random() - 0.5) * 0.02;
+                    lon = geocodeCache[queryKey].lon + (Math.random() - 0.5) * 0.02;
+                } else {
+                    try {
+                        const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(queryKey)}&limit=1`);
+                        const geoData = await geoRes.json();
+                        if (geoData && geoData.length > 0) {
+                            lat = parseFloat(geoData[0].lat) + (Math.random() - 0.5) * 0.02;
+                            lon = parseFloat(geoData[0].lon) + (Math.random() - 0.5) * 0.02;
+                            geocodeCache[queryKey] = { lat: parseFloat(geoData[0].lat), lon: parseFloat(geoData[0].lon) };
+                        }
+                    } catch (e) {
+                        lat = -34.6037 + (Math.random() - 0.5) * 0.05;
+                        lon = -58.3816 + (Math.random() - 0.5) * 0.05;
+                    }
+                }
+            }
+
+            if (lat && lon) {
+                bounds.push([lat, lon]);
+                const marker = L.marker([lat, lon]).addTo(leafletMap);
+                
+                const popupContent = `
+                    <div class="popup-content">
+                        <span class="popup-badge">${formatTipo(prop.tipo_inmueble)}</span>
+                        <div class="popup-price">$${prop.precio_alquiler_base.toLocaleString('es-AR')}/mes</div>
+                        <div class="popup-address">${prop.calle_direccion}</div>
+                        <div class="popup-city">📍 ${prop.ciudad}</div>
+                        <button onclick="navegarA('detalle', { id: ${prop.id_propiedad} })" class="btn-primary text-xs w-full py-1 mt-2">Ver Inmueble</button>
+                    </div>
+                `;
+                marker.bindPopup(popupContent);
+                mapMarkers.push(marker);
+            }
+        }
+
+        if (bounds.length > 0) {
+            leafletMap.fitBounds(bounds, { padding: [40, 40] });
+        }
+    } catch (err) {
+        console.error("Error al cargar propiedades en mapa", err);
+    }
+}
+
+// ─── 9. TICKETS DE MANTENIMIENTO (HELPDESK) ──────────────────
 async function cargarTickets() {
     const rol = localStorage.getItem('userRole');
     const token = localStorage.getItem('token');
@@ -1311,7 +1530,6 @@ async function abrirModalGestionarTicket(ticketId) {
     document.getElementById('gestionar-ticket-costo').value = ticket.costo_estimado || '';
     document.getElementById('gestionar-ticket-respuesta').value = ticket.respuesta_gestor || '';
 
-    // Cargar proveedores en el selector rápido
     await cargarProveedoresEnSelector();
 
     document.getElementById('modal-gestionar-ticket')?.classList.remove('hidden');
@@ -1407,7 +1625,7 @@ document.getElementById('form-gestionar-ticket')?.addEventListener('submit', asy
     }
 });
 
-// ─── 8. RED DE PROVEEDORES & OFICIOS ────────────────────────
+// ─── 10. RED DE PROVEEDORES & OFICIOS ───────────────────────
 async function cargarProveedores() {
     const grid = document.getElementById('proveedores-content');
     if (!grid) return;
@@ -1518,7 +1736,7 @@ document.getElementById('form-nuevo-proveedor')?.addEventListener('submit', asyn
     }
 });
 
-// ─── 9. VISTA MI MARCA (WHITE-LABEL ENTERPRISE) ─────────────
+// ─── 11. VISTA MI MARCA (WHITE-LABEL ENTERPRISE) ────────────
 function cargarBrandingView() {
     const empresa = localStorage.getItem('userEmpresa') || '';
     const color = localStorage.getItem('userColor') || '#00a650';
@@ -1610,7 +1828,7 @@ document.getElementById('form-branding')?.addEventListener('submit', async (e) =
     }
 });
 
-// ─── 10. PUBLICACIÓN DE NUEVA PROPIEDAD CON FOTO ─────────────
+// ─── 12. PUBLICACIÓN DE NUEVA PROPIEDAD CON FOTO ────────────
 function prepararNuevaPropiedad() {
     const form = document.getElementById('nueva-propiedad-form');
     if (form) form.reset();

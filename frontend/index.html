@@ -162,7 +162,7 @@
                     <button onclick="navegarA('dashboard')" id="nav-btn-dashboard" class="nav-link">📊 Mi Panel</button>
                     <button onclick="navegarA('marketplace')" id="nav-btn-marketplace" class="nav-link">🏘 Marketplace</button>
                     <button onclick="navegarA('mapa')" id="nav-btn-mapa" class="nav-link">🗺 Mapa</button>
-                    <button onclick="navegarA('postulaciones')" id="nav-btn-postulaciones" class="nav-link">📋 Postulaciones</button>
+                    <button onclick="navegarA('postulaciones')" id="nav-btn-postulaciones" class="nav-link">📋 Visitas & Postulaciones</button>
                     <button onclick="navegarA('contratos')" id="nav-btn-contratos" class="nav-link">📄 Contratos</button>
                     <button onclick="navegarA('tickets')" id="nav-btn-tickets" class="nav-link">🛠 Mantenimiento</button>
                     <button onclick="navegarA('proveedores')" id="nav-btn-proveedores" class="nav-link">🔧 Profesionales</button>
@@ -183,7 +183,7 @@
         <button onclick="navegarA('dashboard')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">📊 Panel</button>
         <button onclick="navegarA('marketplace')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">🏘 Marketplace</button>
         <button onclick="navegarA('mapa')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">🗺 Mapa</button>
-        <button onclick="navegarA('postulaciones')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">📋 Postulaciones</button>
+        <button onclick="navegarA('postulaciones')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">📋 Visitas</button>
         <button onclick="navegarA('contratos')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">📄 Contratos</button>
         <button onclick="navegarA('tickets')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">🛠 Tickets</button>
         <button onclick="navegarA('proveedores')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">🔧 Profesionales</button>
@@ -304,12 +304,12 @@
     </div>
 
     <!-- ══════════════════════════════════════════ -->
-    <!--  7. VISTA POSTULACIONES                    -->
+    <!--  7. VISTA VISITAS & POSTULACIONES          -->
     <!-- ══════════════════════════════════════════ -->
     <div id="postulaciones-view" class="hidden page-content">
         <div class="mb-6">
-            <h1 class="text-2xl font-bold text-navy">Gestión de Postulaciones</h1>
-            <p id="postulaciones-subtitle" class="text-sm text-gray-500">Postulaciones y solicitudes de alquiler</p>
+            <h1 class="text-2xl font-bold text-navy">📋 Visitas Presenciales & Legajos</h1>
+            <p id="postulaciones-subtitle" class="text-sm text-gray-500">Circuito de agendamiento de visitas, evaluación de garantes y contratos</p>
         </div>
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
             <div id="postulaciones-table-container" class="overflow-x-auto">
@@ -368,7 +368,6 @@
             </button>
         </div>
 
-        <!-- Filtro por Rubro y Ciudad -->
         <div class="filter-bar">
             <div class="filter-group">
                 <label class="filter-label">Especialidad / Rubro</label>
@@ -534,7 +533,164 @@
     </div>
 
     <!-- ══════════════════════════════════════════ -->
-    <!--  MODAL 1: CREAR CONTRATO DESDE POSTULACIÓN -->
+    <!--  MODAL A: SOLICITAR VISITA PRESENCIAL      -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="modal-solicitar-visita" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-navy">📅 Agendar Visita Presencial</h3>
+                <button onclick="cerrarModalSolicitarVisita()" class="text-gray-400 hover:text-gray-600 font-bold text-lg">&times;</button>
+            </div>
+            <p class="text-xs text-gray-500 mb-4">Elegí la fecha y turno que te quede más cómodo para conocer el inmueble.</p>
+            <form id="form-solicitar-visita" class="space-y-4">
+                <input type="hidden" id="visita-id-propiedad">
+                
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Fecha preferida para visitar</label>
+                    <input type="date" id="visita-fecha-propuesta" required class="input-base">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Franja Horaria de Preferencia</label>
+                    <select id="visita-franja-horaria" class="input-base">
+                        <option value="Mañana (09:00 a 13:00)">Mañana (09:00 a 13:00)</option>
+                        <option value="Tarde (14:00 a 18:00)" selected>Tarde (14:00 a 18:00)</option>
+                        <option value="Sábado por la mañana (10:00 a 14:00)">Sábado por la mañana (10:00 a 14:00)</option>
+                        <option value="Horario a coordinar por WhatsApp">Horario a coordinar por WhatsApp</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Mensaje o Consulta adicional (Opcional)</label>
+                    <textarea id="visita-mensaje" rows="2" placeholder="Hola, me interesa ver el departamento..." class="input-base text-sm"></textarea>
+                </div>
+
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="cerrarModalSolicitarVisita()" class="btn-secondary flex-1">Cancelar</button>
+                    <button type="submit" class="btn-primary flex-1">Enviar Solicitud de Visita</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  MODAL B: CONFIRMAR FECHA/HORA DE VISITA   -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="modal-confirmar-visita" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-navy">🗓 Confirmar Horario de Visita</h3>
+                <button onclick="cerrarModalConfirmarVisita()" class="text-gray-400 hover:text-gray-600 font-bold text-lg">&times;</button>
+            </div>
+            <div id="confirmar-visita-info" class="p-3 bg-gray-50 rounded-lg text-xs space-y-1 mb-4 border border-gray-200">
+                <!-- Info de solicitud -->
+            </div>
+            <form id="form-confirmar-visita" class="space-y-4">
+                <input type="hidden" id="confirmar-visita-id-postulacion">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Fecha y Hora confirmada</label>
+                    <input type="text" id="confirmar-visita-texto" required placeholder="Ej: Jueves 22/08 a las 15:30 hs" class="input-base">
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="cerrarModalConfirmarVisita()" class="btn-secondary flex-1">Cancelar</button>
+                    <button type="submit" class="btn-primary flex-1">Confirmar Visita</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  MODAL C: CARGAR LEGAJO & GARANTES         -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="modal-cargar-legajo" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-lg font-bold text-navy">📎 Cargar Legajo Digital & Garantes</h3>
+                <button onclick="cerrarModalCargarLegajo()" class="text-gray-400 hover:text-gray-600 font-bold text-lg">&times;</button>
+            </div>
+            <p class="text-xs text-gray-500 mb-4">¿Te gustó la propiedad tras la visita? Completá tus ingresos y datos de tu garantía para que la inmobiliaria evalúe tu postulación.</p>
+            
+            <form id="form-cargar-legajo" class="space-y-4">
+                <input type="hidden" id="legajo-id-postulacion">
+
+                <div class="p-3 bg-blue-50 rounded-lg border border-blue-100">
+                    <h4 class="text-xs font-bold text-navy uppercase mb-2">1. Tus Ingresos Declarados</h4>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Ingresos mensuales demostrables ($)</label>
+                        <input type="number" id="legajo-ingresos" required placeholder="Ej: 650000" class="input-base">
+                    </div>
+                </div>
+
+                <div class="p-3 bg-gray-50 rounded-lg border border-gray-200 space-y-3">
+                    <h4 class="text-xs font-bold text-navy uppercase">2. Tipo de Garantía & Datos del Garante</h4>
+                    
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Tipo de Garantía Presentada</label>
+                        <select id="legajo-tipo-garantia" class="input-base">
+                            <option value="Garantes con Recibo de Sueldo">Recibo de Sueldo de Garante(s)</option>
+                            <option value="Garantía Propietaria">Garantía Propietaria (Inmueble)</option>
+                            <option value="Seguro de Caución (Finaer / Garantor / Respaldar)">Seguro de Caución (Finaer / Garantor / Respaldar)</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Nombre Completo Garante</label>
+                            <input type="text" id="legajo-nombre-garante" required placeholder="Ej: Roberto García" class="input-base">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">DNI / CUIT Garante</label>
+                            <input type="text" id="legajo-dni-garante" required placeholder="20123456" class="input-base">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Teléfono Garante</label>
+                            <input type="text" id="legajo-telefono-garante" required placeholder="+54 9 11..." class="input-base">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Ingresos Garante ($)</label>
+                            <input type="number" id="legajo-ingresos-garante" required placeholder="Ej: 900000" class="input-base">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Notas / Empresa donde trabaja el Garante (Opcional)</label>
+                        <input type="text" id="legajo-notas-garantia" placeholder="Ej: Empleado en YPF desde hace 5 años" class="input-base">
+                    </div>
+                </div>
+
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="cerrarModalCargarLegajo()" class="btn-secondary flex-1">Cancelar</button>
+                    <button type="submit" class="btn-primary flex-1">Enviar Legajo para Evaluación</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  MODAL D: REVISAR LEGAJO & APROBAR         -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="modal-ver-legajo" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-xl">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-lg font-bold text-navy">🔍 Legajo de Solvencia & Garantes</h3>
+                <button onclick="cerrarModalVerLegajo()" class="text-gray-400 hover:text-gray-600 font-bold text-lg">&times;</button>
+            </div>
+            
+            <div id="ver-legajo-content" class="space-y-3 mb-5">
+                <!-- Contenido dinámico del legajo -->
+            </div>
+
+            <div class="flex gap-2 pt-2" id="ver-legajo-actions">
+                <!-- Botones de aprobar / rechazar -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  MODAL 1: CREAR CONTRATO FINAL             -->
     <!-- ══════════════════════════════════════════ -->
     <div id="modal-crear-contrato" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-xl">

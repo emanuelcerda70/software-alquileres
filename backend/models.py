@@ -1,4 +1,4 @@
-﻿from sqlalchemy import Column, Integer, String, Boolean, Float, ForeignKey, Enum, DateTime, Text, Date
+from sqlalchemy import Column, Integer, String, Boolean, Float, ForeignKey, Enum, DateTime, Text, Date
 from sqlalchemy.orm import relationship
 from database import Base
 import enum
@@ -27,7 +27,7 @@ class Usuario(Base):
     estado_verificacion = Column(Enum(EstadoVerificacion), default=EstadoVerificacion.pendiente)
     fecha_registro = Column(DateTime, default=datetime.utcnow)
     
-    # White-Label Branding (Inmobiliarias / Gestores)
+    # White-Label Branding (Inmobiliarias)
     nombre_empresa = Column(String(150), nullable=True)
     logo_url = Column(String(500), nullable=True)
     color_primario = Column(String(20), nullable=True, default="#00a650")
@@ -63,7 +63,10 @@ class Propiedad(Base):
     propietario_gestor = relationship("Usuario", back_populates="propiedades")
 
 class EstadoPostulacion(enum.Enum):
-    pendiente = "pendiente"
+    solicitud_visita = "solicitud_visita"
+    visita_confirmada = "visita_confirmada"
+    visita_realizada = "visita_realizada"
+    en_evaluacion = "en_evaluacion"
     aprobada = "aprobada"
     rechazada = "rechazada"
 
@@ -73,7 +76,22 @@ class Postulacion(Base):
     id_propiedad = Column(Integer, ForeignKey("propiedades.id_propiedad"), nullable=False)
     id_inquilino = Column(Integer, ForeignKey("usuarios.id_usuario"), nullable=False)
     mensaje_inquilino = Column(Text, nullable=True)
-    estado = Column(Enum(EstadoPostulacion), default=EstadoPostulacion.pendiente)
+    estado = Column(Enum(EstadoPostulacion), default=EstadoPostulacion.solicitud_visita)
+    
+    # 1. Agendamiento de Visitas Presenciales
+    fecha_visita_propuesta = Column(Date, nullable=True)
+    franja_horaria = Column(String(100), nullable=True) # Ej: "Mañana (09:00 a 13:00)"
+    fecha_visita_confirmada = Column(String(100), nullable=True) # Ej: "Sábado 24/08 a las 11:30 hs"
+    
+    # 2. Legajo Digital del Inquilino & Garantes
+    ingresos_mensuales = Column(Float, nullable=True)
+    tipo_garantia = Column(String(100), nullable=True) # Garantía Propietaria, Seguro Caución, Recibo Sueldo Garante
+    nombre_garante = Column(String(150), nullable=True)
+    dni_garante = Column(String(30), nullable=True)
+    telefono_garante = Column(String(30), nullable=True)
+    ingresos_garante = Column(Float, nullable=True)
+    notas_garantia = Column(Text, nullable=True)
+    
     fecha_postulacion = Column(DateTime, default=datetime.utcnow)
 
 class EstadoContrato(enum.Enum):

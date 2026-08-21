@@ -1,4 +1,4 @@
-﻿from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import datetime, date
 import enum
@@ -20,7 +20,10 @@ class EstadoPublicacionEnum(str, enum.Enum):
     alquilada = "alquilada"
 
 class EstadoPostulacionEnum(str, enum.Enum):
-    pendiente = "pendiente"
+    solicitud_visita = "solicitud_visita"
+    visita_confirmada = "visita_confirmada"
+    visita_realizada = "visita_realizada"
+    en_evaluacion = "en_evaluacion"
     aprobada = "aprobada"
     rechazada = "rechazada"
 
@@ -101,18 +104,41 @@ class PropiedadResponse(PropiedadBase):
     class Config:
         from_attributes = True
 
-# ─── POSTULACIONES ────────────────────────────────────────
-class PostulacionBase(BaseModel):
+# ─── POSTULACIONES & VISITAS ──────────────────────────────
+class SolicitudVisitaCreate(BaseModel):
     id_propiedad: int
     mensaje_inquilino: Optional[str] = None
+    fecha_visita_propuesta: Optional[date] = None
+    franja_horaria: Optional[str] = "Tarde (14:00 a 18:00)"
 
-class PostulacionCreate(PostulacionBase):
-    pass
+class ConfirmarVisitaUpdate(BaseModel):
+    fecha_visita_confirmada: str
 
-class PostulacionResponse(PostulacionBase):
+class CargarGarantesUpdate(BaseModel):
+    ingresos_mensuales: float
+    tipo_garantia: str
+    nombre_garante: str
+    dni_garante: str
+    telefono_garante: str
+    ingresos_garante: float
+    notas_garantia: Optional[str] = None
+
+class PostulacionResponse(BaseModel):
     id_postulacion: int
+    id_propiedad: int
     id_inquilino: int
+    mensaje_inquilino: Optional[str] = None
     estado: EstadoPostulacionEnum
+    fecha_visita_propuesta: Optional[date] = None
+    franja_horaria: Optional[str] = None
+    fecha_visita_confirmada: Optional[str] = None
+    ingresos_mensuales: Optional[float] = None
+    tipo_garantia: Optional[str] = None
+    nombre_garante: Optional[str] = None
+    dni_garante: Optional[str] = None
+    telefono_garante: Optional[str] = None
+    ingresos_garante: Optional[float] = None
+    notas_garantia: Optional[str] = None
     fecha_postulacion: datetime
     class Config:
         from_attributes = True
@@ -193,14 +219,3 @@ class ProveedorResponse(ProveedorBase):
     fecha_registro: datetime
     class Config:
         from_attributes = True
-
-class ProveedorUpdate(BaseModel):
-    nombre_completo: Optional[str] = None
-    empresa: Optional[str] = None
-    rubro: Optional[RubroServicioEnum] = None
-    matricula: Optional[str] = None
-    ciudad: Optional[str] = None
-    telefono: Optional[str] = None
-    whatsapp: Optional[str] = None
-    tarifa_visita_estimada: Optional[float] = None
-    activo: Optional[bool] = None

@@ -391,3 +391,37 @@ input:focus, select:focus, textarea:focus {
     padding: 3px 10px; border-radius: 20px;
     background: var(--brand-light); color: var(--brand-dark);
 }
+
+/* ─── VISITAS & LEGAJO STEPPER ───────── */
+.timeline-stepper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+    font-size: 11px;
+}
+.step-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    background: #f1f3f5;
+    color: #6c757d;
+    font-weight: 600;
+}
+.step-item.active {
+    background: var(--brand-light);
+    color: var(--brand-dark);
+}
+.step-item.completed {
+    background: #e6f4ea;
+    color: #137333;
+}
+.legajo-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 12px;
+}
