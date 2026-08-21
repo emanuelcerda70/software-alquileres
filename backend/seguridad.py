@@ -1,4 +1,4 @@
-﻿from datetime import datetime, timedelta
+from datetime import datetime, timedelta
 from typing import Optional
 import jwt
 from jwt.exceptions import InvalidTokenError
@@ -44,13 +44,24 @@ def get_usuario_actual(token: str = Depends(oauth2_scheme), db: Session = Depend
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        usuario_id: str = payload.get("sub")
-        if usuario_id is None:
+        sub: str = str(payload.get("sub", ""))
+        id_usuario = payload.get("id_usuario")
+        if not sub and not id_usuario:
             raise credentials_exception
-    except InvalidTokenError:
+    except Exception:
         raise credentials_exception
-    
-    usuario = db.query(models.Usuario).filter(models.Usuario.id_usuario == int(usuario_id)).first()
+
+    usuario = None
+    # 1. Intentar buscar por id_usuario del payload o sub numérico
+    target_id = id_usuario if id_usuario else (int(sub) if sub.isdigit() else None)
+    if target_id is not None:
+        usuario = db.query(models.Usuario).filter(models.Usuario.id_usuario == int(target_id)).first()
+
+    # 2. Si no se encontró y sub es email, buscar por email
+    if not usuario and "@" in sub:
+        usuario = db.query(models.Usuario).filter(models.Usuario.email == sub.lower().strip()).first()
+
     if usuario is None:
         raise credentials_exception
     return usuario
+

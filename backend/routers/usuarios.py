@@ -453,18 +453,45 @@ def completar_datos_google(
     db: Session = Depends(get_db),
     usuario_actual: models.Usuario = Depends(seguridad.get_usuario_actual)
 ):
-    usuario_actual.nombre = payload.nombre.strip()
-    usuario_actual.apellido = payload.apellido.strip()
-    usuario_actual.dni_cuit = payload.dni_cuit.strip()
-    usuario_actual.telefono = payload.telefono.strip()
-    usuario_actual.tipo_usuario = payload.tipo_usuario.value if hasattr(payload.tipo_usuario, 'value') else payload.tipo_usuario
-    if payload.nombre_empresa:
-        usuario_actual.nombre_empresa = payload.nombre_empresa.strip()
+    dni_clean = payload.dni_cuit.strip()
+    
+    # 1. Validar que el DNI no esté en uso por otro usuario
+    otro = db.query(models.Usuario).filter(
+        models.Usuario.dni_cuit == dni_clean,
+        models.Usuario.id_usuario != usuario_actual.id_usuario
+    ).first()
+    if otro:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El DNI o CUIT ya está registrado por otro usuario"
+        )
 
-    usuario_actual.estado_verificacion = models.EstadoVerificacion.verificado
-    db.commit()
-    db.refresh(usuario_actual)
-    return usuario_actual
+    try:
+        usuario_actual.nombre = payload.nombre.strip()
+        usuario_actual.apellido = payload.apellido.strip()
+        usuario_actual.dni_cuit = dni_clean
+        usuario_actual.telefono = payload.telefono.strip()
+        
+        # Asignar Enum de forma segura
+        val_rol = payload.tipo_usuario.value if hasattr(payload.tipo_usuario, 'value') else str(payload.tipo_usuario)
+        usuario_actual.tipo_usuario = models.TipoUsuario(val_rol)
+        
+        if payload.nombre_empresa:
+            usuario_actual.nombre_empresa = payload.nombre_empresa.strip()
+
+        usuario_actual.estado_verificacion = models.EstadoVerificacion.verificado
+        db.commit()
+        db.refresh(usuario_actual)
+        return usuario_actual
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Error al guardar datos: {str(e)}"
+        )
+
 
 
 # ─── 7. SOLICITAR RECUPERACIÓN DE CONTRASEÑA ────────────────
