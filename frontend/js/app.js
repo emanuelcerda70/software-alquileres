@@ -185,19 +185,16 @@ function aplicarBranding(userData) {
         document.documentElement.style.setProperty('--brand-dark', '#008c44');
     }
 
-    const companyName = userData.nombre_empresa || 'Software Alquileres';
+    const companyName = userData.nombre_empresa || 'Kelvi';
     const navCompany = document.getElementById('nav-company-name');
     if (navCompany) navCompany.textContent = companyName;
 
-    const navLogoMark = document.getElementById('nav-logo-mark');
-    if (navLogoMark) {
+    const navLogoImg = document.getElementById('nav-logo-img');
+    if (navLogoImg) {
         if (userData.logo_url) {
-            navLogoMark.innerHTML = `<img src="${API_URL}${userData.logo_url}" class="h-8 w-8 object-contain rounded-md" alt="Logo">`;
-            navLogoMark.style.background = 'transparent';
+            navLogoImg.src = `${API_URL}${userData.logo_url}`;
         } else {
-            const initials = companyName.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'SA';
-            navLogoMark.textContent = initials;
-            navLogoMark.style.background = colorPrimario;
+            navLogoImg.src = 'img/logo.png';
         }
     }
 }
@@ -1586,7 +1583,7 @@ function notificarTecnicoPorWhatsApp() {
     const prov = currentProvidersList.find(p => p.id_proveedor === parseInt(provId));
     if (!prov) return;
 
-    const msg = `Hola ${prov.nombre_completo}, te contacto desde Software Alquileres por un servicio de ${formatRubro(prov.rubro)} en el Inmueble #${activeTicketForTriage.id_propiedad}. Problema reportado: ${activeTicketForTriage.titulo} - "${activeTicketForTriage.descripcion}". Prioridad: ${activeTicketForTriage.prioridad.toUpperCase()}. ¿Podrías coordinar una visita?`;
+    const msg = `Hola ${prov.nombre_completo}, te contacto desde Kelvi por un servicio de ${formatRubro(prov.rubro)} en el Inmueble #${activeTicketForTriage.id_propiedad}. Problema reportado: ${activeTicketForTriage.titulo} - "${activeTicketForTriage.descripcion}". Prioridad: ${activeTicketForTriage.prioridad.toUpperCase()}. ¿Podrías coordinar una visita?`;
     
     const waUrl = `https://wa.me/${prov.whatsapp}?text=${encodeURIComponent(msg)}`;
     window.open(waUrl, '_blank');
@@ -1673,7 +1670,7 @@ async function cargarProveedores() {
                 </div>
 
                 <div class="mt-4 pt-3 border-t border-gray-100 flex gap-2">
-                    <a href="https://wa.me/${p.whatsapp}?text=${encodeURIComponent('Hola ' + p.nombre_completo + ', te contacto desde Software Alquileres para consultar por un servicio.')}" target="_blank" class="btn-whatsapp flex-1 text-center">
+                    <a href="https://wa.me/${p.whatsapp}?text=${encodeURIComponent('Hola ' + p.nombre_completo + ', te contacto desde Kelvi para consultar por un servicio.')}" target="_blank" class="btn-whatsapp flex-1 text-center">
                         💬 Contactar por WhatsApp
                     </a>
                 </div>

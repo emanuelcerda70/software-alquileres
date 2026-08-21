@@ -11,8 +11,8 @@ models.Base.metadata.create_all(bind=engine)
 os.makedirs("uploads", exist_ok=True)
 
 app = FastAPI(
-    title="API Software Alquileres",
-    description="Backend PropTech MVP con Helpdesk, White-Label y Red de Proveedores",
+    title="API Kelvi PropTech",
+    description="Backend de Kelvi: El alquiler, simple para todos",
     version="1.2.0"
 )
 
@@ -40,9 +40,10 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 def read_root():
     return {
         "status": "online",
-        "mensaje": "Bienvenido a la API de Software Alquileres MVP",
+        "mensaje": "Bienvenido a la API de Kelvi - El alquiler, simple para todos",
         "version": "1.2.0"
     }
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+
