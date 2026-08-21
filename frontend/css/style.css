@@ -425,3 +425,61 @@ input:focus, select:focus, textarea:focus {
     padding: 14px;
     font-size: 12px;
 }
+
+/* ─── AUTH MODERNO (GOOGLE, OTP, HUELLA) ────────── */
+.btn-google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    background: #ffffff;
+    color: #3c4043;
+    border: 1px solid #dadce0;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(60,64,67,0.08);
+}
+.btn-google:hover {
+    background: #f8f9fa;
+    border-color: #c6c9ce;
+    box-shadow: 0 1px 3px rgba(60,64,67,0.15);
+}
+.btn-biometric {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    background: #eef2ff;
+    color: #4338ca;
+    border: 1px solid #c7d2fe;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.btn-biometric:hover {
+    background: #e0e7ff;
+    border-color: #a5b4fc;
+}
+.otp-input {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 8px;
+    text-align: center;
+    font-family: monospace;
+}
+.biometric-prompt {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+}

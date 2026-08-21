@@ -219,3 +219,23 @@ class ProveedorResponse(ProveedorBase):
     fecha_registro: datetime
     class Config:
         from_attributes = True
+
+# ─── AUTENTICACIÓN SIN CONTRASEÑA (OTP & GOOGLE) ──────────
+class SolicitarOTPRequest(BaseModel):
+    email: EmailStr
+
+class VerificarOTPRequest(BaseModel):
+    email: EmailStr
+    codigo: str
+    nombre: Optional[str] = None
+    apellido: Optional[str] = None
+    tipo_usuario: Optional[TipoUsuarioEnum] = TipoUsuarioEnum.inquilino
+
+class GoogleAuthRequest(BaseModel):
+    credential: str
+    tipo_usuario: Optional[TipoUsuarioEnum] = TipoUsuarioEnum.inquilino
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    usuario: UsuarioResponse

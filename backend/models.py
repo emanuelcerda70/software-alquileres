@@ -165,3 +165,12 @@ class ProveedorServicio(Base):
     calificacion = Column(Float, default=5.0)
     activo = Column(Boolean, default=True)
     fecha_registro = Column(DateTime, default=datetime.utcnow)
+
+class CodigoAcceso(Base):
+    __tablename__ = "codigos_acceso"
+    id_codigo = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    email = Column(String(150), index=True, nullable=False)
+    codigo = Column(String(10), nullable=False)
+    fecha_creacion = Column(DateTime, default=datetime.utcnow)
+    fecha_expiracion = Column(DateTime, nullable=False)
+    usado = Column(Boolean, default=False)

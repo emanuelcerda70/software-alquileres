@@ -89,3 +89,158 @@ def upload_logo(
     db.commit()
     db.refresh(usuario_actual)
     return {"logo_url": usuario_actual.logo_url}
+
+import random
+from datetime import timedelta
+import base64
+import json
+
+# ─── 1. SOLICITAR CÓDIGO OTP (6 DÍGITOS) POR EMAIL ─────────
+@router.post("/solicitar-codigo-otp")
+def solicitar_codigo_otp(payload: schemas.SolicitarOTPRequest, db: Session = Depends(get_db)):
+    email = payload.email.lower().strip()
+    
+    # Generar código de 6 dígitos
+    codigo_6_digitos = f"{random.randint(100000, 999999)}"
+    expiracion = datetime.utcnow() + timedelta(minutes=10)
+    
+    # Desactivar códigos anteriores sin usar para este email
+    db.query(models.CodigoAcceso).filter(
+        models.CodigoAcceso.email == email,
+        models.CodigoAcceso.usado == False
+    ).update({"usado": True})
+    
+    nuevo_codigo = models.CodigoAcceso(
+        email=email,
+        codigo=codigo_6_digitos,
+        fecha_expiracion=expiracion,
+        usado=False
+    )
+    db.add(nuevo_codigo)
+    db.commit()
+    
+    # Simulación de envío de correo (en producción con Resend/SMTP)
+    print(f"📧 [KELVI OTP] Código de acceso generado para {email}: {codigo_6_digitos}")
+    
+    return {
+        "status": "ok",
+        "mensaje": f"Código de acceso enviado a {email}",
+        "codigo_demo": codigo_6_digitos, # Retornado para pruebas inmediatas y desarrollo
+        "expira_en_minutos": 10
+    }
+
+# ─── 2. VERIFICAR CÓDIGO OTP (6 DÍGITOS) & LOGIN ───────────
+@router.post("/verificar-codigo-otp", response_model=schemas.TokenResponse)
+def verificar_codigo_otp(payload: schemas.VerificarOTPRequest, db: Session = Depends(get_db)):
+    email = payload.email.lower().strip()
+    codigo = payload.codigo.strip()
+    
+    # Buscar código válido
+    registro = db.query(models.CodigoAcceso).filter(
+        models.CodigoAcceso.email == email,
+        models.CodigoAcceso.codigo == codigo,
+        models.CodigoAcceso.usado == False,
+        models.CodigoAcceso.fecha_expiracion > datetime.utcnow()
+    ).first()
+    
+    if not registro:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Código de acceso inválido o expirado"
+        )
+    
+    # Marcar código como usado
+    registro.usado = True
+    db.commit()
+    
+    # Buscar o crear usuario
+    usuario = db.query(models.Usuario).filter(models.Usuario.email == email).first()
+    if not usuario:
+        nombre = payload.nombre or email.split("@")[0].capitalize()
+        apellido = payload.apellido or "Kelvi"
+        dni_aleatorio = f"OTP{random.randint(10000000, 99999999)}"
+        
+        usuario = models.Usuario(
+            nombre=nombre,
+            apellido=apellido,
+            dni_cuit=dni_aleatorio,
+            email=email,
+            telefono="+5491100000000",
+            tipo_usuario=payload.tipo_usuario or models.TipoUsuario.inquilino,
+            password_hash=seguridad.get_password_hash(f"OTP_{random.randint(10000, 99999)}!"),
+            estado_verificacion=models.EstadoVerificacion.verificado
+        )
+        db.add(usuario)
+        db.commit()
+        db.refresh(usuario)
+    
+    # Generar JWT
+    access_token_expires = timedelta(minutes=seguridad.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = seguridad.crear_access_token(
+        data={"sub": usuario.email, "id_usuario": usuario.id_usuario, "rol": usuario.tipo_usuario.value},
+        expires_delta=access_token_expires
+    )
+    
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "usuario": usuario
+    }
+
+# ─── 3. INICIO DE SESIÓN CON GOOGLE (OAUTH 2.0 / GIS) ──────
+@router.post("/google-login", response_model=schemas.TokenResponse)
+def google_login(payload: schemas.GoogleAuthRequest, db: Session = Depends(get_db)):
+    try:
+        # Decodificar el payload del token JWT de Google
+        parts = payload.credential.split(".")
+        if len(parts) < 2:
+            raise HTTPException(status_code=400, detail="Token de Google inválido")
+            
+        payload_b64 = parts[1]
+        # Agregar padding si es necesario
+        payload_b64 += "=" * ((4 - len(payload_b64) % 4) % 4)
+        decoded_bytes = base64.urlsafe_b64decode(payload_b64)
+        google_data = json.loads(decoded_bytes.decode("utf-8"))
+        
+        email = google_data.get("email", "").lower().strip()
+        if not email:
+            raise HTTPException(status_code=400, detail="El token de Google no contiene un email válido")
+            
+        nombre = google_data.get("given_name", "Usuario")
+        apellido = google_data.get("family_name", "Google")
+        foto_url = google_data.get("picture", None)
+        
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error al procesar credencial de Google: {str(e)}")
+        
+    # Buscar o crear el usuario en Kelvi
+    usuario = db.query(models.Usuario).filter(models.Usuario.email == email).first()
+    if not usuario:
+        dni_aleatorio = f"GGL{random.randint(10000000, 99999999)}"
+        usuario = models.Usuario(
+            nombre=nombre,
+            apellido=apellido,
+            dni_cuit=dni_aleatorio,
+            email=email,
+            telefono="+5491100000000",
+            tipo_usuario=payload.tipo_usuario or models.TipoUsuario.inquilino,
+            password_hash=seguridad.get_password_hash(f"GGL_{random.randint(10000, 99999)}!"),
+            logo_url=foto_url,
+            estado_verificacion=models.EstadoVerificacion.verificado
+        )
+        db.add(usuario)
+        db.commit()
+        db.refresh(usuario)
+        
+    # Generar JWT de Kelvi
+    access_token_expires = timedelta(minutes=seguridad.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = seguridad.crear_access_token(
+        data={"sub": usuario.email, "id_usuario": usuario.id_usuario, "rol": usuario.tipo_usuario.value},
+        expires_delta=access_token_expires
+    )
+    
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "usuario": usuario
+    }
