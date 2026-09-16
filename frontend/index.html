@@ -78,6 +78,7 @@
             <!-- Desktop Navigation Links -->
             <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
                 <a href="#soluciones" class="hover:text-brand transition-colors">Soluciones</a>
+                <a href="#profesionales" class="hover:text-brand transition-colors">Profesionales</a>
                 <a href="#inmobiliarias" class="hover:text-brand transition-colors">Inmobiliarias</a>
                 <a href="#caracteristicas" class="hover:text-brand transition-colors">Características</a>
                 <a href="#precios" class="hover:text-brand transition-colors">Precios</a>
@@ -251,15 +252,15 @@
     <section id="soluciones" class="py-24 bg-white border-t border-slate-200/80">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-3xl mx-auto mb-16">
-                <h2 class="text-xs font-bold uppercase tracking-widest text-brand mb-2">Diseñado para cada integrante</h2>
-                <h3 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Una solución pensada para los tres lados del alquiler</h3>
+                <h2 class="text-xs font-bold uppercase tracking-widest text-brand mb-2">Diseñado para todo el ecosistema</h2>
+                <h3 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Un ecosistema conectado para alquileres sin problemas</h3>
                 <p class="mt-4 text-slate-600 text-base sm:text-lg">
                     Los portales inmobiliarios tradicionales te abandonan una vez que se firma el contrato. 
-                    Kelvi acompaña y optimiza cada etapa, antes, durante y después del acuerdo.
+                    Kelvi une a inmobiliarias, dueños, inquilinos y técnicos matriculados en una sola plataforma colaborativa.
                 </p>
             </div>
 
-            <div class="grid md:grid-cols-3 gap-8">
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <!-- Tarjeta Inmobiliarias -->
                 <div class="bg-slate-50 rounded-3xl p-8 border border-slate-200 card-hover flex flex-col justify-between">
                     <div>
@@ -367,6 +368,44 @@
                     <div class="mt-8 pt-6 border-t border-slate-200">
                         <a href="app.html" class="inline-flex items-center text-sm font-bold text-amber-600 hover:text-amber-800">
                             Explorar Inmuebles →
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Tarjeta Profesionales & Técnicos -->
+                <div id="profesionales" class="bg-gradient-to-b from-white to-emerald-50/50 rounded-3xl p-8 border-2 border-emerald-300 card-hover flex flex-col justify-between shadow-sm relative overflow-hidden">
+                    <div class="absolute -right-12 -top-12 w-28 h-28 bg-emerald-100/60 rounded-full blur-xl pointer-events-none"></div>
+                    <div>
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-brand flex items-center justify-center text-2xl font-bold mb-6">
+                            🔧
+                        </div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-800">Para Técnicos y Oficios</span>
+                        <h4 class="text-xl font-bold text-slate-900 mt-1 mb-3">Trabajos asegurados en tu zona de cobertura</h4>
+                        <p class="text-sm text-slate-600 mb-6 leading-relaxed">
+                            Recibí pedidos de reparación directos de inquilinos e inmobiliarias con fotos, diagnóstico y datos precisos listos para presupuestar.
+                        </p>
+                        <ul class="space-y-3 text-sm text-slate-700">
+                            <li class="flex items-start gap-2.5">
+                                <span class="text-brand font-bold text-base">✓</span>
+                                <span><strong>Plomeros, electricistas, gasistas matriculados y cerrajeros.</strong></span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <span class="text-brand font-bold text-base">✓</span>
+                                <span>Contacto directo por WhatsApp con la inmobiliaria o inquilino.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <span class="text-brand font-bold text-base">✓</span>
+                                <span><strong>$0 cuota mensual:</strong> sin costo fijo ni cobros adelantados por publicar tu perfil.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <span class="text-brand font-bold text-base">✓</span>
+                                <span><strong>Solo comisión por éxito:</strong> se abona un pequeño porcentaje únicamente cuando el trabajo es realizado y cobrado.</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="mt-8 pt-6 border-t border-slate-200">
+                        <a href="#contacto" class="inline-flex items-center text-sm font-bold text-emerald-700 hover:text-emerald-900">
+                            Sumarme a la Red de Oficios →
                         </a>
                     </div>
                 </div>
@@ -637,6 +676,30 @@
                 </div>
 
             </div>
+
+            <!-- Banner Exclusivo: Red de Profesionales & Modelo por Éxito -->
+            <div class="mt-12 bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 rounded-3xl p-8 sm:p-10 text-white border border-emerald-900/60 shadow-xl flex flex-col lg:flex-row items-center justify-between gap-8">
+                <div class="max-w-2xl">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 mb-3">
+                        ⚡ Red de Proveedores y Técnicos de Confianza
+                    </span>
+                    <h3 class="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2">¿Sos plomero, gasista, electricista o técnico?</h3>
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        Publicá tus servicios gratis en el catálogo de Kelvi. No pagás ningún costo de ingreso ni mantenimiento mensual: 
+                        <strong>solo se descuenta una pequeña comisión por cada trabajo efectivamente realizado y cobrado a través de la app</strong>. Si no tenés pedidos, no pagás absolutamente nada.
+                    </p>
+                </div>
+                <div class="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
+                    <div class="text-center sm:text-right px-4">
+                        <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Membresía</p>
+                        <p class="text-3xl font-black text-emerald-400">$0 <span class="text-xs text-slate-300 font-normal">/mes</span></p>
+                        <p class="text-[11px] text-emerald-200">100% por trabajo concretado</p>
+                    </div>
+                    <a href="#contacto" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 rounded-xl font-bold bg-brand hover:bg-brand-dark text-white text-sm shadow-md transition-all whitespace-nowrap">
+                        Registrarme como Profesional
+                    </a>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -678,6 +741,7 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Volumen de Propiedades que Administrás</label>
                         <select id="contacto-volumen" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand">
+                            <option value="profesional">Soy Técnico / Oficio (Quiero sumarme a la red de servicios)</option>
                             <option value="1-5">1 a 5 propiedades (Dueño particular)</option>
                             <option value="6-20">6 a 20 propiedades (Cartera chica)</option>
                             <option value="21-50">21 a 50 propiedades (Inmobiliaria consolidada)</option>
@@ -722,6 +786,7 @@
                 <div class="flex flex-wrap gap-6 text-xs">
                     <a href="#soluciones" class="hover:text-white transition-colors">Soluciones</a>
                     <a href="#inmobiliarias" class="hover:text-white transition-colors">Inmobiliarias</a>
+                    <a href="#profesionales" class="hover:text-white transition-colors">Técnicos y Oficios</a>
                     <a href="#precios" class="hover:text-white transition-colors">Precios</a>
                     <a href="app.html" class="hover:text-white transition-colors">Acceso a la App</a>
                     <a href="app.html#register" class="hover:text-white transition-colors">Registro</a>
