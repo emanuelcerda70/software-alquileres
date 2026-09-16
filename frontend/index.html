@@ -1,1091 +1,776 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelvi - El alquiler, simple para todos</title>
+    <title>Kelvi | El alquiler, simple para todos · Plataforma PropTech Integral</title>
+    <meta name="description" content="Kelvi simplifica la gestión de alquileres: marketplace interactivo, visitas, scoring de legajos de garantes, contratos y mesa de ayuda con oficios verificados.">
+    
+    <!-- Favicon & PWA -->
     <link rel="icon" type="image/png" href="img/logo.png">
-    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#00a650">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Kelvi">
-    <link rel="apple-touch-icon" href="img/icon-192.png">
+
+    <!-- Google Fonts & Tailwind -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
                     colors: {
-                        brand: { DEFAULT: '#00a650', dark: '#008c44', light: '#e8f5ee' },
-                        navy:  { DEFAULT: '#1a1f36', light: '#2d3561' }
+                        brand: {
+                            DEFAULT: '#00a650',
+                            dark: '#008c44',
+                            light: '#e8f5ee',
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#00a650',
+                            600: '#008c44',
+                            700: '#15803d',
+                        },
+                        navy: {
+                            DEFAULT: '#0f172a',
+                            light: '#1e293b',
+                            card: '#151d32'
+                        }
                     }
                 }
             }
         }
     </script>
-    <!-- Google Identity Services SDK -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <!-- Leaflet Map CSS & JS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .gradient-hero {
+            background: radial-gradient(circle at 50% 0%, rgba(0, 166, 80, 0.12) 0%, rgba(255, 255, 255, 0) 70%);
+        }
+        .badge-glow {
+            box-shadow: 0 0 20px -3px rgba(0, 166, 80, 0.3);
+        }
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        }
+    </style>
 </head>
-<body class="min-h-screen">
+<body class="bg-slate-50 text-slate-900 font-sans antialiased overflow-x-hidden">
 
-    <!-- Toast Notifications Container -->
-    <div id="toast-container"></div>
+    <!-- ══════════════════════════════════════════════════ -->
+    <!--  1. NAVBAR FLOTANTE MODERNO                        -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/80 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Brand Logo -->
+            <a href="#" class="flex items-center gap-3 group">
+                <img src="img/logo.png" alt="Kelvi Logo" class="h-10 w-auto object-contain transition-transform group-hover:scale-105">
+                <div class="flex flex-col">
+                    <span class="font-extrabold text-xl tracking-tight text-slate-900 leading-none">Kelvi</span>
+                    <span class="text-[10px] font-semibold text-brand tracking-wide uppercase mt-0.5">PropTech</span>
+                </div>
+            </a>
 
-    <!-- ══════════════════════════════════════════ -->
-    <!--  1. VISTA LOGIN (MODERNO: GOOGLE+OTP+HUELLA)-->
-    <!-- ══════════════════════════════════════════ -->
-    <div id="login-view" class="min-h-screen flex items-center justify-center p-4">
-        <div class="w-full max-w-sm">
-            <div class="text-center mb-6">
-                <img src="img/logo.png" alt="Kelvi" class="h-24 mx-auto mb-2 object-contain drop-shadow-sm">
-                <p class="text-sm font-semibold text-gray-500">El alquiler, simple para todos</p>
+            <!-- Desktop Navigation Links -->
+            <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
+                <a href="#soluciones" class="hover:text-brand transition-colors">Soluciones</a>
+                <a href="#inmobiliarias" class="hover:text-brand transition-colors">Inmobiliarias</a>
+                <a href="#caracteristicas" class="hover:text-brand transition-colors">Características</a>
+                <a href="#precios" class="hover:text-brand transition-colors">Precios</a>
+                <a href="#contacto" class="hover:text-brand transition-colors">Contacto</a>
+            </nav>
+
+            <!-- Action CTA Buttons -->
+            <div class="flex items-center gap-3">
+                <a href="app.html" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-brand transition-colors">
+                    Iniciar sesión
+                </a>
+                <a href="app.html#register" class="inline-flex items-center justify-center px-4 sm:px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-brand hover:bg-brand-dark shadow-sm hover:shadow-md transition-all">
+                    <span>Ir a la App</span>
+                    <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!--  2. HERO SECTION                                   -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <section class="relative pt-32 pb-20 md:pt-40 md:pb-28 gradient-hero overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+            
+            <!-- Pill Announcement -->
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/70 text-emerald-800 text-xs sm:text-sm font-semibold mb-6 badge-glow">
+                <span class="flex h-2 w-2 rounded-full bg-brand animate-ping"></span>
+                <span>Plataforma Todo-en-Uno para el Ecosistema Inmobiliario</span>
             </div>
 
-            <div class="auth-card">
-                <h2 class="text-lg font-semibold text-navy mb-4">Iniciar sesión</h2>
+            <!-- Main Heading -->
+            <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mx-auto mb-6">
+                El alquiler, <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand via-emerald-600 to-teal-500">simple para todos.</span>
+            </h1>
 
-                <!-- 1. BOTÓN HUELLA DIGITAL / FACEID -->
-                <div id="biometric-login-container" class="hidden mb-4">
-                    <button type="button" id="btn-login-huella" class="btn-biometric py-2.5">
-                        <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 004 11m0 0a8.003 8.003 0 0015.357 2m-4.5-4.5a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        </svg>
-                        <span>Ingresar con Huella / FaceID</span>
-                    </button>
-                    <div class="flex items-center my-3"><div class="flex-1 border-t border-gray-200"></div><span class="px-2 text-xs text-gray-400">o</span><div class="flex-1 border-t border-gray-200"></div></div>
+            <!-- Subtitle -->
+            <p class="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed mb-10">
+                Chau a las planillas caóticas de Excel, visitas desorganizadas por WhatsApp y reclamos olvidados. 
+                Kelvi centraliza búsquedas en mapa, legajos de garantes, contratos y mesa de ayuda con técnicos matriculados.
+            </p>
+
+            <!-- Dual CTAs -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+                <a href="app.html#register" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-2xl text-base font-bold text-white bg-brand hover:bg-brand-dark shadow-lg shadow-emerald-500/25 transition-all transform hover:-translate-y-0.5">
+                    Probar Kelvi Gratis
+                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                </a>
+                <a href="#inmobiliarias" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-2xl text-base font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-all shadow-sm">
+                    Ver Solución Inmobiliarias
+                </a>
+            </div>
+
+            <!-- Value Metric Badges -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto pt-6 border-t border-slate-200/80 text-left">
+                <div class="p-3">
+                    <p class="text-2xl font-black text-slate-900">100%</p>
+                    <p class="text-xs text-slate-500 font-medium">Digital sin papeles físicos</p>
                 </div>
-
-                <!-- 2. BOTÓN OFICIAL DE GOOGLE -->
-                <button type="button" id="btn-google-login" class="btn-google">
-                    <svg class="w-4 h-4" viewBox="0 0 24 24">
-                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-                    </svg>
-                    <span>Continuar con Google</span>
-                </button>
-
-                <div class="flex items-center my-4">
-                    <div class="flex-1 border-t border-gray-200"></div>
-                    <span class="px-3 text-xs text-gray-400 font-medium">o con tu email</span>
-                    <div class="flex-1 border-t border-gray-200"></div>
+                <div class="p-3">
+                    <p class="text-2xl font-black text-brand">3 Clavijas</p>
+                    <p class="text-xs text-slate-500 font-medium">Inquilino, Dueño, Inmobiliaria</p>
                 </div>
-
-                <!-- 3. ACCESO CON CÓDIGO DE 6 DÍGITOS (OTP) -->
-                <div id="otp-auth-section">
-                    <form id="form-solicitar-otp" class="space-y-3">
-                        <div>
-                            <label for="otp-email" class="block text-xs font-medium text-gray-700">Tu correo electrónico</label>
-                            <input type="email" id="otp-email" required placeholder="tu@email.com" class="input-base text-sm mt-1">
-                        </div>
-                        <button type="submit" id="btn-enviar-otp" class="btn-primary w-full py-2.5 text-sm">
-                            📩 Enviar código de acceso
-                        </button>
-                    </form>
-
-                    <form id="form-verificar-otp" class="hidden space-y-3 mt-3">
-                        <div class="p-3 bg-green-50 border border-green-200 rounded-lg text-center">
-                            <span class="text-xs text-green-800" id="otp-sent-info">Te enviamos un código de 6 dígitos</span>
-                        </div>
-                        <div>
-                            <label for="otp-code-input" class="block text-xs font-semibold text-gray-700 text-center uppercase tracking-wider">Código de 6 dígitos</label>
-                            <input type="text" id="otp-code-input" maxlength="6" required placeholder="••••••" class="input-base otp-input mt-1">
-                        </div>
-                        <button type="submit" id="btn-confirmar-otp" class="btn-primary w-full py-2.5 text-sm">
-                            ✓ Verificar y Entrar
-                        </button>
-                        <div class="text-center pt-1">
-                            <button type="button" onclick="reiniciarFlujoOTP()" class="text-xs text-gray-500 hover:text-brand">← Cambiar correo</button>
-                        </div>
-                    </form>
+                <div class="p-3">
+                    <p class="text-2xl font-black text-slate-900">En 1 Clic</p>
+                    <p class="text-xs text-slate-500 font-medium">WhatsApp a técnicos matriculados</p>
                 </div>
-
-                <!-- 4. CONTRASEÑA TRADICIONAL -->
-                <div class="mt-4 pt-3 border-t border-gray-100 text-center">
-                    <button type="button" id="btn-toggle-password-mode" class="text-xs text-gray-500 hover:text-brand font-medium">
-                        ¿Preferís usar tu contraseña tradicional?
-                    </button>
+                <div class="p-3">
+                    <p class="text-2xl font-black text-brand">White-Label</p>
+                    <p class="text-xs text-slate-500 font-medium">Tu marca y logo propio</p>
                 </div>
+            </div>
 
-                <form id="login-form-traditional" class="hidden space-y-3 mt-3">
+            <!-- Visual Preview Mockup Showcase -->
+            <div class="mt-14 relative max-w-5xl mx-auto">
+                <div class="relative rounded-2xl md:rounded-3xl p-3 bg-gradient-to-b from-slate-200 to-slate-300 shadow-2xl border border-slate-200/60">
+                    <div class="bg-white rounded-xl md:rounded-2xl overflow-hidden border border-slate-200 text-left shadow-inner">
+                        
+                        <!-- Mockup Topbar -->
+                        <div class="bg-slate-900 px-4 py-3 flex items-center justify-between border-b border-slate-800">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                                <span class="text-xs text-slate-400 font-mono ml-2">app.kelvi.com.ar / dashboard</span>
+                            </div>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                ● Sistema Activo
+                            </span>
+                        </div>
+
+                        <!-- Mockup Content UI Preview -->
+                        <div class="p-6 md:p-8 bg-slate-50 grid md:grid-cols-3 gap-6">
+                            <!-- Column 1: Marketplace Card -->
+                            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                                <div>
+                                    <div class="flex items-center justify-between mb-3">
+                                        <span class="text-xs font-bold px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-800">🏢 Marketplace</span>
+                                        <span class="text-xs font-semibold text-slate-400">Palermo, CABA</span>
+                                    </div>
+                                    <h4 class="font-bold text-slate-800 text-base mb-1">Dpto 2 Ambientes con Balcón</h4>
+                                    <p class="text-2xl font-black text-brand mb-3">$420.000 <span class="text-xs text-slate-400 font-normal">/mes</span></p>
+                                    <div class="flex items-center gap-3 text-xs text-slate-600 mb-4">
+                                        <span>🛏️ 1 dorm</span>
+                                        <span>🛁 1 baño</span>
+                                        <span>🐾 Mascotas OK</span>
+                                    </div>
+                                </div>
+                                <a href="app.html" class="w-full text-center py-2 px-3 rounded-xl bg-slate-100 hover:bg-emerald-50 text-emerald-700 text-xs font-bold border border-slate-200 transition-colors">
+                                    Agendar Visita Presencial
+                                </a>
+                            </div>
+
+                            <!-- Column 2: Legajos & Scoring -->
+                            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                                <div>
+                                    <div class="flex items-center justify-between mb-3">
+                                        <span class="text-xs font-bold px-2.5 py-1 rounded-md bg-blue-100 text-blue-800">📋 Legajo Digital</span>
+                                        <span class="text-xs font-semibold text-emerald-600">Aprobado ✓</span>
+                                    </div>
+                                    <h4 class="font-bold text-slate-800 text-base mb-2">Scoring de Garantes</h4>
+                                    <div class="space-y-2 text-xs text-slate-600 mb-4">
+                                        <div class="flex justify-between py-1 border-b border-slate-100">
+                                            <span>Recibo de Sueldo</span>
+                                            <span class="font-semibold text-slate-800">Ingreso x3 verificado</span>
+                                        </div>
+                                        <div class="flex justify-between py-1 border-b border-slate-100">
+                                            <span>Garantía Propietaria</span>
+                                            <span class="font-semibold text-slate-800">CABA / Dominio Libre</span>
+                                        </div>
+                                        <div class="flex justify-between py-1">
+                                            <span>Seguro de Caución</span>
+                                            <span class="font-semibold text-slate-800">Finaer / Hogar Seguro</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="text-center py-2 text-xs font-semibold text-slate-500">
+                                    Generación automática de contrato
+                                </span>
+                            </div>
+
+                            <!-- Column 3: Helpdesk & Maintenance -->
+                            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                                <div>
+                                    <div class="flex items-center justify-between mb-3">
+                                        <span class="text-xs font-bold px-2.5 py-1 rounded-md bg-amber-100 text-amber-800">🛠 Helpdesk</span>
+                                        <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-700">Urgente</span>
+                                    </div>
+                                    <h4 class="font-bold text-slate-800 text-base mb-1">Rotura Caño Principal</h4>
+                                    <p class="text-xs text-slate-500 mb-3">Asignado a: <strong class="text-slate-700">Plomería Rossi (Matrícula #4812)</strong></p>
+                                    <div class="p-3 bg-emerald-50/70 border border-emerald-200/60 rounded-xl mb-4">
+                                        <p class="text-xs text-emerald-900 font-medium">💬 Mensaje listo para WhatsApp con foto y dirección del inmueble cargada.</p>
+                                    </div>
+                                </div>
+                                <a href="app.html" class="w-full text-center py-2 px-3 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors">
+                                    Enviar a Técnico en 1 Clic
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!--  3. SOLUCIONES POR PERFIL (INQUILINO/DUEÑO/INMOB)  -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <section id="soluciones" class="py-24 bg-white border-t border-slate-200/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-xs font-bold uppercase tracking-widest text-brand mb-2">Diseñado para cada integrante</h2>
+                <h3 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Una solución pensada para los tres lados del alquiler</h3>
+                <p class="mt-4 text-slate-600 text-base sm:text-lg">
+                    Los portales inmobiliarios tradicionales te abandonan una vez que se firma el contrato. 
+                    Kelvi acompaña y optimiza cada etapa, antes, durante y después del acuerdo.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Tarjeta Inmobiliarias -->
+                <div class="bg-slate-50 rounded-3xl p-8 border border-slate-200 card-hover flex flex-col justify-between">
                     <div>
-                        <label for="email" class="block text-xs font-medium text-gray-700">Email</label>
-                        <input type="email" id="email" placeholder="tu@email.com" class="input-base text-sm">
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-brand flex items-center justify-center text-2xl font-bold mb-6">
+                            🏢
+                        </div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-700">Para Inmobiliarias</span>
+                        <h4 class="text-xl font-bold text-slate-900 mt-1 mb-3">Automatizá tu cartera y escalá sin límites</h4>
+                        <p class="text-sm text-slate-600 mb-6 leading-relaxed">
+                            Ahorrá hasta 15 horas semanales de gestión manual en llamadas, papeles y coordinación de arreglos.
+                        </p>
+                        <ul class="space-y-3 text-sm text-slate-700">
+                            <li class="flex items-start gap-2.5">
+                                <span class="text-brand font-bold text-base">✓</span>
+                                <span><strong>Marca Blanca:</strong> personalizá con tu propio logo y colores.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <span class="text-brand font-bold text-base">✓</span>
+                                <span>Recepción ordenada de legajos y recibos de garantes.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <span class="text-brand font-bold text-base">✓</span>
+                                <span>Agenda de visitas sincronizada por franja horaria.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <span class="text-brand font-bold text-base">✓</span>
+                                <span>Mesa de ayuda y derivación de reclamos a técnicos.</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="mt-8 pt-6 border-t border-slate-200">
+                        <a href="app.html#register" class="inline-flex items-center text-sm font-bold text-brand hover:text-brand-dark">
+                            Crear cuenta Inmobiliaria →
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Tarjeta Propietarios -->
+                <div class="bg-slate-50 rounded-3xl p-8 border border-slate-200 card-hover flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center text-2xl font-bold mb-6">
+                            🔑
+                        </div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-blue-700">Para Propietarios Directos</span>
+                        <h4 class="text-xl font-bold text-slate-900 mt-1 mb-3">Tranquilidad absoluta y trazabilidad total</h4>
+                        <p class="text-sm text-slate-600 mb-6 leading-relaxed">
+                            Gestioná tus propiedades sin estrés ni sorpresas en el mantenimiento o pagos de alquiler.
+                        </p>
+                        <ul class="space-y-3 text-sm text-slate-700">
+                            <li class="flex items-start gap-2.5">
+                                <span class="text-brand font-bold text-base">✓</span>
+                                <span>Control de fechas de contratos y vencimientos.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <span class="text-brand font-bold text-base">✓</span>
+                                <span>Seguimiento de gastos de reparación y presupuestos.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <span class="text-brand font-bold text-base">✓</span>
+                                <span>Sin llamadas a la medianoche: todo registrado por ticket.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <span class="text-brand font-bold text-base">✓</span>
+                                <span>Prueba gratuita de 1 a 3 meses para probar el sistema.</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="mt-8 pt-6 border-t border-slate-200">
+                        <a href="app.html#register" class="inline-flex items-center text-sm font-bold text-blue-600 hover:text-blue-800">
+                            Registrar mis propiedades →
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Tarjeta Inquilinos -->
+                <div class="bg-slate-50 rounded-3xl p-8 border border-slate-200 card-hover flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-2xl font-bold mb-6">
+                            🙋‍♂️
+                        </div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-amber-700">Para Inquilinos</span>
+                        <h4 class="text-xl font-bold text-slate-900 mt-1 mb-3">Encontrá tu próximo hogar sin fricción</h4>
+                        <p class="text-sm text-slate-600 mb-6 leading-relaxed">
+                            Buscá en mapa, coordiná visitas sin idas y vueltas y solicitá arreglos con rapidez garantizada.
+                        </p>
+                        <ul class="space-y-3 text-sm text-slate-700">
+                            <li class="flex items-start gap-2.5">
+                                <span class="text-brand font-bold text-base">✓</span>
+                                <span>Búsqueda interactiva en mapa con OpenStreetMap.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <span class="text-brand font-bold text-base">✓</span>
+                                <span>Agendamiento de visita con franja horaria preferida.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <span class="text-brand font-bold text-base">✓</span>
+                                <span>Carga única de legajo de garantes en formato digital.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <span class="text-brand font-bold text-base">✓</span>
+                                <span>Directorio de plomeros y electricistas con WhatsApp.</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="mt-8 pt-6 border-t border-slate-200">
+                        <a href="app.html" class="inline-flex items-center text-sm font-bold text-amber-600 hover:text-amber-800">
+                            Explorar Inmuebles →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!--  4. WHITE-LABEL DESTACADO (ENTERPRISE / INMOB)     -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <section id="inmobiliarias" class="py-20 bg-slate-900 text-white relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-brand/20 text-brand border border-brand/30 mb-4">
+                        Tecnología White-Label (Marca Blanca)
+                    </span>
+                    <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight mb-6">
+                        Tu inmobiliaria, <br class="hidden sm:inline">con su propia plataforma digital.
+                    </h2>
+                    <p class="text-slate-300 text-base sm:text-lg mb-8 leading-relaxed">
+                        No pierdas clientes redirigiéndolos a portales genéricos. Con Kelvi, podés aplicar tu 
+                        <strong>Nombre Comercial</strong>, tu <strong>Logotipo</strong> y tu <strong>Paleta de Colores Corporativos</strong> 
+                        para que tus propietarios e inquilinos vean tu marca en cada pantalla.
+                    </p>
+                    
+                    <div class="space-y-4 mb-8">
+                        <div class="flex items-center gap-3">
+                            <div class="w-6 h-6 rounded-full bg-brand/20 text-brand flex items-center justify-center font-bold text-xs">✓</div>
+                            <span class="text-sm sm:text-base text-slate-200">Presencia de marca exclusiva sin menciones a terceros</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-6 h-6 rounded-full bg-brand/20 text-brand flex items-center justify-center font-bold text-xs">✓</div>
+                            <span class="text-sm sm:text-base text-slate-200">Configurable en 2 minutos desde el panel de administración</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-6 h-6 rounded-full bg-brand/20 text-brand flex items-center justify-center font-bold text-xs">✓</div>
+                            <span class="text-sm sm:text-base text-slate-200">Mayor fidelización y profesionalismo de cara a tus clientes</span>
+                        </div>
+                    </div>
+
+                    <a href="#contacto" class="inline-flex items-center px-6 py-3.5 rounded-xl font-bold bg-brand hover:bg-brand-dark text-white transition-all">
+                        Solicitar Demo para Inmobiliarias
+                    </a>
+                </div>
+
+                <!-- Interactive White Label Visual Sim -->
+                <div class="bg-slate-800/80 rounded-3xl p-6 sm:p-8 border border-slate-700 shadow-2xl backdrop-blur-sm">
+                    <h4 class="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Simulador de Marca Blanca</h4>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre de tu Inmobiliaria</label>
+                            <input type="text" id="demo-brand-name" value="Inmobiliaria Palermo Norte" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-brand">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">Color Principal (HEX)</label>
+                            <div class="flex items-center gap-3">
+                                <input type="color" id="demo-color-picker" value="#00a650" class="h-10 w-16 rounded-lg cursor-pointer bg-transparent border-0">
+                                <span id="demo-color-hex" class="text-xs font-mono text-slate-400">#00a650</span>
+                            </div>
+                        </div>
+
+                        <!-- Live Mini Preview -->
+                        <div class="mt-6 p-4 rounded-2xl bg-white text-slate-900 border border-slate-200 shadow-md">
+                            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                                <div class="flex items-center gap-2">
+                                    <div id="preview-logo-dot" class="w-6 h-6 rounded-lg bg-emerald-500 flex items-center justify-center text-white text-xs font-bold">K</div>
+                                    <span id="preview-brand-title" class="font-bold text-sm text-slate-900">Inmobiliaria Palermo Norte</span>
+                                </div>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">Portal Inmobiliario</span>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-2">Así verán tus clientes el encabezado, botones y credenciales oficiales.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!--  5. CARACTERÍSTICAS TÉCNICAS Y OPERATIVAS          -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <section id="caracteristicas" class="py-24 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-xs font-bold uppercase tracking-widest text-brand">Funcionalidades Destacadas</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2">Todo lo que necesitás para operar sin fricción</h2>
+            </div>
+
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="bg-white p-7 rounded-3xl border border-slate-200/80 shadow-sm">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-brand flex items-center justify-center text-xl mb-4">🗺️</div>
+                    <h3 class="font-bold text-lg text-slate-900 mb-2">Mapa Interactivo Geolocalizado</h3>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        Exploración fluida con Leaflet.js y OpenStreetMap. Filtros por precio, ambiente, ciudad y admisión de mascotas.
+                    </p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="bg-white p-7 rounded-3xl border border-slate-200/80 shadow-sm">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-brand flex items-center justify-center text-xl mb-4">📅</div>
+                    <h3 class="font-bold text-lg text-slate-900 mb-2">Agendamiento de Visitas</h3>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        El inquilino elige fecha y turno (Mañana, Tarde, Sábado). La inmobiliaria confirma con 1 clic sin llamadas eternas.
+                    </p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="bg-white p-7 rounded-3xl border border-slate-200/80 shadow-sm">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-brand flex items-center justify-center text-xl mb-4">📁</div>
+                    <h3 class="font-bold text-lg text-slate-900 mb-2">Legajo Digital Inteligente</h3>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        Subida segura de recibos de sueldo, comprobantes de monotributo, garantías propietarias y seguros de caución.
+                    </p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="bg-white p-7 rounded-3xl border border-slate-200/80 shadow-sm">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-brand flex items-center justify-center text-xl mb-4">📄</div>
+                    <h3 class="font-bold text-lg text-slate-900 mb-2">Gestión de Contratos</h3>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        Trazabilidad de contratos vigentes, montos de alquiler, depósitos de garantía y estados de cobro actualizados.
+                    </p>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="bg-white p-7 rounded-3xl border border-slate-200/80 shadow-sm">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-brand flex items-center justify-center text-xl mb-4">🛠️</div>
+                    <h3 class="font-bold text-lg text-slate-900 mb-2">Helpdesk de Mantenimiento</h3>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        Tickets de soporte clasificados por severidad (Urgente, Alta, Media, Baja) con fotos y notas de seguimiento.
+                    </p>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="bg-white p-7 rounded-3xl border border-slate-200/80 shadow-sm">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-brand flex items-center justify-center text-xl mb-4">📲</div>
+                    <h3 class="font-bold text-lg text-slate-900 mb-2">Oficios con WhatsApp Directo</h3>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        Directorio verificado de plomeros, electricistas y gasistas con mensajes prediseñados listos para cotizar en segundos.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!--  6. PRECIOS Y PLANES (SAAS TRANSPARENTE)           -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <section id="precios" class="py-24 bg-white border-t border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-xs font-bold uppercase tracking-widest text-brand">Precios Claros y Flexibles</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2">Inversión pensada para que crezcas</h2>
+                <p class="mt-4 text-slate-600 text-base sm:text-lg">
+                    Sin comisiones ocultas ni costos de instalación. Elegí el plan según el tamaño de tu cartera.
+                </p>
+            </div>
+
+            <div class="grid lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+                
+                <!-- Plan 1: Propietario Directo -->
+                <div class="bg-slate-50 rounded-3xl p-6 border border-slate-200 flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Dueño Directo</span>
+                        <h3 class="text-xl font-bold text-slate-900 mt-1 mb-2">Plan Propiedad</h3>
+                        <p class="text-xs text-slate-500 mb-4">Para propietarios que administran sus propios inmuebles.</p>
+                        
+                        <div class="mb-6">
+                            <span class="text-3xl font-black text-slate-900">$30.000</span>
+                            <span class="text-xs text-slate-500">ARS / mes / prop</span>
+                            <p class="text-xs text-emerald-600 font-bold mt-1">🎁 Primer mes 100% Gratis</p>
+                        </div>
+
+                        <ul class="space-y-2.5 text-xs text-slate-600 mb-6">
+                            <li class="flex items-center gap-2"><span>✓</span> 1 a 5 propiedades</li>
+                            <li class="flex items-center gap-2"><span>✓</span> Seguimiento de contratos</li>
+                            <li class="flex items-center gap-2"><span>✓</span> Mesa de ayuda de mantenimiento</li>
+                            <li class="flex items-center gap-2"><span>✓</span> Directorio de profesionales</li>
+                        </ul>
+                    </div>
+                    <a href="app.html#register" class="w-full text-center py-3 rounded-xl bg-white border border-slate-300 text-slate-800 text-xs font-bold hover:bg-slate-100 transition-colors">
+                        Empezar con Prueba Gratis
+                    </a>
+                </div>
+
+                <!-- Plan 2: Inmobiliaria Starter -->
+                <div class="bg-slate-50 rounded-3xl p-6 border border-slate-200 flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Inmobiliarias</span>
+                        <h3 class="text-xl font-bold text-slate-900 mt-1 mb-2">Starter</h3>
+                        <p class="text-xs text-slate-500 mb-4">Para inmobiliarias boutique o carteras en desarrollo.</p>
+                        
+                        <div class="mb-6">
+                            <span class="text-3xl font-black text-slate-900">$350.000</span>
+                            <span class="text-xs text-slate-500">ARS / mes</span>
+                            <p class="text-xs text-slate-500 font-medium mt-1">Hasta 15 propiedades activas</p>
+                        </div>
+
+                        <ul class="space-y-2.5 text-xs text-slate-600 mb-6">
+                            <li class="flex items-center gap-2"><span>✓</span> Todo lo de Propietarios</li>
+                            <li class="flex items-center gap-2"><span>✓</span> Módulo de Marca Blanca básica</li>
+                            <li class="flex items-center gap-2"><span>✓</span> Legajos de garantes centralizados</li>
+                            <li class="flex items-center gap-2"><span>✓</span> Agenda de visitas por turnos</li>
+                        </ul>
+                    </div>
+                    <a href="app.html#register" class="w-full text-center py-3 rounded-xl bg-white border border-slate-300 text-slate-800 text-xs font-bold hover:bg-slate-100 transition-colors">
+                        Seleccionar Starter
+                    </a>
+                </div>
+
+                <!-- Plan 3: Inmobiliaria Pro (Destacado) -->
+                <div class="bg-white rounded-3xl p-6 border-2 border-brand shadow-xl relative flex flex-col justify-between">
+                    <div class="absolute -top-3.5 left-1/2 transform -translate-x-1/2">
+                        <span class="bg-brand text-white text-[11px] font-extrabold uppercase px-3 py-1 rounded-full tracking-wider shadow-sm">
+                            ★ Más Elegido
+                        </span>
                     </div>
                     <div>
-                        <label for="password" class="block text-xs font-medium text-gray-700">Contraseña</label>
-                        <input type="password" id="password" placeholder="••••••••" class="input-base text-sm">
+                        <span class="text-xs font-bold uppercase tracking-wider text-brand">Inmobiliarias</span>
+                        <h3 class="text-xl font-bold text-slate-900 mt-1 mb-2">Pro</h3>
+                        <p class="text-xs text-slate-500 mb-4">Para inmobiliarias medianas en plena expansión.</p>
+                        
+                        <div class="mb-6">
+                            <span class="text-3xl font-black text-slate-900">$750.000</span>
+                            <span class="text-xs text-slate-500">ARS / mes</span>
+                            <p class="text-xs text-emerald-600 font-semibold mt-1">Hasta 40 propiedades activas</p>
+                        </div>
+
+                        <ul class="space-y-2.5 text-xs text-slate-700 mb-6">
+                            <li class="flex items-center gap-2"><span class="text-brand font-bold">✓</span> Marca Blanca completa con colores y logo</li>
+                            <li class="flex items-center gap-2"><span class="text-brand font-bold">✓</span> Scoring automático de legajos</li>
+                            <li class="flex items-center gap-2"><span class="text-brand font-bold">✓</span> Gestión prioritaria de tickets helpdesk</li>
+                            <li class="flex items-center gap-2"><span class="text-brand font-bold">✓</span> Soporte telefónico y WhatsApp directo</li>
+                        </ul>
                     </div>
-                    <button type="submit" class="btn-primary w-full py-2 text-sm">Iniciar con contraseña</button>
-                    <div class="text-center">
-                        <button type="button" id="btn-olvide-password" class="text-xs text-gray-400 hover:text-brand">
-                            ¿Olvidaste tu contraseña?
+                    <a href="app.html#register" class="w-full text-center py-3 rounded-xl bg-brand text-white text-xs font-bold hover:bg-brand-dark transition-colors shadow-md">
+                        Comenzar con Plan Pro
+                    </a>
+                </div>
+
+                <!-- Plan 4: Enterprise -->
+                <div class="bg-slate-50 rounded-3xl p-6 border border-slate-200 flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Grandes Carteras</span>
+                        <h3 class="text-xl font-bold text-slate-900 mt-1 mb-2">Enterprise</h3>
+                        <p class="text-xs text-slate-500 mb-4">Para administradoras con más de 100 propiedades.</p>
+                        
+                        <div class="mb-6">
+                            <span class="text-3xl font-black text-slate-900">A medida</span>
+                            <span class="text-xs text-slate-500">/ mes</span>
+                            <p class="text-xs text-slate-500 font-medium mt-1">100+ propiedades</p>
+                        </div>
+
+                        <ul class="space-y-2.5 text-xs text-slate-600 mb-6">
+                            <li class="flex items-center gap-2"><span>✓</span> Servidor e instancia dedicada</li>
+                            <li class="flex items-center gap-2"><span>✓</span> Dominio propio personalizado</li>
+                            <li class="flex items-center gap-2"><span>✓</span> Integración con sistemas contables</li>
+                            <li class="flex items-center gap-2"><span>✓</span> Onboarding presencial de equipo</li>
+                        </ul>
+                    </div>
+                    <a href="#contacto" class="w-full text-center py-3 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition-colors">
+                        Contactar Asesor
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!--  7. FORMULARIO DE CONTACTO / LEAD CAPTURE          -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <section id="contacto" class="py-24 bg-slate-100">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-3xl p-8 sm:p-12 shadow-xl border border-slate-200">
+                <div class="text-center mb-8">
+                    <span class="text-xs font-bold uppercase tracking-widest text-brand">Contacto Directo</span>
+                    <h2 class="text-3xl font-extrabold text-slate-900 mt-2">¿Querés una demo para tu inmobiliaria?</h2>
+                    <p class="text-slate-600 text-sm mt-2">Completá el formulario o escribinos directo para coordinar una prueba piloto sin costo.</p>
+                </div>
+
+                <form id="contact-form" onsubmit="handleContactSubmit(event)" class="space-y-4">
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nombre y Apellido</label>
+                            <input type="text" required id="contacto-nombre" placeholder="Ej: Lucas González" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Empresa / Inmobiliaria</label>
+                            <input type="text" id="contacto-empresa" placeholder="Ej: Inmobiliaria Central" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand">
+                        </div>
+                    </div>
+
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Email Profesional</label>
+                            <input type="email" required id="contacto-email" placeholder="lucas@inmobiliaria.com" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">WhatsApp / Teléfono</label>
+                            <input type="tel" required id="contacto-telefono" placeholder="+54 9 11..." class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Volumen de Propiedades que Administrás</label>
+                        <select id="contacto-volumen" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand">
+                            <option value="1-5">1 a 5 propiedades (Dueño particular)</option>
+                            <option value="6-20">6 a 20 propiedades (Cartera chica)</option>
+                            <option value="21-50">21 a 50 propiedades (Inmobiliaria consolidada)</option>
+                            <option value="50+">Más de 50 propiedades (Empresa inmobiliaria)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Mensaje o Consulta</label>
+                        <textarea id="contacto-mensaje" rows="3" placeholder="Contanos qué te gustaría optimizar en tu gestión..." class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand"></textarea>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-center gap-4 pt-2">
+                        <button type="submit" class="w-full sm:flex-1 py-3.5 px-6 rounded-xl bg-brand hover:bg-brand-dark text-white font-bold text-sm transition-all shadow-md">
+                            Enviar Solicitud
                         </button>
+                        <a href="https://wa.me/5491100000000?text=Hola%20Kelvi,%20quisiera%20recibir%20informaci%C3%B3n%20sobre%20la%20plataforma%20para%20mi%20inmobiliaria" target="_blank" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-300 font-bold text-sm hover:bg-emerald-100 transition-all">
+                            <span>💬 Contactar por WhatsApp</span>
+                        </a>
                     </div>
                 </form>
-
-                <hr class="divider">
-
-                <p class="text-center text-xs text-gray-500">
-                    ¿No tenés cuenta?
-                    <button id="btn-go-register" class="text-brand font-semibold hover:text-brand-dark transition-colors ml-1">Crear cuenta gratis</button>
-                </p>
-            </div>
-
-            <p class="text-center text-xs text-gray-400 mt-6">© 2026 Kelvi · El alquiler, simple para todos</p>
-        </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════ -->
-    <!--  1b. VISTA RECUPERAR CONTRASEÑA           -->
-    <!-- ══════════════════════════════════════════ -->
-    <div id="recovery-view" class="hidden min-h-screen flex items-center justify-center p-4">
-        <div class="w-full max-w-sm">
-            <div class="text-center mb-6">
-                <img src="img/logo.png" alt="Kelvi" class="h-20 mx-auto mb-2 object-contain drop-shadow-sm">
-                <p class="text-sm font-semibold text-gray-500">Recuperá tu contraseña</p>
-            </div>
-            <div class="auth-card">
-
-                <!-- PASO 1: Ingresar email -->
-                <div id="recovery-step-email">
-                    <h2 class="text-lg font-semibold text-navy mb-1">¿Olvidaste tu contraseña?</h2>
-                    <p class="text-xs text-gray-500 mb-4">Ingresá tu email y te enviamos un código para resetearla.</p>
-                    <form id="form-recovery-email" class="space-y-3">
-                        <div>
-                            <label for="recovery-email" class="block text-xs font-medium text-gray-700">Tu email</label>
-                            <input type="email" id="recovery-email" required placeholder="tu@email.com" class="input-base text-sm">
-                        </div>
-                        <button type="submit" class="btn-primary w-full py-2.5 text-sm">📩 Enviar código de recuperación</button>
-                    </form>
-                    <div class="text-center mt-4">
-                        <button type="button" onclick="mostrarVista('login-view')" class="text-xs text-gray-400 hover:text-brand">← Volver al inicio</button>
-                    </div>
+                <div id="contacto-success" class="hidden mt-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-center font-semibold text-sm">
+                    ¡Gracias por tu contacto! Te responderemos a la brevedad para coordinar la demo.
                 </div>
-
-                <!-- PASO 2: Código + nueva contraseña -->
-                <div id="recovery-step-codigo" class="hidden">
-                    <h2 class="text-lg font-semibold text-navy mb-1">Ingresá el código</h2>
-                    <p class="text-xs text-gray-500 mb-4" id="recovery-sent-info">Te enviamos un código de 6 dígitos.</p>
-                    <form id="form-recovery-reset" class="space-y-3">
-                        <div>
-                            <label for="recovery-codigo" class="block text-xs font-semibold text-gray-700 text-center uppercase tracking-wider">Código recibido</label>
-                            <input type="text" id="recovery-codigo" maxlength="6" required placeholder="••••••" class="input-base otp-input mt-1">
-                        </div>
-                        <div>
-                            <label for="recovery-nueva-pass" class="block text-xs font-medium text-gray-700">Nueva contraseña</label>
-                            <input type="password" id="recovery-nueva-pass" required minlength="8" placeholder="Mínimo 8 caracteres" class="input-base text-sm">
-                        </div>
-                        <div>
-                            <label for="recovery-confirmar-pass" class="block text-xs font-medium text-gray-700">Repetir nueva contraseña</label>
-                            <input type="password" id="recovery-confirmar-pass" required minlength="8" placeholder="Repetir contraseña" class="input-base text-sm">
-                        </div>
-                        <button type="submit" class="btn-primary w-full py-2.5 text-sm">✓ Guardar nueva contraseña</button>
-                    </form>
-                    <div class="text-center mt-3">
-                        <button type="button" onclick="document.getElementById('recovery-step-email').classList.remove('hidden'); document.getElementById('recovery-step-codigo').classList.add('hidden')" class="text-xs text-gray-400 hover:text-brand">← Cambiar email</button>
-                    </div>
-                </div>
-
-            </div>
-            <p class="text-center text-xs text-gray-400 mt-6">© 2026 Kelvi · El alquiler, simple para todos</p>
-        </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════ -->
-    <!--  2. VISTA REGISTRO (CON FORMULARIO Y OTP)  -->
-    <!-- ══════════════════════════════════════════ -->
-    <div id="register-view" class="hidden min-h-screen flex items-center justify-center p-4">
-        <div class="w-full max-w-md my-8">
-            <div class="text-center mb-6">
-                <img src="img/logo.png" alt="Kelvi" class="h-20 mx-auto mb-2 object-contain drop-shadow-sm">
-                <p class="text-sm font-semibold text-gray-500">Creá tu cuenta verificada en Kelvi</p>
-            </div>
-
-            <div class="auth-card">
-                <!-- PASO 1: Formulario Completo de Datos -->
-                <div id="register-form-step">
-                    <h2 class="text-lg font-semibold text-navy mb-4">Completá tus datos</h2>
-
-                    <button type="button" onclick="document.getElementById('btn-google-login')?.click()" class="btn-google mb-4">
-                        <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
-                        <span>Registrarse con Google</span>
-                    </button>
-
-                    <div class="flex items-center my-3"><div class="flex-1 border-t border-gray-200"></div><span class="px-2 text-xs text-gray-400 font-medium">o con formulario</span><div class="flex-1 border-t border-gray-200"></div></div>
-
-                    <form id="register-form" class="space-y-3">
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label for="reg-nombre" class="block text-xs font-medium text-gray-700">Nombre</label>
-                                <input type="text" id="reg-nombre" required placeholder="Juan" class="input-base text-sm">
-                            </div>
-                            <div>
-                                <label for="reg-apellido" class="block text-xs font-medium text-gray-700">Apellido</label>
-                                <input type="text" id="reg-apellido" required placeholder="García" class="input-base text-sm">
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label for="reg-dni" class="block text-xs font-medium text-gray-700">DNI / CUIT</label>
-                                <input type="text" id="reg-dni" required placeholder="20123456" class="input-base text-sm">
-                            </div>
-                            <div>
-                                <label for="reg-telefono" class="block text-xs font-medium text-gray-700">Teléfono</label>
-                                <input type="text" id="reg-telefono" required placeholder="+54 9 11..." class="input-base text-sm">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label for="reg-tipo" class="block text-xs font-medium text-gray-700">Soy...</label>
-                            <select id="reg-tipo" class="input-base text-sm" onchange="toggleNombreEmpresa(this.value)">
-                                <option value="inquilino">Inquilino — busco alquilar</option>
-                                <option value="propietario">Propietario — dueño directo</option>
-                                <option value="inmobiliaria">Inmobiliaria / Administrador</option>
-                            </select>
-                        </div>
-
-                        <div id="campo-empresa" class="hidden">
-                            <label for="reg-empresa" class="block text-xs font-medium text-gray-700">Nombre de la Inmobiliaria</label>
-                            <input type="text" id="reg-empresa" placeholder="Ej: Inmobiliaria Central" class="input-base text-sm">
-                        </div>
-
-                        <div>
-                            <label for="reg-email" class="block text-xs font-medium text-gray-700">Email</label>
-                            <input type="email" id="reg-email" required placeholder="tu@email.com" class="input-base text-sm">
-                        </div>
-
-                        <div>
-                            <label for="reg-password" class="block text-xs font-medium text-gray-700">Contraseña</label>
-                            <input type="password" id="reg-password" required placeholder="Mínimo 8 caracteres" class="input-base text-sm">
-                        </div>
-
-                        <button type="submit" id="btn-submit-register" class="btn-primary w-full py-2.5 text-sm font-semibold">
-                            Crear cuenta y verificar email →
-                        </button>
-                    </form>
-                </div>
-
-                <!-- PASO 2: Verificación de Código OTP para Activar Cuenta -->
-                <div id="register-otp-step" class="hidden space-y-4">
-                    <div class="text-center">
-                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-2 text-xl font-bold">
-                            ✉️
-                        </div>
-                        <h3 class="text-base font-bold text-navy">Verificá tu correo</h3>
-                        <p class="text-xs text-gray-500 mt-1" id="reg-otp-sent-info">Te enviamos un código de 6 dígitos para activar tu cuenta.</p>
-                    </div>
-
-                    <form id="form-verificar-registro-otp" class="space-y-3">
-                        <div>
-                            <label for="reg-otp-code" class="block text-xs font-semibold text-gray-700 text-center uppercase tracking-wider">Ingresá el código de 6 dígitos</label>
-                            <input type="text" id="reg-otp-code" maxlength="6" required placeholder="••••••" class="input-base otp-input mt-1">
-                        </div>
-                        <button type="submit" id="btn-confirmar-registro-otp" class="btn-primary w-full py-2.5 text-sm font-semibold">
-                            ✓ Activar Cuenta e Ingresar
-                        </button>
-                        <div class="text-center pt-2">
-                            <button type="button" onclick="volverFormularioRegistro()" class="text-xs text-gray-500 hover:text-brand">← Corregir datos de registro</button>
-                        </div>
-                    </form>
-                </div>
-
-                <hr class="divider">
-
-                <p class="text-center text-xs text-gray-500">
-                    ¿Ya tenés cuenta?
-                    <button id="btn-go-login" class="text-brand font-semibold hover:text-brand-dark transition-colors ml-1">Iniciá sesión</button>
-                </p>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- ══════════════════════════════════════════ -->
-    <!--  MODAL: CORROBORAR DATOS GOOGLE (1ra vez)  -->
-    <!-- ══════════════════════════════════════════ -->
-    <div id="modal-corroborar-datos-google" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
-            <div class="text-center mb-4">
-                <div class="w-12 h-12 bg-green-50 text-brand rounded-full flex items-center justify-center mx-auto mb-2 text-xl font-bold">
-                    ✓
-                </div>
-                <h3 class="text-lg font-bold text-navy">¡Bienvenido a Kelvi!</h3>
-                <p class="text-xs text-gray-500">Tu cuenta de Google está verificada. Por favor corrobora tus datos para configurar tu panel:</p>
-            </div>
-
-            <form id="form-corroborar-google" class="space-y-3">
-                <div class="grid grid-cols-2 gap-3">
+    <!-- ══════════════════════════════════════════════════ -->
+    <!--  8. FOOTER INSTITUCIONAL                           -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <footer class="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6 pb-8 border-b border-slate-800">
+                <div class="flex items-center gap-3">
+                    <img src="img/logo.png" alt="Kelvi" class="h-9 w-auto brightness-0 invert">
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Nombre</label>
-                        <input type="text" id="google-nombre" required class="input-base text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Apellido</label>
-                        <input type="text" id="google-apellido" required class="input-base text-sm">
+                        <span class="text-white font-extrabold text-lg tracking-tight">Kelvi</span>
+                        <p class="text-xs text-slate-400">El alquiler, simple para todos</p>
                     </div>
                 </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">DNI / CUIT</label>
-                        <input type="text" id="google-dni" required placeholder="20123456" class="input-base text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Teléfono</label>
-                        <input type="text" id="google-telefono" required placeholder="+54 9 11..." class="input-base text-sm">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">¿Cómo vas a usar Kelvi?</label>
-                    <select id="google-rol" class="input-base text-sm" onchange="toggleGoogleEmpresa(this.value)">
-                        <option value="inquilino">Inquilino — Busco propiedades y alquilar</option>
-                        <option value="propietario">Propietario — Dueño directo de inmuebles</option>
-                        <option value="inmobiliaria">Inmobiliaria — Administro cartera de alquileres</option>
-                    </select>
-                </div>
-
-                <div id="google-campo-empresa" class="hidden">
-                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Nombre de la Inmobiliaria</label>
-                    <input type="text" id="google-empresa" placeholder="Ej: Inmobiliaria Central" class="input-base text-sm">
-                </div>
-
-                <button type="submit" class="btn-primary w-full py-2.5 text-sm font-semibold">
-                    Confirmar y Comenzar →
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════ -->
-    <!--  MODAL: ACTIVAR BIOMETRÍA (HUELLA/FACEID)  -->
-    <!-- ══════════════════════════════════════════ -->
-    <div id="modal-prompt-biometria" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center">
-            <div class="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 004 11m0 0a8.003 8.003 0 0015.357 2m-4.5-4.5a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-            </div>
-            <h3 class="text-lg font-bold text-navy mb-2">¿Activar Huella / FaceID?</h3>
-            <p class="text-xs text-gray-500 mb-6">Podrás ingresar a Kelvi en 1 segundo usando el sensor biométrico de tu teléfono sin escribir nada.</p>
-            <div class="flex gap-2">
-                <button type="button" onclick="cerrarPromptBiometria(false)" class="btn-secondary flex-1 text-xs py-2.5">Ahora no</button>
-                <button type="button" onclick="activarBiometriaDispositivo()" class="btn-primary flex-1 text-xs py-2.5">✓ Activar Huella</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════ -->
-    <!--  NAVBAR PRINCIPAL KELVI                    -->
-    <!-- ══════════════════════════════════════════ -->
-    <nav id="app-nav" class="hidden main-nav">
-        <div class="nav-inner">
-            <div class="flex items-center gap-6">
-                <a href="#" onclick="navegarA('dashboard'); return false;" class="nav-brand" id="nav-brand-container">
-                    <img src="img/logo.png" alt="Kelvi" class="h-9 w-auto object-contain" id="nav-logo-img">
-                    <span id="nav-company-name" class="font-bold text-lg text-navy tracking-tight">Kelvi</span>
-                </a>
-                <div class="nav-links hidden xl:flex">
-                    <button onclick="navegarA('dashboard')" id="nav-btn-dashboard" class="nav-link">📊 Mi Panel</button>
-                    <button onclick="navegarA('marketplace')" id="nav-btn-marketplace" class="nav-link">🏘 Marketplace</button>
-                    <button onclick="navegarA('mapa')" id="nav-btn-mapa" class="nav-link">🗺 Mapa</button>
-                    <button onclick="navegarA('postulaciones')" id="nav-btn-postulaciones" class="nav-link">📋 Visitas & Legajos</button>
-                    <button onclick="navegarA('contratos')" id="nav-btn-contratos" class="nav-link">📄 Contratos</button>
-                    <button onclick="navegarA('tickets')" id="nav-btn-tickets" class="nav-link">🛠 Mantenimiento</button>
-                    <button onclick="navegarA('proveedores')" id="nav-btn-proveedores" class="nav-link">🔧 Profesionales</button>
-                    <button onclick="navegarA('branding')" id="nav-btn-branding" class="nav-link hidden">🎨 Mi Marca</button>
+                <div class="flex flex-wrap gap-6 text-xs">
+                    <a href="#soluciones" class="hover:text-white transition-colors">Soluciones</a>
+                    <a href="#inmobiliarias" class="hover:text-white transition-colors">Inmobiliarias</a>
+                    <a href="#precios" class="hover:text-white transition-colors">Precios</a>
+                    <a href="app.html" class="hover:text-white transition-colors">Acceso a la App</a>
+                    <a href="app.html#register" class="hover:text-white transition-colors">Registro</a>
                 </div>
             </div>
-            <div class="nav-right">
-                <span id="user-email-display" class="nav-email hidden sm:block"></span>
-                <span id="user-role-display" class="role-badge"></span>
-                <div class="nav-divider"></div>
-                <button onclick="cerrarSesion()" class="nav-exit">Salir</button>
+            <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+                <p>© 2026 Kelvi PropTech. Todos los derechos reservados.</p>
+                <p>Hecho para modernizar el mercado inmobiliario en Argentina y Latinoamérica.</p>
             </div>
         </div>
-    </nav>
+    </footer>
 
-    <!-- Mobile Navigation Subbar -->
-    <div id="app-mobile-nav" class="hidden xl:hidden bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-around gap-1 overflow-x-auto text-xs">
-        <button onclick="navegarA('dashboard')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">📊 Panel</button>
-        <button onclick="navegarA('marketplace')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">🏘 Marketplace</button>
-        <button onclick="navegarA('mapa')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">🗺 Mapa</button>
-        <button onclick="navegarA('postulaciones')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">📋 Visitas</button>
-        <button onclick="navegarA('contratos')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">📄 Contratos</button>
-        <button onclick="navegarA('tickets')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">🛠 Tickets</button>
-        <button onclick="navegarA('proveedores')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">🔧 Profesionales</button>
-        <button onclick="navegarA('branding')" id="mobile-nav-btn-branding" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap hidden">🎨 Mi Marca</button>
-    </div>
-
-    <!-- ══════════════════════════════════════════ -->
-    <!--  3. VISTA DASHBOARD                        -->
-    <!-- ══════════════════════════════════════════ -->
-    <div id="dashboard-view" class="hidden page-content">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <div>
-                <h1 class="text-2xl font-bold text-navy" id="dashboard-welcome-title">Mi Panel de Control</h1>
-                <p class="text-sm text-gray-500">Métricas y resumen general de tu actividad</p>
-            </div>
-            <button id="btn-nueva-propiedad" class="hidden btn-primary text-sm px-4 py-2.5">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                Nueva propiedad
-            </button>
-        </div>
-
-        <div id="stat-cards-container" class="stat-cards">
-            <!-- Métricas dinámicas -->
-        </div>
-
-        <div class="mt-8">
-            <h2 id="dashboard-section-title" class="text-lg font-bold text-navy mb-4">Mis Inmuebles</h2>
-            <div id="dashboard-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                <!-- Cards dinámicas -->
-            </div>
-        </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════ -->
-    <!--  4. VISTA MARKETPLACE                      -->
-    <!-- ══════════════════════════════════════════ -->
-    <div id="marketplace-view" class="hidden page-content">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <div>
-                <h1 class="text-2xl font-bold text-navy">Marketplace de Alquileres</h1>
-                <p class="text-sm text-gray-500">Explorá inmuebles disponibles verificados</p>
-            </div>
-            <div class="flex gap-2">
-                <button onclick="navegarA('mapa')" class="btn-secondary text-xs px-3 py-2 flex items-center gap-1.5">
-                    🗺 Ver en Mapa
-                </button>
-            </div>
-        </div>
-
-        <div class="filter-bar">
-            <div class="filter-group">
-                <label class="filter-label">Ciudad</label>
-                <input type="text" id="filter-ciudad" placeholder="Ej: Buenos Aires, Rosario..." class="filter-input">
-            </div>
-            <div class="filter-group">
-                <label class="filter-label">Tipo de Inmueble</label>
-                <select id="filter-tipo" class="filter-input">
-                    <option value="">Todos los tipos</option>
-                    <option value="departamento">Departamento</option>
-                    <option value="casa">Casa</option>
-                    <option value="duplex">Dúplex</option>
-                    <option value="local_comercial">Local Comercial</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label class="filter-label">Precio Máximo ($)</label>
-                <input type="number" id="filter-precio" placeholder="Sin límite" class="filter-input">
-            </div>
-            <div class="filter-checkbox-group">
-                <input type="checkbox" id="filter-mascotas">
-                <label for="filter-mascotas" class="text-xs font-medium text-gray-700 cursor-pointer">🐾 Solo con mascotas</label>
-            </div>
-            <div class="flex gap-2 items-end">
-                <button id="btn-aplicar-filtros" class="btn-primary text-xs px-4 py-2">Buscar</button>
-                <button id="btn-limpiar-filtros" class="btn-secondary text-xs px-3 py-2">Limpiar</button>
-            </div>
-        </div>
-
-        <div id="marketplace-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            <!-- Cards de propiedades -->
-        </div>
-
-        <div id="marketplace-pagination" class="pagination">
-            <button id="btn-prev-page" disabled>← Anterior</button>
-            <span id="pagination-info" class="pagination-info">Página 1</span>
-            <button id="btn-next-page" disabled>Siguiente →</button>
-        </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════ -->
-    <!--  5. VISTA MAPA INTERACTIVO                 -->
-    <!-- ══════════════════════════════════════════ -->
-    <div id="mapa-view" class="hidden page-content">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <div>
-                <h1 class="text-2xl font-bold text-navy">Mapa de Propiedades</h1>
-                <p class="text-sm text-gray-500">Explorá geográficamente las opciones de alquiler</p>
-            </div>
-            <button onclick="navegarA('marketplace')" class="btn-secondary text-xs px-3 py-2">
-                🏘 Ver en Lista
-            </button>
-        </div>
-        <div id="mapa-leaflet"></div>
-    </div>
-
-    <!-- ══════════════════════════════════════════ -->
-    <!--  6. VISTA DETALLE DE PROPIEDAD             -->
-    <!-- ══════════════════════════════════════════ -->
-    <div id="detalle-propiedad-view" class="hidden page-content max-w-4xl">
-        <div class="mb-4">
-            <button onclick="volverAtrasDetalle()" class="text-sm text-gray-500 hover:text-brand font-medium flex items-center gap-1">
-                ← Volver
-            </button>
-        </div>
-        <div id="detalle-content" class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 sm:p-8">
-            <!-- Renderizado dinámico del detalle -->
-        </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════ -->
-    <!--  7. VISTA VISITAS & POSTULACIONES          -->
-    <!-- ══════════════════════════════════════════ -->
-    <div id="postulaciones-view" class="hidden page-content">
-        <div class="mb-6">
-            <h1 class="text-2xl font-bold text-navy">📋 Visitas Presenciales & Legajos</h1>
-            <p id="postulaciones-subtitle" class="text-sm text-gray-500">Circuito de agendamiento de visitas, evaluación de garantes y contratos</p>
-        </div>
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-            <div id="postulaciones-table-container" class="overflow-x-auto">
-                <!-- Tabla dinámica -->
-            </div>
-        </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════ -->
-    <!--  8. VISTA CONTRATOS                        -->
-    <!-- ══════════════════════════════════════════ -->
-    <div id="contratos-view" class="hidden page-content">
-        <div class="mb-6">
-            <h1 class="text-2xl font-bold text-navy">Gestión de Contratos</h1>
-            <p id="contratos-subtitle" class="text-sm text-gray-500">Contratos de alquiler registrados</p>
-        </div>
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-            <div id="contratos-table-container" class="overflow-x-auto">
-                <!-- Tabla dinámica -->
-            </div>
-        </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════ -->
-    <!--  9. VISTA TICKETS (HELPDESK MANTENIMIENTO) -->
-    <!-- ══════════════════════════════════════════ -->
-    <div id="tickets-view" class="hidden page-content">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <div>
-                <h1 class="text-2xl font-bold text-navy">🛠 Mesa de Ayuda y Mantenimiento</h1>
-                <p id="tickets-subtitle" class="text-sm text-gray-500">Seguimiento, triage y resolución de reclamos e incidencias</p>
-            </div>
-            <button id="btn-nuevo-ticket" class="hidden btn-primary text-sm px-4 py-2.5" onclick="abrirModalNuevoTicket()">
-                + Abrir Ticket de Reclamo
-            </button>
-        </div>
-
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-            <div id="tickets-table-container" class="overflow-x-auto">
-                <!-- Tabla de tickets dinámica -->
-            </div>
-        </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════ -->
-    <!--  10. VISTA RED DE PROVEEDORES / OFICIOS    -->
-    <!-- ══════════════════════════════════════════ -->
-    <div id="proveedores-view" class="hidden page-content">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <div>
-                <h1 class="text-2xl font-bold text-navy">🔧 Red de Profesionales & Mantenimiento</h1>
-                <p class="text-sm text-gray-500">Especialistas verificados para reparaciones, refacciones y urgencias</p>
-            </div>
-            <button onclick="abrirModalNuevoProveedor()" class="btn-primary text-sm px-4 py-2.5">
-                + Registrar Profesional
-            </button>
-        </div>
-
-        <div class="filter-bar">
-            <div class="filter-group">
-                <label class="filter-label">Especialidad / Rubro</label>
-                <select id="filter-prov-rubro" class="filter-input">
-                    <option value="">Todos los rubros</option>
-                    <option value="plomero">🔧 Plomería y Fontanería</option>
-                    <option value="electricista">⚡ Electricidad e Iluminación</option>
-                    <option value="gasista">🔥 Gasista Matriculado</option>
-                    <option value="cerrajero">🔑 Cerrajería 24hs</option>
-                    <option value="aire_acondicionado">❄️ Aire Acondicionado / Clima</option>
-                    <option value="pintor">🎨 Pintura y Revestimientos</option>
-                    <option value="albanileria">🧱 Albañilería / Refacciones</option>
-                    <option value="limpieza">🧹 Limpieza de Fin de Obra</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label class="filter-label">Ciudad</label>
-                <input type="text" id="filter-prov-ciudad" placeholder="Ej: Buenos Aires, Córdoba..." class="filter-input">
-            </div>
-            <div class="flex gap-2 items-end">
-                <button onclick="cargarProveedores()" class="btn-primary text-xs px-4 py-2">Buscar</button>
-                <button onclick="limpiarFiltrosProveedores()" class="btn-secondary text-xs px-3 py-2">Limpiar</button>
-            </div>
-        </div>
-
-        <div id="proveedores-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            <!-- Cards de profesionales dinámicas -->
-        </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════ -->
-    <!--  11. VISTA MI MARCA (WHITE-LABEL)          -->
-    <!-- ══════════════════════════════════════════ -->
-    <div id="branding-view" class="hidden page-content max-w-3xl">
-        <div class="mb-6">
-            <h1 class="text-2xl font-bold text-navy">🎨 Personalización de Marca (White-Label)</h1>
-            <p class="text-sm text-gray-500">Configurá la identidad visual de tu inmobiliaria para tus clientes y paneles</p>
-        </div>
-
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 sm:p-8 space-y-6">
-            <form id="form-branding" class="space-y-6">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre Comercial de la Inmobiliaria</label>
-                    <input type="text" id="brand-empresa" placeholder="Ej: Inmobiliaria del Valle" class="input-base">
-                    <p class="text-xs text-gray-400 mt-1">Este nombre se mostrará en el encabezado de tu portal y contratos.</p>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Color Primario Corporativo</label>
-                    <div class="flex items-center gap-3 mt-1">
-                        <input type="color" id="brand-color-picker" value="#00a650" class="h-10 w-16 p-1 rounded border border-gray-300 cursor-pointer">
-                        <input type="text" id="brand-color-hex" value="#00a650" placeholder="#00a650" class="input-base w-32 uppercase font-mono">
-                        <div id="brand-preview-circle" class="color-preview-circle" style="background:#00a650"></div>
-                    </div>
-                    <p class="text-xs text-gray-400 mt-1">Se aplicará a botones, enlaces, tarjetas e insignias en tu panel.</p>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Logotipo de la Empresa</label>
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-2">
-                        <div id="brand-logo-preview-box" class="h-16 w-32 border border-dashed border-gray-300 rounded-lg flex items-center justify-center p-2 bg-gray-50 overflow-hidden">
-                            <span class="text-xs text-gray-400" id="brand-logo-preview-text">Sin Logo</span>
-                            <img id="brand-logo-preview-img" class="branding-logo-preview hidden" alt="Logo">
-                        </div>
-                        <div class="flex-1">
-                            <input type="file" id="brand-logo-file" accept="image/*" class="text-xs file:py-2 file:px-3 file:border-0 file:rounded-md file:bg-brand-light file:text-brand-dark file:font-semibold">
-                            <p class="text-xs text-gray-400 mt-1">Formato PNG transparente, SVG o JPG recomendado.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="pt-4 border-t border-gray-100 flex gap-3">
-                    <button type="submit" class="btn-primary flex-1 py-2.5">
-                        💾 Guardar y Aplicar Marca
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════ -->
-    <!--  12. VISTA NUEVA PROPIEDAD                 -->
-    <!-- ══════════════════════════════════════════ -->
-    <div id="nueva-propiedad-view" class="hidden page-content max-w-2xl">
-        <div class="mb-6">
-            <button onclick="navegarA('dashboard')" class="text-sm text-gray-500 hover:text-brand font-medium flex items-center gap-1 mb-2">
-                ← Volver al panel
-            </button>
-            <h1 class="text-2xl font-bold text-navy">Publicar nueva propiedad</h1>
-            <p class="text-sm text-gray-500 mt-0.5">Completá los datos del inmueble para publicarlo</p>
-        </div>
-
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 sm:p-8">
-            <form id="nueva-propiedad-form" class="space-y-5">
-                <div>
-                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">1. Ubicación</h3>
-                    <div class="space-y-3">
-                        <div>
-                            <label for="prop-direccion" class="block text-sm font-medium text-gray-700">Dirección completa</label>
-                            <input type="text" id="prop-direccion" required placeholder="Ej: Av. Corrientes 1234, Piso 3, Dto A" class="input-base">
-                        </div>
-                        <div>
-                            <label for="prop-ciudad" class="block text-sm font-medium text-gray-700">Ciudad</label>
-                            <input type="text" id="prop-ciudad" required placeholder="Ej: Buenos Aires" class="input-base">
-                        </div>
-                    </div>
-                </div>
-
-                <hr class="divider">
-
-                <div>
-                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">2. Características y Precio</h3>
-                    <div class="space-y-3">
-                        <div>
-                            <label for="prop-tipo" class="block text-sm font-medium text-gray-700">Tipo de inmueble</label>
-                            <select id="prop-tipo" class="input-base">
-                                <option value="departamento">Departamento</option>
-                                <option value="casa">Casa</option>
-                                <option value="duplex">Dúplex</option>
-                                <option value="local_comercial">Local Comercial</option>
-                            </select>
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div>
-                                <label for="prop-precio" class="block text-sm font-medium text-gray-700">Alquiler mensual ($)</label>
-                                <input type="number" id="prop-precio" required min="0" placeholder="150000" class="input-base">
-                            </div>
-                            <div>
-                                <label for="prop-ingreso-minimo" class="block text-sm font-medium text-gray-700">Ingreso mínimo <span class="text-gray-400 font-normal">(opcional)</span></label>
-                                <input type="number" id="prop-ingreso-minimo" min="0" placeholder="450000" class="input-base">
-                            </div>
-                        </div>
-                        <label class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-brand-light cursor-pointer transition-colors">
-                            <input type="checkbox" id="prop-mascotas" class="w-4 h-4 accent-brand rounded">
-                            <div>
-                                <span class="text-sm font-medium text-gray-700">Acepta mascotas 🐾</span>
-                                <p class="text-xs text-gray-400">El inmueble permite animales domésticos</p>
-                            </div>
-                        </label>
-                    </div>
-                </div>
-
-                <hr class="divider">
-
-                <div>
-                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">3. Fotografía Principal</h3>
-                    <div>
-                        <label for="prop-foto" class="block text-sm font-medium text-gray-700 mb-1">Subir imagen</label>
-                        <input type="file" id="prop-foto" accept="image/jpeg,image/png,image/webp" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-brand-light file:text-brand-dark file:cursor-pointer">
-                    </div>
-                </div>
-
-                <div class="flex gap-3 pt-4">
-                    <button type="button" onclick="navegarA('dashboard')" class="btn-secondary flex-1 py-2.5">
-                        Cancelar
-                    </button>
-                    <button type="submit" id="btn-submit-propiedad" class="btn-primary flex-1 py-2.5">
-                        Publicar propiedad
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════ -->
-    <!--  MODALES DE VISITAS Y LEGAJOS              -->
-    <!-- ══════════════════════════════════════════ -->
-    <div id="modal-solicitar-visita" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-xl">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-navy">📅 Agendar Visita Presencial</h3>
-                <button onclick="cerrarModalSolicitarVisita()" class="text-gray-400 hover:text-gray-600 font-bold text-lg">&times;</button>
-            </div>
-            <p class="text-xs text-gray-500 mb-4">Elegí la fecha y turno que te quede más cómodo para conocer el inmueble.</p>
-            <form id="form-solicitar-visita" class="space-y-4">
-                <input type="hidden" id="visita-id-propiedad">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Fecha preferida para visitar</label>
-                    <input type="date" id="visita-fecha-propuesta" required class="input-base">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Franja Horaria de Preferencia</label>
-                    <select id="visita-franja-horaria" class="input-base">
-                        <option value="Mañana (09:00 a 13:00)">Mañana (09:00 a 13:00)</option>
-                        <option value="Tarde (14:00 a 18:00)" selected>Tarde (14:00 a 18:00)</option>
-                        <option value="Sábado por la mañana (10:00 a 14:00)">Sábado por la mañana (10:00 a 14:00)</option>
-                        <option value="Horario a coordinar por WhatsApp">Horario a coordinar por WhatsApp</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Mensaje o Consulta adicional (Opcional)</label>
-                    <textarea id="visita-mensaje" rows="2" placeholder="Hola, me interesa ver el departamento..." class="input-base text-sm"></textarea>
-                </div>
-                <div class="flex gap-3 pt-2">
-                    <button type="button" onclick="cerrarModalSolicitarVisita()" class="btn-secondary flex-1">Cancelar</button>
-                    <button type="submit" class="btn-primary flex-1">Enviar Solicitud de Visita</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="modal-confirmar-visita" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-xl">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-navy">🗓 Confirmar Horario de Visita</h3>
-                <button onclick="cerrarModalConfirmarVisita()" class="text-gray-400 hover:text-gray-600 font-bold text-lg">&times;</button>
-            </div>
-            <div id="confirmar-visita-info" class="p-3 bg-gray-50 rounded-lg text-xs space-y-1 mb-4 border border-gray-200"></div>
-            <form id="form-confirmar-visita" class="space-y-4">
-                <input type="hidden" id="confirmar-visita-id-postulacion">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Fecha y Hora confirmada</label>
-                    <input type="text" id="confirmar-visita-texto" required placeholder="Ej: Jueves 22/08 a las 15:30 hs" class="input-base">
-                </div>
-                <div class="flex gap-3 pt-2">
-                    <button type="button" onclick="cerrarModalConfirmarVisita()" class="btn-secondary flex-1">Cancelar</button>
-                    <button type="submit" class="btn-primary flex-1">Confirmar Visita</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="modal-cargar-legajo" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-xl max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="text-lg font-bold text-navy">📎 Cargar Legajo Digital & Garantes</h3>
-                <button onclick="cerrarModalCargarLegajo()" class="text-gray-400 hover:text-gray-600 font-bold text-lg">&times;</button>
-            </div>
-            <p class="text-xs text-gray-500 mb-4">¿Te gustó la propiedad tras la visita? Completá tus ingresos y datos de tu garantía para que la inmobiliaria evalúe tu postulación.</p>
-            <form id="form-cargar-legajo" class="space-y-4">
-                <input type="hidden" id="legajo-id-postulacion">
-                <div class="p-3 bg-blue-50 rounded-lg border border-blue-100">
-                    <h4 class="text-xs font-bold text-navy uppercase mb-2">1. Tus Ingresos Declarados</h4>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Ingresos mensuales demostrables ($)</label>
-                        <input type="number" id="legajo-ingresos" required placeholder="Ej: 650000" class="input-base">
-                    </div>
-                </div>
-                <div class="p-3 bg-gray-50 rounded-lg border border-gray-200 space-y-3">
-                    <h4 class="text-xs font-bold text-navy uppercase">2. Tipo de Garantía & Datos del Garante</h4>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Tipo de Garantía Presentada</label>
-                        <select id="legajo-tipo-garantia" class="input-base">
-                            <option value="Garantes con Recibo de Sueldo">Recibo de Sueldo de Garante(s)</option>
-                            <option value="Garantía Propietaria">Garantía Propietaria (Inmueble)</option>
-                            <option value="Seguro de Caución (Finaer / Garantor / Respaldar)">Seguro de Caución (Finaer / Garantor / Respaldar)</option>
-                        </select>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Nombre Completo Garante</label>
-                            <input type="text" id="legajo-nombre-garante" required placeholder="Ej: Roberto García" class="input-base">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">DNI / CUIT Garante</label>
-                            <input type="text" id="legajo-dni-garante" required placeholder="20123456" class="input-base">
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Teléfono Garante</label>
-                            <input type="text" id="legajo-telefono-garante" required placeholder="+54 9 11..." class="input-base">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Ingresos Garante ($)</label>
-                            <input type="number" id="legajo-ingresos-garante" required placeholder="Ej: 900000" class="input-base">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Notas / Empresa donde trabaja el Garante (Opcional)</label>
-                        <input type="text" id="legajo-notas-garantia" placeholder="Ej: Empleado en YPF desde hace 5 años" class="input-base">
-                    </div>
-                </div>
-                <div class="flex gap-3 pt-2">
-                    <button type="button" onclick="cerrarModalCargarLegajo()" class="btn-secondary flex-1">Cancelar</button>
-                    <button type="submit" class="btn-primary flex-1">Enviar Legajo para Evaluación</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="modal-ver-legajo" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-xl">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="text-lg font-bold text-navy">🔍 Legajo de Solvencia & Garantes</h3>
-                <button onclick="cerrarModalVerLegajo()" class="text-gray-400 hover:text-gray-600 font-bold text-lg">&times;</button>
-            </div>
-            <div id="ver-legajo-content" class="space-y-3 mb-5"></div>
-            <div class="flex gap-2 pt-2" id="ver-legajo-actions"></div>
-        </div>
-    </div>
-
-    <div id="modal-crear-contrato" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-xl">
-            <h3 class="text-lg font-bold text-navy mb-4">Generar Contrato de Alquiler</h3>
-            <form id="form-crear-contrato" class="space-y-4">
-                <input type="hidden" id="contrato-id-propiedad">
-                <input type="hidden" id="contrato-id-inquilino">
-                <input type="hidden" id="contrato-id-postulacion">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase">Monto Mensual ($)</label>
-                    <input type="number" id="contrato-monto" required class="input-base">
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase">Fecha Inicio</label>
-                        <input type="date" id="contrato-fecha-inicio" required class="input-base">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase">Fecha Fin</label>
-                        <input type="date" id="contrato-fecha-fin" required class="input-base">
-                    </div>
-                </div>
-                <div class="flex gap-3 pt-2">
-                    <button type="button" onclick="cerrarModalContrato()" class="btn-secondary flex-1">Cancelar</button>
-                    <button type="submit" class="btn-primary flex-1">Crear Contrato</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODALES HELPDESK & PROVEEDORES -->
-    <div id="modal-nuevo-ticket" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-xl">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-navy">🛠 Reportar Incidencia / Mantenimiento</h3>
-                <button onclick="cerrarModalNuevoTicket()" class="text-gray-400 hover:text-gray-600 font-bold text-lg">&times;</button>
-            </div>
-            <form id="form-nuevo-ticket" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Propiedad Afectada</label>
-                    <select id="ticket-propiedad-select" required class="input-base"></select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Título del Reclamo</label>
-                    <input type="text" id="ticket-titulo" required placeholder="Ej: Fuga de agua en bajo mesada" class="input-base">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Nivel de Prioridad</label>
-                    <select id="ticket-prioridad" class="input-base">
-                        <option value="baja">Baja (Detalle cosmético o no urgente)</option>
-                        <option value="media" selected>Media (Inconveniente habitual)</option>
-                        <option value="alta">Alta (Afecta el uso normal de la vivienda)</option>
-                        <option value="urgente">Urgente (Corte de suministro o riesgo)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Descripción detallada</label>
-                    <textarea id="ticket-descripcion" rows="3" required placeholder="Explicá lo sucedido..." class="input-base text-sm"></textarea>
-                </div>
-                <div class="flex gap-3 pt-2">
-                    <button type="button" onclick="cerrarModalNuevoTicket()" class="btn-secondary flex-1">Cancelar</button>
-                    <button type="submit" class="btn-primary flex-1">Enviar Ticket</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="modal-gestionar-ticket" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl max-w-xl w-full p-6 shadow-xl">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-navy" id="gestionar-ticket-title">Gestionar Ticket</h3>
-                <button onclick="cerrarModalGestionarTicket()" class="text-gray-400 hover:text-gray-600 font-bold text-lg">&times;</button>
-            </div>
-            <div id="gestionar-ticket-info" class="p-3 bg-gray-50 rounded-lg text-xs space-y-1 mb-4 border border-gray-200"></div>
-            <div class="p-3 bg-green-50 rounded-lg border border-green-200 mb-4">
-                <div class="flex justify-between items-center mb-1.5">
-                    <span class="text-xs font-bold text-brand-dark">🔍 Seleccionar Profesional Recomendado</span>
-                    <button type="button" onclick="cargarProveedoresEnSelector()" class="text-[11px] text-brand hover:underline font-semibold">Refrescar Lista</button>
-                </div>
-                <div class="flex gap-2">
-                    <select id="select-proveedor-sugerido" class="input-base text-xs bg-white flex-1" onchange="seleccionarProveedorParaTicket(this.value)">
-                        <option value="">Seleccionar técnico del directorio...</option>
-                    </select>
-                    <button type="button" id="btn-wa-notificar-tecnico" onclick="notificarTecnicoPorWhatsApp()" class="btn-whatsapp text-xs py-1 px-3 whitespace-nowrap" disabled>
-                        📲 WhatsApp
-                    </button>
-                </div>
-            </div>
-            <form id="form-gestionar-ticket" class="space-y-4">
-                <input type="hidden" id="gestionar-ticket-id">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Estado del Ticket</label>
-                    <select id="gestionar-ticket-estado" class="input-base">
-                        <option value="abierto">Abierto</option>
-                        <option value="en_progreso">En Progreso / Asignado</option>
-                        <option value="resuelto">Resuelto</option>
-                        <option value="cancelado">Cancelado</option>
-                    </select>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Proveedor / Técnico Asignado</label>
-                        <input type="text" id="gestionar-ticket-proveedor" placeholder="Ej: Plomería Gómez" class="input-base">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Costo Estimado ($)</label>
-                        <input type="number" id="gestionar-ticket-costo" placeholder="0" class="input-base">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Respuesta / Notas para el Inquilino</label>
-                    <textarea id="gestionar-ticket-respuesta" rows="2" placeholder="Ej: Se coordinó la visita del técnico..." class="input-base text-sm"></textarea>
-                </div>
-                <div class="flex gap-3 pt-2">
-                    <button type="button" onclick="cerrarModalGestionarTicket()" class="btn-secondary flex-1">Cancelar</button>
-                    <button type="submit" class="btn-primary flex-1">Guardar Cambios</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="modal-nuevo-proveedor" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-xl">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-navy">🔧 Registrar Profesional</h3>
-                <button onclick="cerrarModalNuevoProveedor()" class="text-gray-400 hover:text-gray-600 font-bold text-lg">&times;</button>
-            </div>
-            <form id="form-nuevo-proveedor" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Nombre Completo</label>
-                    <input type="text" id="prov-nombre" required placeholder="Ej: Carlos Benítez" class="input-base">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Empresa o Nombre de Fantasía (Opcional)</label>
-                    <input type="text" id="prov-empresa" placeholder="Ej: Plomería San Juan" class="input-base">
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Rubro / Especialidad</label>
-                        <select id="prov-rubro" class="input-base">
-                            <option value="plomero">🔧 Plomería</option>
-                            <option value="electricista">⚡ Electricidad</option>
-                            <option value="gasista">🔥 Gasista</option>
-                            <option value="cerrajero">🔑 Cerrajería</option>
-                            <option value="aire_acondicionado">❄️ Aire Acond.</option>
-                            <option value="pintor">🎨 Pintura</option>
-                            <option value="albanileria">🧱 Albañilería</option>
-                            <option value="limpieza">🧹 Limpieza</option>
-                            <option value="otro">🛠 Otro</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Ciudad</label>
-                        <input type="text" id="prov-ciudad" required placeholder="Ej: Buenos Aires" class="input-base">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Matrícula o Registro (Opcional)</label>
-                    <input type="text" id="prov-matricula" placeholder="Ej: Gasista Matriculado #4912" class="input-base">
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Teléfono</label>
-                        <input type="text" id="prov-telefono" required placeholder="+54 9 11..." class="input-base">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">WhatsApp (con código país)</label>
-                        <input type="text" id="prov-whatsapp" required placeholder="5491145128890" class="input-base">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Tarifa Estimada de Visita ($)</label>
-                    <input type="number" id="prov-tarifa" placeholder="15000" class="input-base">
-                </div>
-                <div class="flex gap-3 pt-2">
-                    <button type="button" onclick="cerrarModalNuevoProveedor()" class="btn-secondary flex-1">Cancelar</button>
-                    <button type="submit" class="btn-primary flex-1">Guardar Profesional</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Registro del Service Worker PWA -->
+    <!-- Interactive script for demo & contact -->
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('Kelvi PWA Service Worker activo:', reg.scope))
-                    .catch(err => console.log('Error SW:', err));
+        // Simulador de Marca Blanca interactivo
+        const nameInput = document.getElementById('demo-brand-name');
+        const colorPicker = document.getElementById('demo-color-picker');
+        const colorHex = document.getElementById('demo-color-hex');
+        const brandTitle = document.getElementById('preview-brand-title');
+        const brandDot = document.getElementById('preview-logo-dot');
+
+        if (nameInput && brandTitle) {
+            nameInput.addEventListener('input', (e) => {
+                brandTitle.textContent = e.target.value.trim() || 'Tu Inmobiliaria';
+                brandDot.textContent = (e.target.value.trim().charAt(0) || 'K').toUpperCase();
             });
         }
+
+        if (colorPicker && colorHex && brandDot) {
+            colorPicker.addEventListener('input', (e) => {
+                const val = e.target.value;
+                colorHex.textContent = val;
+                brandDot.style.backgroundColor = val;
+            });
+        }
+
+        // Manejo simple del form de contacto
+        function handleContactSubmit(e) {
+            e.preventDefault();
+            const form = document.getElementById('contact-form');
+            const success = document.getElementById('contacto-success');
+            if (form && success) {
+                form.reset();
+                success.classList.remove('hidden');
+                setTimeout(() => {
+                    success.classList.add('hidden');
+                }, 6000);
+            }
+        }
     </script>
-    <script src="js/app.js"></script>
 </body>
 </html>

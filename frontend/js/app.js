@@ -2414,10 +2414,19 @@ String.prototype.capitalize = function() {
 document.addEventListener('DOMContentLoaded', async () => {
     inicializarGoogleGIS();
     const token = localStorage.getItem('token');
+    const hash = window.location.hash.replace('#', '');
     if (token) {
         await sincronizarPerfilUsuario();
-        navegarA('dashboard');
+        if (hash && ['dashboard', 'marketplace', 'mapa', 'postulaciones', 'contratos', 'tickets', 'proveedores', 'branding'].includes(hash)) {
+            navegarA(hash);
+        } else {
+            navegarA('dashboard');
+        }
     } else {
-        navegarA('login');
+        if (hash === 'register') {
+            navegarA('register');
+        } else {
+            navegarA('login');
+        }
     }
 });
