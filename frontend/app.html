@@ -425,17 +425,82 @@
         </div>
     </nav>
 
-    <!-- Mobile Navigation Subbar -->
-    <div id="app-mobile-nav" class="hidden xl:hidden bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-around gap-1 overflow-x-auto text-xs">
-        <button onclick="navegarA('dashboard')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">📊 Panel</button>
-        <button onclick="navegarA('marketplace')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">🏘 Marketplace</button>
-        <button onclick="navegarA('mapa')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">🗺 Mapa</button>
-        <button onclick="navegarA('postulaciones')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">📋 Visitas</button>
-        <button onclick="navegarA('contratos')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">📄 Contratos</button>
-        <button onclick="navegarA('tickets')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">🛠 Tickets</button>
-        <button onclick="navegarA('proveedores')" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap">🔧 Profesionales</button>
-        <button onclick="navegarA('branding')" id="mobile-nav-btn-branding" class="px-2 py-1 text-gray-600 font-medium whitespace-nowrap hidden">🎨 Mi Marca</button>
+    <!-- Banner Indicador Offline en Tiempo Real -->
+    <div id="offline-indicator-banner" class="hidden">
+        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <span>Modo sin conexión. Mostrando datos disponibles en tu dispositivo.</span>
     </div>
+
+    <!-- Banner Flotante Inteligente de Instalación PWA (Android / PC) -->
+    <div id="pwa-install-prompt" class="hidden pwa-install-banner">
+        <div class="flex items-center gap-3">
+            <img src="img/logo.png" alt="Kelvi" class="w-10 h-10 object-contain rounded-xl bg-white p-1">
+            <div>
+                <p class="text-xs font-bold text-white">Instalá la App de Kelvi</p>
+                <p class="text-[11px] text-slate-300">Rápida, sin descargas pesadas y accesible sin conexión.</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button type="button" id="btn-pwa-dismiss" class="text-xs text-slate-400 hover:text-white px-2 py-1">Cerrar</button>
+            <button type="button" id="btn-pwa-install" class="btn-primary text-xs py-1.5 px-3 rounded-xl whitespace-nowrap">Instalar</button>
+        </div>
+    </div>
+
+    <!-- Modal Guía para iPhone / iPad (iOS Safari) -->
+    <div id="ios-install-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] flex items-end sm:items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl animate-fade-in">
+            <img src="img/logo.png" alt="Kelvi" class="w-16 h-16 mx-auto mb-3 object-contain">
+            <h3 class="text-base font-bold text-navy mb-1">Instalar Kelvi en tu iPhone</h3>
+            <p class="text-xs text-slate-500 mb-6">Para usarla en pantalla completa como una app nativa:</p>
+            
+            <div class="space-y-4 text-left text-xs text-slate-700 bg-slate-50 p-4 rounded-2xl border border-slate-200 mb-6">
+                <div class="flex items-center gap-3">
+                    <span class="w-6 h-6 rounded-full bg-emerald-100 text-brand font-bold flex items-center justify-center text-xs">1</span>
+                    <span>Tocá el botón <strong>Compartir</strong> en la barra inferior de Safari</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="w-6 h-6 rounded-full bg-emerald-100 text-brand font-bold flex items-center justify-center text-xs">2</span>
+                    <span>Deslizá hacia abajo y elegí <strong>"Agregar al inicio"</strong></span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="w-6 h-6 rounded-full bg-emerald-100 text-brand font-bold flex items-center justify-center text-xs">3</span>
+                    <span>Tocá <strong>Agregar</strong> arriba a la derecha ¡y listo!</span>
+                </div>
+            </div>
+
+            <button type="button" onclick="document.getElementById('ios-install-modal').classList.add('hidden')" class="btn-primary w-full py-2.5 text-xs">
+                Entendido
+            </button>
+        </div>
+    </div>
+
+    <!-- PWA Bottom Navigation Bar Fija (Mobile & Tablet) -->
+    <nav id="app-mobile-nav" class="hidden xl:hidden pwa-bottom-bar">
+        <button onclick="navegarA('dashboard')" id="bottom-nav-dashboard" class="pwa-bottom-btn active">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            <span>Inicio</span>
+        </button>
+        <button onclick="navegarA('marketplace')" id="bottom-nav-marketplace" class="pwa-bottom-btn">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <span>Buscar</span>
+        </button>
+        <button onclick="navegarA('mapa')" id="bottom-nav-mapa" class="pwa-bottom-btn">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+            <span>Mapa</span>
+        </button>
+        <button onclick="navegarA('postulaciones')" id="bottom-nav-postulaciones" class="pwa-bottom-btn">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+            <span>Visitas</span>
+        </button>
+        <button onclick="navegarA('tickets')" id="bottom-nav-tickets" class="pwa-bottom-btn">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span>Arreglos</span>
+        </button>
+        <button onclick="navegarA('proveedores')" id="bottom-nav-proveedores" class="pwa-bottom-btn">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+            <span>Técnicos</span>
+        </button>
+    </nav>
 
     <!-- ══════════════════════════════════════════ -->
     <!--  3. VISTA DASHBOARD                        -->

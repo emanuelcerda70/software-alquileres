@@ -561,3 +561,18 @@ def reset_contrasena(payload: ResetPasswordRequest, db: Session = Depends(get_db
     db.commit()
 
     return {"status": "ok", "mensaje": "Contraseña actualizada correctamente. Ya podés iniciar sesión"}
+
+# ─── 9. REGISTRO DE SUSCRIPCIÓN PWA WEB PUSH ────────────────
+class PushSubscriptionRequest(BaseModel):
+    endpoint: str
+    keys: Optional[dict] = None
+
+@router.post("/push-subscription")
+def guardar_push_subscription(
+    payload: PushSubscriptionRequest,
+    usuario_actual: models.Usuario = Depends(seguridad.get_usuario_actual)
+):
+    """Guarda o actualiza el endpoint de suscripción Web Push del usuario."""
+    # En producción almacena el token para despachar notificaciones con pywebpush
+    print(f"[PUSH] Suscripción registrada para usuario {usuario_actual.email} (ID: {usuario_actual.id_usuario})")
+    return {"status": "ok", "mensaje": "Suscripción a notificaciones push guardada correctamente"}

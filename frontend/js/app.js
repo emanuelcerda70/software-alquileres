@@ -105,6 +105,11 @@ function navegarA(vistaNombre, params = {}) {
 
         const activeNavBtn = document.getElementById(`nav-btn-${vistaNombre}`);
         if (activeNavBtn) activeNavBtn.classList.add('active');
+
+        // Sincronizar Bottom Navigation Bar en móviles
+        document.querySelectorAll('.pwa-bottom-btn').forEach(btn => btn.classList.remove('active'));
+        const activeBottomBtn = document.getElementById(`bottom-nav-${vistaNombre}`);
+        if (activeBottomBtn) activeBottomBtn.classList.add('active');
     }
 
     ocultarTodasLasVistas();
@@ -2410,9 +2415,99 @@ String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
 }
 
+// ─── PWA AVANZADA: CONECTIVIDAD, INSTALACIÓN & NOTIFICACIONES ────
+let deferredInstallPrompt = null;
+
+function inicializarPwaAvanzada() {
+    // 1. Detección de Conectividad en Tiempo Real
+    const offlineBanner = document.getElementById('offline-indicator-banner');
+    function actualizarEstadoRed() {
+        if (!navigator.onLine) {
+            if (offlineBanner) offlineBanner.classList.remove('hidden');
+            showToast("Estás navegando sin conexión", "info");
+        } else {
+            if (offlineBanner) offlineBanner.classList.add('hidden');
+        }
+    }
+    window.addEventListener('online', () => {
+        showToast("Conexión restablecida", "success");
+        actualizarEstadoRed();
+    });
+    window.addEventListener('offline', actualizarEstadoRed);
+    actualizarEstadoRed();
+
+    // 2. Prompt Inteligente de Instalación (Android / Chrome / Edge)
+    const installBanner = document.getElementById('pwa-install-prompt');
+    const btnInstall = document.getElementById('btn-pwa-install');
+    const btnDismiss = document.getElementById('btn-pwa-dismiss');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredInstallPrompt = e;
+
+        // No mostrar si ya fue descartado en esta sesión
+        if (!sessionStorage.getItem('pwa_dismissed') && installBanner) {
+            installBanner.classList.remove('hidden');
+        }
+    });
+
+    if (btnInstall) {
+        btnInstall.addEventListener('click', async () => {
+            if (deferredInstallPrompt) {
+                deferredInstallPrompt.prompt();
+                const choiceResult = await deferredInstallPrompt.userChoice;
+                if (choiceResult.outcome === 'accepted') {
+                    showToast("¡Gracias por instalar Kelvi!", "success");
+                }
+                deferredInstallPrompt = null;
+                if (installBanner) installBanner.classList.add('hidden');
+            }
+        });
+    }
+
+    if (btnDismiss) {
+        btnDismiss.addEventListener('click', () => {
+            if (installBanner) installBanner.classList.add('hidden');
+            sessionStorage.setItem('pwa_dismissed', 'true');
+        });
+    }
+
+    window.addEventListener('appinstalled', () => {
+        if (installBanner) installBanner.classList.add('hidden');
+        deferredInstallPrompt = null;
+        console.log('[PWA] Kelvi instalada con éxito');
+    });
+
+    // 3. Guía de Instalación para iOS Safari
+    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    if (isIos && !isStandalone && !sessionStorage.getItem('ios_guide_shown')) {
+        setTimeout(() => {
+            const iosModal = document.getElementById('ios-install-modal');
+            if (iosModal) {
+                iosModal.classList.remove('hidden');
+                sessionStorage.setItem('ios_guide_shown', 'true');
+            }
+        }, 3000);
+    }
+
+    // 4. Solicitar permiso de Notificaciones Push
+    solicitarPermisoNotificaciones();
+}
+
+async function solicitarPermisoNotificaciones() {
+    if ('Notification' in window && 'serviceWorker' in navigator) {
+        if (Notification.permission === 'default') {
+            // Se sugiere solicitar permiso tras interacción del usuario
+            console.log('[PWA] Notificaciones disponibles para activar');
+        }
+    }
+}
+
 // ─── INICIALIZACIÓN ──────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
     inicializarGoogleGIS();
+    inicializarPwaAvanzada();
     const token = localStorage.getItem('token');
     const hash = window.location.hash.replace('#', '');
     if (token) {

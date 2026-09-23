@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
     --brand: #00a650;
@@ -482,4 +482,126 @@ input:focus, select:focus, textarea:focus {
     border-radius: 12px;
     padding: 16px;
     margin-bottom: 20px;
+}
+
+/* ══════════════════════════════════════════════════ */
+/*  PWA EXPERIENCIA NATIVA MÓVIL                       */
+/* ══════════════════════════════════════════════════ */
+:root {
+    --sat: env(safe-area-inset-top, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+}
+
+body {
+    -webkit-tap-highlight-color: transparent;
+    padding-bottom: calc(var(--sab) + 64px);
+}
+
+@media (min-width: 1280px) {
+    body {
+        padding-bottom: 0px;
+    }
+}
+
+/* Bottom Navigation Bar Fija Ergonómica */
+.pwa-bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 6px 4px calc(6px + var(--sab)) 4px;
+    z-index: 999;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.pwa-bottom-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    padding: 6px 2px;
+    color: #64748b;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.15s ease, transform 0.1s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    text-decoration: none;
+    border-radius: 8px;
+}
+
+.pwa-bottom-btn svg {
+    width: 22px;
+    height: 22px;
+    transition: transform 0.15s ease, stroke 0.15s ease;
+}
+
+.pwa-bottom-btn.active, .pwa-bottom-btn:hover {
+    color: var(--brand);
+}
+
+.pwa-bottom-btn.active svg {
+    transform: scale(1.1);
+    stroke: var(--brand);
+}
+
+/* Banner de Estado de Conexión Offline */
+#offline-indicator-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #0f172a;
+    color: #f8fafc;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    padding: 8px 16px;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease;
+}
+
+/* Banner flotante de instalación PWA */
+.pwa-install-banner {
+    position: fixed;
+    bottom: calc(74px + var(--sab));
+    left: 16px;
+    right: 16px;
+    max-width: 440px;
+    margin: 0 auto;
+    background: #0f172a;
+    color: white;
+    border-radius: 16px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    z-index: 998;
+    animation: slideUpPwa 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideUpPwa {
+    from { transform: translateY(120%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }

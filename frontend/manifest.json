@@ -2,11 +2,13 @@
   "name": "Kelvi - El alquiler, simple para todos",
   "short_name": "Kelvi",
   "description": "Plataforma PropTech para gestión de alquileres, visitas presenciales, contratos y mantenimiento.",
-  "start_url": "/index.html",
+  "start_url": "/app.html",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#00a650",
   "orientation": "portrait-primary",
+  "categories": ["business", "productivity", "lifestyle"],
   "icons": [
     {
       "src": "img/icon-192.png",
@@ -19,6 +21,29 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Buscar Inmuebles",
+      "short_name": "Marketplace",
+      "description": "Explorar propiedades disponibles en el mapa",
+      "url": "/app.html#marketplace",
+      "icons": [{ "src": "img/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Mesa de Ayuda & Tickets",
+      "short_name": "Mantenimiento",
+      "description": "Registrar un reclamo de rotura o avería",
+      "url": "/app.html#tickets",
+      "icons": [{ "src": "img/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Mis Visitas y Legajos",
+      "short_name": "Visitas",
+      "description": "Ver estado de visitas y legajos de garantes",
+      "url": "/app.html#postulaciones",
+      "icons": [{ "src": "img/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }
