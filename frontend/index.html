@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kelvi — El Alquiler, Simple para Todos · Plataforma PropTech Integral</title>
   <meta name="description" content="Kelvi simplifica la gestión integral de alquileres: marketplace interactivo, visitas, scoring de legajos de garantes con IA, contratos y mesa de ayuda con técnicos matriculados.">
-  <meta name="theme-color" content="#060911">
+  <meta name="theme-color" content="#ffffff">
   <link rel="icon" type="image/png" href="img/logo.png">
 
   <style>
@@ -16,28 +16,28 @@
        ========================================================================== */
 
     :root {
-      /* Palette */
-      --bg-canvas: #060911;
-      --bg-surface: #0b111e;
-      --bg-surface-elevated: #11182c;
-      --bg-surface-hover: #17223b;
-      --border-subtle: rgba(255, 255, 255, 0.08);
-      --border-glow: rgba(16, 185, 129, 0.35);
+      /* Palette Light Clean */
+      --bg-canvas: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-surface-elevated: #f1f5f9;
+      --bg-surface-hover: #e2e8f0;
+      --border-subtle: #e2e8f0;
+      --border-glow: rgba(0, 166, 80, 0.25);
 
       /* Accents */
       --brand: #00a650;
-      --emerald: #10b981;
-      --emerald-glow: rgba(16, 185, 129, 0.3);
-      --purple: #8b5cf6;
-      --purple-soft: rgba(139, 92, 246, 0.15);
-      --cyan: #06b6d4;
-      --amber: #f59e0b;
+      --emerald: #00a650;
+      --emerald-glow: rgba(0, 166, 80, 0.2);
+      --purple: #6366f1;
+      --purple-soft: rgba(99, 102, 241, 0.1);
+      --cyan: #0284c7;
+      --amber: #d97706;
 
       /* Typography */
-      --text-main: #ffffff;
-      --text-body: #cbd5e1;
-      --text-muted: #94a3b8;
-      --text-faint: #64748b;
+      --text-main: #0f172a;
+      --text-body: #475569;
+      --text-muted: #64748b;
+      --text-faint: #94a3b8;
 
       /* Fluid Scale */
       --font-hero: clamp(2.4rem, 5.2vw, 4.4rem);
@@ -52,9 +52,9 @@
       --radius-pill: 9999px;
 
       /* Shadows */
-      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
-      --shadow-md: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
-      --shadow-lg: 0 20px 50px -10px rgba(0, 0, 0, 0.7), 0 0 40px rgba(16, 185, 129, 0.12);
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+      --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+      --shadow-lg: 0 20px 40px -12px rgba(0, 0, 0, 0.08), 0 0 35px rgba(0, 166, 80, 0.08);
 
       --ease: cubic-bezier(0.22, 1, 0.36, 1);
       --transition-fast: 0.2s var(--ease);
@@ -71,7 +71,7 @@
     html {
       scroll-behavior: smooth;
       scroll-padding-top: 96px;
-      color-scheme: dark;
+      color-scheme: light;
       text-size-adjust: 100%;
     }
 
@@ -94,7 +94,7 @@
       transform: translateX(-50%);
       width: 100vw;
       height: 650px;
-      background: radial-gradient(circle at 50% -10%, rgba(16, 185, 129, 0.22) 0%, rgba(6, 182, 212, 0.08) 35%, transparent 70%);
+      background: radial-gradient(circle at 50% -10%, rgba(0, 166, 80, 0.12) 0%, rgba(2, 132, 199, 0.04) 40%, transparent 70%);
       pointer-events: none;
       z-index: 0;
     }
@@ -161,7 +161,7 @@
     }
 
     .gradient-text {
-      background: linear-gradient(135deg, #ffffff 20%, var(--emerald) 75%, var(--cyan) 100%);
+      background: linear-gradient(135deg, #0f172a 30%, #00a650 75%, #0284c7 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       display: inline-block;
@@ -186,28 +186,28 @@
     .btn svg { width: 16px; height: 16px; fill: currentColor; }
 
     .btn-glow {
-      background: linear-gradient(135deg, #059669, var(--emerald) 60%, #34d399 100%);
+      background: linear-gradient(135deg, #008c44, var(--emerald) 60%, #10b981 100%);
       color: #ffffff;
       box-shadow: 0 4px 20px var(--emerald-glow);
       border: 1px solid rgba(255, 255, 255, 0.15);
     }
     .btn-glow:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(16, 185, 129, 0.55);
+      box-shadow: 0 8px 24px rgba(0, 166, 80, 0.35);
       color: #ffffff;
     }
 
     .btn-glass {
-      background: rgba(255, 255, 255, 0.04);
-      color: #ffffff;
-      border: 1px solid var(--border-subtle);
-      backdrop-filter: blur(10px);
+      background: #ffffff;
+      color: #0f172a;
+      border: 1px solid #cbd5e1;
+      box-shadow: var(--shadow-sm);
     }
     .btn-glass:hover {
-      background: rgba(255, 255, 255, 0.09);
-      border-color: rgba(255, 255, 255, 0.22);
+      background: #f8fafc;
+      border-color: #94a3b8;
       transform: translateY(-2px);
-      color: #ffffff;
+      color: #0f172a;
     }
 
     .btn-sm { padding: 9px 18px; font-size: 13px; }
@@ -255,15 +255,15 @@
       left: 0;
       right: 0;
       z-index: 1000;
-      background: rgba(6, 9, 17, 0.84);
+      background: rgba(255, 255, 255, 0.92);
       backdrop-filter: blur(20px) saturate(180%);
       -webkit-backdrop-filter: blur(20px) saturate(180%);
       border-bottom: 1px solid var(--border-subtle);
       transition: background var(--transition-base), box-shadow var(--transition-base);
     }
     .site-header.is-scrolled {
-      background: rgba(6, 9, 17, 0.96);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      background: rgba(255, 255, 255, 0.98);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
     }
     .reading-progress {
       position: absolute;
@@ -288,7 +288,7 @@
       font-size: 22px;
       font-weight: 750;
       letter-spacing: -0.04em;
-      color: #ffffff;
+      color: #0f172a;
     }
     .brand-logo img {
       width: 36px;
@@ -322,7 +322,7 @@
       transition: color var(--transition-fast);
       padding-block: 6px;
     }
-    .nav-menu a:hover { color: #ffffff; }
+    .nav-menu a:hover { color: var(--emerald); }
 
     .nav-actions {
       display: flex;
@@ -335,7 +335,7 @@
       height: 44px;
       align-items: center;
       justify-content: center;
-      color: #ffffff;
+      color: #0f172a;
       border-radius: 8px;
     }
 
@@ -375,8 +375,8 @@
       margin-top: 60px;
     }
     .stat-pill {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
       border-radius: var(--radius-md);
       padding: 22px 18px;
       text-align: center;
@@ -385,7 +385,7 @@
     }
     .stat-pill:hover {
       transform: translateY(-4px);
-      border-color: rgba(255, 255, 255, 0.16);
+      border-color: var(--emerald);
     }
     .stat-title {
       font-size: 1.6rem;
@@ -406,10 +406,10 @@
       perspective: 1400px;
     }
     .mockup-window {
-      background: #090e1a;
-      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
       border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-lg), 0 0 60px rgba(16, 185, 129, 0.15);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.12), 0 0 40px rgba(0, 166, 80, 0.08);
       overflow: hidden;
       max-width: 1040px;
       margin: 0 auto;
@@ -419,12 +419,12 @@
     }
     .mockup-window:hover {
       transform: rotateX(0deg) translateY(-4px);
-      box-shadow: 0 30px 70px -10px rgba(0, 0, 0, 0.8), 0 0 70px rgba(16, 185, 129, 0.25);
+      box-shadow: 0 30px 60px -10px rgba(0, 0, 0, 0.16), 0 0 50px rgba(0, 166, 80, 0.14);
     }
     .mockup-bar {
-      background: #111827;
+      background: #f1f5f9;
       padding: 14px 22px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      border-bottom: 1px solid #e2e8f0;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -437,8 +437,8 @@
     .dot-green { background: #27c93f; }
 
     .mockup-address {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
       border-radius: var(--radius-pill);
       padding: 4px 16px;
       font-size: 11px;
@@ -460,7 +460,7 @@
     }
     .mockup-body {
       padding: 28px;
-      background: #090e1a;
+      background: #f8fafc;
     }
 
     .preview-cols {
@@ -469,14 +469,14 @@
       gap: 18px;
     }
     .preview-card {
-      background: #101628;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
       border-radius: var(--radius-md);
       padding: 22px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
     }
     .preview-card-header {
       display: flex;
@@ -497,7 +497,7 @@
     .preview-card h4 {
       font-size: 15px;
       margin-bottom: 8px;
-      color: #ffffff;
+      color: #0f172a;
     }
     .price-tag-big {
       font-size: 22px;
@@ -515,9 +515,9 @@
       padding-block: 4px;
       display: flex;
       justify-content: space-between;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid #f1f5f9;
     }
-    .preview-detail-list li strong { color: #ffffff; }
+    .preview-detail-list li strong { color: #0f172a; }
 
     /* Interactive Scoring Action */
     .btn-sim-score {
@@ -525,7 +525,7 @@
       font-size: 12px;
       font-weight: 750;
       border-radius: var(--radius-pill);
-      background: linear-gradient(135deg, #059669, var(--emerald));
+      background: linear-gradient(135deg, #008c44, var(--emerald));
       color: #ffffff;
       text-align: center;
       width: 100%;
@@ -612,7 +612,7 @@
        Interactive White-Label Simulator
        ========================================================================== */
     .whitelabel-section {
-      background: linear-gradient(180deg, #0e1424 0%, #060911 100%);
+      background: #f1f5f9;
       border-top: 1px solid var(--border-subtle);
       border-bottom: 1px solid var(--border-subtle);
     }
@@ -623,17 +623,17 @@
       align-items: center;
     }
     .whitelabel-card {
-      background: #0f1628;
-      border: 1.5px solid rgba(255, 255, 255, 0.1);
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
       border-radius: var(--radius-lg);
       padding: 34px;
-      box-shadow: var(--shadow-lg);
+      box-shadow: var(--shadow-md);
     }
     .whitelabel-live-box {
       margin-top: 20px;
       padding: 18px;
       border-radius: var(--radius-md);
-      background: #141c30;
+      background: #f8fafc;
       border: 1.5px solid var(--emerald);
       transition: border-color 0.3s;
     }
@@ -697,9 +697,9 @@
       box-shadow: var(--shadow-lg);
     }
     .pricing-card.is-popular {
-      background: linear-gradient(180deg, #131d33 0%, #0b111e 100%);
+      background: #ffffff;
       border: 2px solid var(--emerald);
-      box-shadow: 0 25px 60px rgba(16, 185, 129, 0.22);
+      box-shadow: 0 20px 40px rgba(0, 166, 80, 0.14);
     }
     .popular-ribbon {
       position: absolute;
@@ -707,7 +707,7 @@
       left: 50%;
       transform: translateX(-50%);
       background: linear-gradient(135deg, #059669, var(--emerald));
-      color: #ffffff;
+      color: #0f172a;
       font-size: 10px;
       font-weight: 800;
       letter-spacing: 0.1em;
@@ -736,12 +736,12 @@
     .price-wrap {
       margin-bottom: 22px;
       padding-bottom: 20px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      border-bottom: 1px solid #e2e8f0;
     }
     .price-num {
       font-size: 34px;
       font-weight: 850;
-      color: #ffffff;
+      color: #0f172a;
       letter-spacing: -0.05em;
       line-height: 1;
     }
@@ -757,9 +757,9 @@
     }
     .plan-features li {
       font-size: 12.5px;
-      color: #e2e8f0;
+      color: #475569;
       padding-block: 6px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      border-bottom: 1px solid #f1f5f9;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -773,21 +773,22 @@
     /* Red de Profesionales Banner */
     .pro-network-banner {
       margin-top: 60px;
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(139, 92, 246, 0.08));
-      border: 1.5px solid rgba(16, 185, 129, 0.35);
+      background: linear-gradient(135deg, #f0fdf4, #f8fafc);
+      border: 1.5px solid rgba(0, 166, 80, 0.3);
       border-radius: var(--radius-lg);
       padding: 40px;
       display: grid;
       grid-template-columns: 2fr 1fr;
       gap: 32px;
       align-items: center;
+      box-shadow: var(--shadow-sm);
     }
 
     /* Footer */
     .site-footer {
       border-top: 1px solid var(--border-subtle);
       padding: 60px 0 40px;
-      background: #05070d;
+      background: #ffffff;
       text-align: center;
     }
     .footer-links {
@@ -801,14 +802,14 @@
       font-size: 13px;
       color: var(--text-muted);
     }
-    .footer-links a:hover { color: #ffffff; }
+    .footer-links a:hover { color: var(--emerald); }
 
     /* Mobile Drawer */
     .mobile-drawer {
       display: none;
       position: fixed;
       inset: 72px 0 0;
-      background: rgba(6, 9, 17, 0.98);
+      background: rgba(255, 255, 255, 0.98);
       backdrop-filter: blur(25px);
       padding: 30px 24px;
       z-index: 999;
@@ -819,7 +820,7 @@
     .mobile-drawer a {
       font-size: 18px;
       font-weight: 650;
-      color: #ffffff;
+      color: #0f172a;
       padding-block: 12px;
       border-bottom: 1px solid var(--border-subtle);
     }
@@ -1004,7 +1005,7 @@
                     </div>
                     <h4>Rotura de Caño Principal</h4>
                     <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Técnico: <strong>Plomería Rossi (Matrícula #4812)</strong></p>
-                    <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 10px; font-size: 11.5px; color: #a7f3d0; margin-bottom: 14px;">
+                    <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 10px; font-size: 11.5px; color: #065f46; margin-bottom: 14px;">
                       💬 Notificación lista para WhatsApp con foto y dirección del inmueble.
                     </div>
                   </div>
@@ -1023,7 +1024,7 @@
     </section>
 
     <!-- Soluciones por Perfil -->
-    <section id="soluciones" class="section-pad" style="background: rgba(11, 17, 30, 0.4); border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);">
+    <section id="soluciones" class="section-pad" style="background: #ffffff; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);">
       <div class="container">
         <div class="section-header">
           <div class="section-eyebrow">Diseñado para todo el Ecosistema</div>
@@ -1071,7 +1072,7 @@
             <p style="font-size: 15px; color: var(--text-body); line-height: 1.75; margin-bottom: 24px;">
               No pierdas clientes redirigiéndolos a portales genéricos. Con Kelvi, podés aplicar tu Nombre Comercial, tu Logotipo y tus Colores Corporativos para que tus propietarios e inquilinos vean tu marca en cada pantalla.
             </p>
-            <div style="display: grid; gap: 12px; margin-bottom: 30px; font-size: 14px; color: #e2e8f0;">
+            <div style="display: grid; gap: 12px; margin-bottom: 30px; font-size: 14px; color: #334155;">
               <div>✓ Presencia de marca exclusiva sin menciones a terceros</div>
               <div>✓ Configurable en 2 minutos desde el panel de administración</div>
               <div>✓ Mayor fidelización y profesionalismo de cara a tus clientes</div>
@@ -1085,11 +1086,11 @@
               Simulador de Marca Blanca en Vivo
             </div>
             <div style="margin-bottom: 14px;">
-              <label style="display: block; font-size: 12px; font-weight: 600; color: #ffffff; margin-bottom: 6px;">Nombre de tu Inmobiliaria</label>
-              <input type="text" id="sim-brand-input" value="Inmobiliaria Palermo Norte" style="width: 100%; padding: 10px 14px; border-radius: var(--radius-sm); background: #060911; border: 1px solid var(--border-subtle); color: #ffffff; font-size: 13.5px;">
+              <label style="display: block; font-size: 12px; font-weight: 600; color: #0f172a; margin-bottom: 6px;">Nombre de tu Inmobiliaria</label>
+              <input type="text" id="sim-brand-input" value="Inmobiliaria Palermo Norte" style="width: 100%; padding: 10px 14px; border-radius: var(--radius-sm); background: #ffffff; border: 1px solid var(--border-subtle); color: #0f172a; font-size: 13.5px;">
             </div>
             <div style="margin-bottom: 20px;">
-              <label style="display: block; font-size: 12px; font-weight: 600; color: #ffffff; margin-bottom: 6px;">Color Corporativo</label>
+              <label style="display: block; font-size: 12px; font-weight: 600; color: #0f172a; margin-bottom: 6px;">Color Corporativo</label>
               <div style="display: flex; align-items: center; gap: 10px;">
                 <input type="color" id="sim-color-picker" value="#00a650" style="width: 44px; height: 36px; border: none; border-radius: 6px; cursor: pointer; background: transparent;">
                 <span id="sim-color-hex" style="font-family: monospace; font-size: 13px; color: var(--emerald);">#00a650</span>
@@ -1098,12 +1099,12 @@
 
             <!-- Preview Card -->
             <div class="whitelabel-live-box" id="whitelabel-preview-box">
-              <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+              <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0;">
                 <div style="display: flex; align-items: center; gap: 10px;">
                   <div id="sim-logo-badge" style="width: 28px; height: 28px; border-radius: 6px; background: var(--emerald); color: #ffffff; font-weight: 800; font-size: 14px; display: grid; place-items: center;">K</div>
-                  <strong id="sim-brand-title" style="color: #ffffff; font-size: 14px;">Inmobiliaria Palermo Norte</strong>
+                  <strong id="sim-brand-title" style="color: #0f172a; font-size: 14px;">Inmobiliaria Palermo Norte</strong>
                 </div>
-                <span style="font-size: 10px; font-weight: 700; background: rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 4px;">Portal Oficial</span>
+                <span style="font-size: 10px; font-weight: 700; background: #e2e8f0; padding: 2px 8px; border-radius: 4px;">Portal Oficial</span>
               </div>
               <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">Así verán tus clientes el portal, recibos digitales y órdenes de pago con tu identidad.</p>
             </div>
@@ -1157,7 +1158,7 @@
     </section>
 
     <!-- Precios y Planes -->
-    <section id="precios" class="section-pad" style="background: rgba(11, 17, 30, 0.4); border-top: 1px solid var(--border-subtle);">
+    <section id="precios" class="section-pad" style="background: #ffffff; border-top: 1px solid var(--border-subtle);">
       <div class="container">
         <div class="section-header">
           <div class="section-eyebrow">Precios Claros y Flexibles</div>
@@ -1246,7 +1247,7 @@
               Publicá tus servicios gratis en el catálogo de Kelvi. No pagás costos de ingreso ni abonos mensuales: <strong>solo se descuenta una pequeña comisión por cada trabajo concretado y cobrado</strong>.
             </p>
           </div>
-          <div style="text-align: center; border-left: 1px solid rgba(255,255,255,0.08); padding-left: 24px;">
+          <div style="text-align: center; border-left: 1px solid #cbd5e1; padding-left: 24px;">
             <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Membresía</div>
             <div style="font-size: 32px; font-weight: 850; color: var(--emerald); margin: 6px 0;">$0 <span style="font-size: 14px; color: var(--text-muted);">/ mes</span></div>
             <a href="#contacto" class="btn btn-glow btn-sm" style="margin-top: 10px;">Sumarme a la Red &rarr;</a>
@@ -1269,29 +1270,29 @@
           <form action="#" method="POST" style="display: grid; gap: 18px;">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
               <div>
-                <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #ffffff;">Nombre y Apellido</label>
-                <input type="text" placeholder="Ej: Lucas González" required style="width: 100%; padding: 12px 16px; border-radius: var(--radius-sm); background: #060911; border: 1px solid var(--border-subtle); color: #ffffff; font-size: 14px;">
+                <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #0f172a;">Nombre y Apellido</label>
+                <input type="text" placeholder="Ej: Lucas González" required style="width: 100%; padding: 12px 16px; border-radius: var(--radius-sm); background: #ffffff; border: 1px solid var(--border-subtle); color: #0f172a; font-size: 14px;">
               </div>
               <div>
-                <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #ffffff;">Inmobiliaria / Empresa</label>
-                <input type="text" placeholder="Ej: Inmobiliaria Central" required style="width: 100%; padding: 12px 16px; border-radius: var(--radius-sm); background: #060911; border: 1px solid var(--border-subtle); color: #ffffff; font-size: 14px;">
+                <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #0f172a;">Inmobiliaria / Empresa</label>
+                <input type="text" placeholder="Ej: Inmobiliaria Central" required style="width: 100%; padding: 12px 16px; border-radius: var(--radius-sm); background: #ffffff; border: 1px solid var(--border-subtle); color: #0f172a; font-size: 14px;">
               </div>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
               <div>
-                <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #ffffff;">Email Profesional</label>
-                <input type="email" placeholder="lucas@inmobiliaria.com" required style="width: 100%; padding: 12px 16px; border-radius: var(--radius-sm); background: #060911; border: 1px solid var(--border-subtle); color: #ffffff; font-size: 14px;">
+                <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #0f172a;">Email Profesional</label>
+                <input type="email" placeholder="lucas@inmobiliaria.com" required style="width: 100%; padding: 12px 16px; border-radius: var(--radius-sm); background: #ffffff; border: 1px solid var(--border-subtle); color: #0f172a; font-size: 14px;">
               </div>
               <div>
-                <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #ffffff;">WhatsApp / Teléfono</label>
-                <input type="tel" placeholder="+54 9 11..." required style="width: 100%; padding: 12px 16px; border-radius: var(--radius-sm); background: #060911; border: 1px solid var(--border-subtle); color: #ffffff; font-size: 14px;">
+                <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #0f172a;">WhatsApp / Teléfono</label>
+                <input type="tel" placeholder="+54 9 11..." required style="width: 100%; padding: 12px 16px; border-radius: var(--radius-sm); background: #ffffff; border: 1px solid var(--border-subtle); color: #0f172a; font-size: 14px;">
               </div>
             </div>
 
             <div>
-              <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #ffffff;">Volumen de Propiedades que Administrás</label>
-              <select style="width: 100%; padding: 12px 16px; border-radius: var(--radius-sm); background: #060911; border: 1px solid var(--border-subtle); color: #ffffff; font-size: 14px;">
+              <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #0f172a;">Volumen de Propiedades que Administrás</label>
+              <select style="width: 100%; padding: 12px 16px; border-radius: var(--radius-sm); background: #ffffff; border: 1px solid var(--border-subtle); color: #0f172a; font-size: 14px;">
                 <option value="profesional">Soy Técnico / Oficio (Quiero sumarme a la red de servicios)</option>
                 <option value="1-5">1 a 5 propiedades (Dueño particular)</option>
                 <option value="6-20">6 a 20 propiedades (Cartera chica)</option>
@@ -1312,7 +1313,7 @@
     <div class="container">
       <div style="display: inline-flex; align-items: center; gap: 10px; margin-bottom: 20px;">
         <img src="img/logo.png" alt="Kelvi" width="32" height="32" style="border-radius: 8px;">
-        <span style="font-weight: 700; color: #ffffff;">Kelvi<span style="color: var(--emerald); margin-left: 4px;">PropTech</span></span>
+        <span style="font-weight: 700; color: #0f172a;">Kelvi<span style="color: var(--emerald); margin-left: 4px;">PropTech</span></span>
       </div>
 
       <div class="footer-links">
