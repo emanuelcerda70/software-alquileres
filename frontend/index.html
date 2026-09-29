@@ -1,841 +1,1423 @@
 <!DOCTYPE html>
-<html lang="es" class="scroll-smooth">
+<html lang="es-AR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelvi | El alquiler, simple para todos · Plataforma PropTech Integral</title>
-    <meta name="description" content="Kelvi simplifica la gestión de alquileres: marketplace interactivo, visitas, scoring de legajos de garantes, contratos y mesa de ayuda con oficios verificados.">
-    
-    <!-- Favicon & PWA -->
-    <link rel="icon" type="image/png" href="img/logo.png">
-    <meta name="theme-color" content="#00a650">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kelvi — El Alquiler, Simple para Todos · Plataforma PropTech Integral</title>
+  <meta name="description" content="Kelvi simplifica la gestión integral de alquileres: marketplace interactivo, visitas, scoring de legajos de garantes con IA, contratos y mesa de ayuda con técnicos matriculados.">
+  <meta name="theme-color" content="#060911">
+  <link rel="icon" type="image/png" href="img/logo.png">
 
-    <!-- Google Fonts & Tailwind -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            DEFAULT: '#00a650',
-                            dark: '#008c44',
-                            light: '#e8f5ee',
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            500: '#00a650',
-                            600: '#008c44',
-                            700: '#15803d',
-                        },
-                        navy: {
-                            DEFAULT: '#0f172a',
-                            light: '#1e293b',
-                            card: '#151d32'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        .gradient-hero {
-            background: radial-gradient(circle at 50% 0%, rgba(0, 166, 80, 0.12) 0%, rgba(255, 255, 255, 0) 70%);
-        }
-        .badge-glow {
-            box-shadow: 0 0 20px -3px rgba(0, 166, 80, 0.3);
-        }
-        .card-hover {
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .card-hover:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-        }
-    </style>
+  <style>
+    /* ==========================================================================
+       Kelvi PropTech — World-Class Real Estate Editorial Design System
+       Zero-Bloat Vanilla Architecture (No Tailwind, No Heavy Frameworks)
+       Palette: Deep Obsidian (#060911), Emerald Trust (#10b981 / #00a650), Royal Violet
+       ========================================================================== */
+
+    :root {
+      /* Palette */
+      --bg-canvas: #060911;
+      --bg-surface: #0b111e;
+      --bg-surface-elevated: #11182c;
+      --bg-surface-hover: #17223b;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(16, 185, 129, 0.35);
+
+      /* Accents */
+      --brand: #00a650;
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.3);
+      --purple: #8b5cf6;
+      --purple-soft: rgba(139, 92, 246, 0.15);
+      --cyan: #06b6d4;
+      --amber: #f59e0b;
+
+      /* Typography */
+      --text-main: #ffffff;
+      --text-body: #cbd5e1;
+      --text-muted: #94a3b8;
+      --text-faint: #64748b;
+
+      /* Fluid Scale */
+      --font-hero: clamp(2.4rem, 5.2vw, 4.4rem);
+      --font-h2: clamp(1.85rem, 3.8vw, 3rem);
+      --font-h3: clamp(1.3rem, 2.2vw, 1.95rem);
+      --font-body: clamp(0.95rem, 1.05vw, 1.05rem);
+
+      /* Radii */
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 22px;
+      --radius-pill: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+      --shadow-md: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+      --shadow-lg: 0 20px 50px -10px rgba(0, 0, 0, 0.7), 0 0 40px rgba(16, 185, 129, 0.12);
+
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      --transition-fast: 0.2s var(--ease);
+      --transition-base: 0.35s var(--ease);
+      --max-width: 1240px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 96px;
+      color-scheme: dark;
+      text-size-adjust: 100%;
+    }
+
+    body {
+      background-color: var(--bg-canvas);
+      color: var(--text-body);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: var(--font-body);
+      line-height: 1.65;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Ambient Emerald Radial Glow */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100vw;
+      height: 650px;
+      background: radial-gradient(circle at 50% -10%, rgba(16, 185, 129, 0.22) 0%, rgba(6, 182, 212, 0.08) 35%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      color: var(--text-main);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1.15;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+      transition: color var(--transition-fast), border-color var(--transition-fast);
+    }
+
+    button {
+      font: inherit;
+      color: inherit;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    img, svg {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--emerald);
+      outline-offset: 3px;
+      border-radius: 6px;
+    }
+
+    .skip-link {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      transform: translateY(-160%);
+      padding: 12px 20px;
+      background: var(--emerald);
+      color: #060911;
+      font-weight: 700;
+      font-size: 13px;
+      border-radius: var(--radius-sm);
+      z-index: 10000;
+      transition: transform var(--transition-fast);
+    }
+    .skip-link:focus { transform: translateY(0); }
+
+    .container {
+      width: min(var(--max-width), calc(100% - 48px));
+      margin-inline: auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-pad {
+      padding-block: 105px;
+      position: relative;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #ffffff 20%, var(--emerald) 75%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 13px 26px;
+      border-radius: var(--radius-pill);
+      font-size: 14px;
+      font-weight: 650;
+      letter-spacing: -0.015em;
+      transition: all var(--transition-base);
+      cursor: pointer;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .btn svg { width: 16px; height: 16px; fill: currentColor; }
+
+    .btn-glow {
+      background: linear-gradient(135deg, #059669, var(--emerald) 60%, #34d399 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 20px var(--emerald-glow);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .btn-glow:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(16, 185, 129, 0.55);
+      color: #ffffff;
+    }
+
+    .btn-glass {
+      background: rgba(255, 255, 255, 0.04);
+      color: #ffffff;
+      border: 1px solid var(--border-subtle);
+      backdrop-filter: blur(10px);
+    }
+    .btn-glass:hover {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: rgba(255, 255, 255, 0.22);
+      transform: translateY(-2px);
+      color: #ffffff;
+    }
+
+    .btn-sm { padding: 9px 18px; font-size: 13px; }
+
+    /* Eyebrow Badge */
+    .eyebrow-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 6px 16px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: var(--radius-pill);
+      color: var(--emerald);
+      font-size: 12px;
+      font-weight: 650;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .status-pulse {
+      width: 8px;
+      height: 8px;
+      background: var(--emerald);
+      border-radius: 50%;
+      position: relative;
+    }
+    .status-pulse::after {
+      content: "";
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      border: 1.5px solid var(--emerald);
+      animation: pulse-ring 2s infinite var(--ease);
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.9); opacity: 1; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+
+    /* Header */
+    .site-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: rgba(6, 9, 17, 0.84);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--border-subtle);
+      transition: background var(--transition-base), box-shadow var(--transition-base);
+    }
+    .site-header.is-scrolled {
+      background: rgba(6, 9, 17, 0.96);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    }
+    .reading-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--emerald), var(--cyan));
+      width: 0%;
+      transition: width 0.08s linear;
+    }
+    .nav-wrapper {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 22px;
+      font-weight: 750;
+      letter-spacing: -0.04em;
+      color: #ffffff;
+    }
+    .brand-logo img {
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      object-fit: contain;
+    }
+    .brand-logo span span {
+      color: var(--emerald);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-left: 6px;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      background: rgba(16, 185, 129, 0.12);
+      padding: 2px 7px;
+      border-radius: var(--radius-pill);
+    }
+
+    .nav-menu {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+    .nav-menu a {
+      font-size: 14px;
+      font-weight: 550;
+      color: var(--text-muted);
+      transition: color var(--transition-fast);
+      padding-block: 6px;
+    }
+    .nav-menu a:hover { color: #ffffff; }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .menu-toggle {
+      display: none;
+      width: 44px;
+      height: 44px;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      border-radius: 8px;
+    }
+
+    /* Hero */
+    .hero {
+      padding-top: 165px;
+      padding-bottom: 60px;
+      text-align: center;
+    }
+    .hero-title {
+      font-size: var(--font-hero);
+      letter-spacing: -0.055em;
+      line-height: 1.08;
+      max-width: 980px;
+      margin: 0 auto 24px;
+    }
+    .hero-subtitle {
+      font-size: clamp(1.05rem, 1.4vw, 1.25rem);
+      line-height: 1.7;
+      color: var(--text-body);
+      max-width: 760px;
+      margin: 0 auto 38px;
+    }
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    /* Metric Strip */
+    .stat-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 60px;
+    }
+    .stat-pill {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 22px 18px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+      transition: transform var(--transition-base), border-color var(--transition-base);
+    }
+    .stat-pill:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255, 255, 255, 0.16);
+    }
+    .stat-title {
+      font-size: 1.6rem;
+      font-weight: 850;
+      letter-spacing: -0.04em;
+      margin-bottom: 6px;
+    }
+    .stat-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* ==========================================================================
+       Interactive Live PropTech Mockup (3 Columns: Market, Scoring, Helpdesk)
+       ========================================================================== */
+    .mockup-container {
+      margin-top: 65px;
+      perspective: 1400px;
+    }
+    .mockup-window {
+      background: #090e1a;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg), 0 0 60px rgba(16, 185, 129, 0.15);
+      overflow: hidden;
+      max-width: 1040px;
+      margin: 0 auto;
+      text-align: left;
+      transform: rotateX(1.8deg);
+      transition: transform 0.5s var(--ease), box-shadow 0.5s var(--ease);
+    }
+    .mockup-window:hover {
+      transform: rotateX(0deg) translateY(-4px);
+      box-shadow: 0 30px 70px -10px rgba(0, 0, 0, 0.8), 0 0 70px rgba(16, 185, 129, 0.25);
+    }
+    .mockup-bar {
+      background: #111827;
+      padding: 14px 22px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .mockup-dots { display: inline-flex; gap: 7px; }
+    .dot { width: 11px; height: 11px; border-radius: 50%; }
+    .dot-red { background: #ff5f56; }
+    .dot-yellow { background: #ffbd2e; }
+    .dot-green { background: #27c93f; }
+
+    .mockup-address {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-pill);
+      padding: 4px 16px;
+      font-size: 11px;
+      font-weight: 550;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .mockup-badge {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: var(--emerald);
+      padding: 3px 10px;
+      border-radius: var(--radius-pill);
+    }
+    .mockup-body {
+      padding: 28px;
+      background: #090e1a;
+    }
+
+    .preview-cols {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+    .preview-card {
+      background: #101628;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    }
+    .preview-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .preview-tag {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 6px;
+    }
+    .tag-market { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+    .tag-scoring { background: rgba(139, 92, 246, 0.18); color: #c4b5fd; }
+    .tag-help { background: rgba(245, 158, 11, 0.18); color: #fcd34d; }
+
+    .preview-card h4 {
+      font-size: 15px;
+      margin-bottom: 8px;
+      color: #ffffff;
+    }
+    .price-tag-big {
+      font-size: 22px;
+      font-weight: 850;
+      color: var(--emerald);
+      margin-bottom: 12px;
+    }
+    .preview-detail-list {
+      list-style: none;
+      font-size: 12px;
+      color: var(--text-body);
+      margin-bottom: 18px;
+    }
+    .preview-detail-list li {
+      padding-block: 4px;
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .preview-detail-list li strong { color: #ffffff; }
+
+    /* Interactive Scoring Action */
+    .btn-sim-score {
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: 750;
+      border-radius: var(--radius-pill);
+      background: linear-gradient(135deg, #059669, var(--emerald));
+      color: #ffffff;
+      text-align: center;
+      width: 100%;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+    }
+    .btn-sim-score:hover { transform: translateY(-1px); }
+
+    .kelvi-toast {
+      display: none;
+      margin-top: 16px;
+      padding: 12px 18px;
+      border-radius: var(--radius-sm);
+      font-size: 12.5px;
+      font-weight: 600;
+      background: rgba(16, 185, 129, 0.16);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #6ee7b7;
+      text-align: center;
+    }
+
+    /* Section Headers */
+    .section-header {
+      text-align: center;
+      max-width: 760px;
+      margin: 0 auto 55px;
+    }
+    .section-eyebrow {
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--emerald);
+      margin-bottom: 14px;
+    }
+    .section-title {
+      font-size: var(--font-h2);
+      letter-spacing: -0.05em;
+      margin-bottom: 18px;
+    }
+    .section-subtitle {
+      font-size: 16px;
+      color: var(--text-body);
+      line-height: 1.7;
+    }
+
+    /* ==========================================================================
+       Soluciones Tripartitas (Inquilinos, Propietarios, Inmobiliarias)
+       ========================================================================== */
+    .solutions-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .solution-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 38px 30px;
+      display: flex;
+      flex-direction: column;
+      transition: transform var(--transition-base), border-color var(--transition-base);
+    }
+    .solution-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(16, 185, 129, 0.35);
+      box-shadow: var(--shadow-md);
+    }
+    .solution-icon {
+      font-size: 32px;
+      margin-bottom: 18px;
+    }
+    .solution-card h3 {
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+    .solution-card p {
+      font-size: 14px;
+      color: var(--text-body);
+      line-height: 1.75;
+      margin-bottom: 18px;
+    }
+
+    /* ==========================================================================
+       Interactive White-Label Simulator
+       ========================================================================== */
+    .whitelabel-section {
+      background: linear-gradient(180deg, #0e1424 0%, #060911 100%);
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .whitelabel-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+    .whitelabel-card {
+      background: #0f1628;
+      border: 1.5px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-lg);
+      padding: 34px;
+      box-shadow: var(--shadow-lg);
+    }
+    .whitelabel-live-box {
+      margin-top: 20px;
+      padding: 18px;
+      border-radius: var(--radius-md);
+      background: #141c30;
+      border: 1.5px solid var(--emerald);
+      transition: border-color 0.3s;
+    }
+
+    /* ==========================================================================
+       6 Features Grid
+       ========================================================================== */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+    }
+    .feature-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 32px 24px;
+      transition: transform var(--transition-base), border-color var(--transition-base), background var(--transition-base);
+    }
+    .feature-card:hover {
+      transform: translateY(-5px);
+      background: var(--bg-surface-elevated);
+      border-color: rgba(16, 185, 129, 0.35);
+      box-shadow: var(--shadow-md);
+    }
+    .feature-icon-box {
+      font-size: 30px;
+      margin-bottom: 18px;
+    }
+    .feature-card h4 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .feature-card p {
+      font-size: 13.5px;
+      line-height: 1.7;
+      color: var(--text-body);
+    }
+
+    /* ==========================================================================
+       Pricing Tiers (4 Plans in ARS)
+       ========================================================================== */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      align-items: stretch;
+    }
+    .pricing-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 36px 26px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: transform var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base);
+    }
+    .pricing-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-lg);
+    }
+    .pricing-card.is-popular {
+      background: linear-gradient(180deg, #131d33 0%, #0b111e 100%);
+      border: 2px solid var(--emerald);
+      box-shadow: 0 25px 60px rgba(16, 185, 129, 0.22);
+    }
+    .popular-ribbon {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #059669, var(--emerald));
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 16px;
+      border-radius: var(--radius-pill);
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    }
+    .plan-tier-label {
+      font-size: 11px;
+      font-weight: 750;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+    }
+    .plan-title {
+      font-size: 21px;
+      margin: 4px 0 10px;
+    }
+    .plan-desc {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      min-height: 38px;
+      margin-bottom: 20px;
+    }
+    .price-wrap {
+      margin-bottom: 22px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .price-num {
+      font-size: 34px;
+      font-weight: 850;
+      color: #ffffff;
+      letter-spacing: -0.05em;
+      line-height: 1;
+    }
+    .price-unit {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .plan-features {
+      list-style: none;
+      margin-bottom: 28px;
+      flex-grow: 1;
+    }
+    .plan-features li {
+      font-size: 12.5px;
+      color: #e2e8f0;
+      padding-block: 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .plan-features li::before {
+      content: "✓";
+      color: var(--emerald);
+      font-weight: 800;
+    }
+
+    /* Red de Profesionales Banner */
+    .pro-network-banner {
+      margin-top: 60px;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(139, 92, 246, 0.08));
+      border: 1.5px solid rgba(16, 185, 129, 0.35);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 32px;
+      align-items: center;
+    }
+
+    /* Footer */
+    .site-footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 60px 0 40px;
+      background: #05070d;
+      text-align: center;
+    }
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 28px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .footer-links a {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .footer-links a:hover { color: #ffffff; }
+
+    /* Mobile Drawer */
+    .mobile-drawer {
+      display: none;
+      position: fixed;
+      inset: 72px 0 0;
+      background: rgba(6, 9, 17, 0.98);
+      backdrop-filter: blur(25px);
+      padding: 30px 24px;
+      z-index: 999;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .mobile-drawer.is-open { display: flex; }
+    .mobile-drawer a {
+      font-size: 18px;
+      font-weight: 650;
+      color: #ffffff;
+      padding-block: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    @media (max-width: 1180px) {
+      .pricing-grid { grid-template-columns: repeat(2, 1fr); max-width: 720px; margin-inline: auto; }
+      .whitelabel-grid { grid-template-columns: 1fr; }
+      .pro-network-banner { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 860px) {
+      .nav-menu { display: none; }
+      .menu-toggle { display: flex; }
+      .preview-cols { grid-template-columns: 1fr; }
+      .solutions-grid { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      .stat-strip { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .container { width: calc(100% - 32px); }
+      .stat-strip { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 480px; }
+      .hero-actions { flex-direction: column; width: 100%; }
+      .hero-actions .btn { width: 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto !important; }
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+      .mockup-window { transform: none !important; }
+    }
+  </style>
 </head>
-<body class="bg-slate-50 text-slate-900 font-sans antialiased overflow-x-hidden">
+<body>
 
-    <!-- ══════════════════════════════════════════════════ -->
-    <!--  1. NAVBAR FLOTANTE MODERNO                        -->
-    <!-- ══════════════════════════════════════════════════ -->
-    <header class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/80 transition-all duration-300">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <!-- Brand Logo -->
-            <a href="#" class="flex items-center gap-3 group">
-                <img src="img/logo.png" alt="Kelvi Logo" class="h-10 w-auto object-contain transition-transform group-hover:scale-105">
-                <div class="flex flex-col">
-                    <span class="font-extrabold text-xl tracking-tight text-slate-900 leading-none">Kelvi</span>
-                    <span class="text-[10px] font-semibold text-brand tracking-wide uppercase mt-0.5">PropTech</span>
-                </div>
-            </a>
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
 
-            <!-- Desktop Navigation Links -->
-            <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
-                <a href="#soluciones" class="hover:text-brand transition-colors">Soluciones</a>
-                <a href="#profesionales" class="hover:text-brand transition-colors">Profesionales</a>
-                <a href="#inmobiliarias" class="hover:text-brand transition-colors">Inmobiliarias</a>
-                <a href="#caracteristicas" class="hover:text-brand transition-colors">Características</a>
-                <a href="#precios" class="hover:text-brand transition-colors">Precios</a>
-                <a href="#contacto" class="hover:text-brand transition-colors">Contacto</a>
-            </nav>
+  <!-- Header -->
+  <header class="site-header" id="cabecera">
+    <div class="reading-progress" id="progress-bar" aria-hidden="true"></div>
+    <div class="container nav-wrapper">
+      <a href="#" class="brand-logo" aria-label="Kelvi, Inicio">
+        <img src="img/logo.png" alt="Logo de Kelvi" width="36" height="36">
+        <span>Kelvi<span>PropTech</span></span>
+      </a>
 
-            <!-- Action CTA Buttons -->
-            <div class="flex items-center gap-3">
-                <a href="app.html" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-brand transition-colors">
-                    Iniciar sesión
-                </a>
-                <a href="app.html#register" class="inline-flex items-center justify-center px-4 sm:px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-brand hover:bg-brand-dark shadow-sm hover:shadow-md transition-all">
-                    <span>Ir a la App</span>
-                    <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                </a>
-            </div>
+      <nav aria-label="Navegación principal">
+        <ul class="nav-menu">
+          <li><a href="#soluciones">Soluciones</a></li>
+          <li><a href="#inmobiliarias">Inmobiliarias</a></li>
+          <li><a href="#caracteristicas">Características</a></li>
+          <li><a href="#precios">Precios</a></li>
+          <li><a href="#contacto">Contacto</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="app.html" class="btn btn-glass btn-sm">Iniciar Sesión</a>
+        <a href="app.html#register" class="btn btn-glow btn-sm">Ir a la App &rarr;</a>
+        <button class="menu-toggle" id="btn-toggle-menu" aria-label="Abrir Menú" aria-expanded="false" type="button">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Drawer -->
+    <div class="mobile-drawer" id="mobile-menu" aria-hidden="true">
+      <a href="#soluciones" class="mob-link">Soluciones Inmobiliarias</a>
+      <a href="#inmobiliarias" class="mob-link">Tecnología White-Label</a>
+      <a href="#caracteristicas" class="mob-link">Características del Sistema</a>
+      <a href="#precios" class="mob-link">Planes y Precios</a>
+      <a href="#contacto" class="mob-link">Contacto Directo</a>
+      <a href="app.html" class="btn btn-glass" style="margin-top: 10px;">Iniciar Sesión</a>
+      <a href="app.html#register" class="btn btn-glow">Registrarme Gratis</a>
+    </div>
+  </header>
+
+  <main id="contenido">
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="container">
+        <div class="eyebrow-badge">
+          <span class="status-pulse" aria-hidden="true"></span>
+          Plataforma Todo-en-Uno para el Ecosistema Inmobiliario
         </div>
-    </header>
 
-    <!-- ══════════════════════════════════════════════════ -->
-    <!--  2. HERO SECTION                                   -->
-    <!-- ══════════════════════════════════════════════════ -->
-    <section class="relative pt-32 pb-20 md:pt-40 md:pb-28 gradient-hero overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-            
-            <!-- Pill Announcement -->
-            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/70 text-emerald-800 text-xs sm:text-sm font-semibold mb-6 badge-glow">
-                <span class="flex h-2 w-2 rounded-full bg-brand animate-ping"></span>
-                <span>Plataforma Todo-en-Uno para el Ecosistema Inmobiliario</span>
+        <h1 class="hero-title">
+          El alquiler,<br>
+          <span class="gradient-text">simple para todos.</span>
+        </h1>
+
+        <p class="hero-subtitle">
+          Chau a las planillas caóticas de Excel, visitas desorganizadas por WhatsApp y reclamos olvidados. Kelvi centraliza búsquedas en mapa, legajos de garantes, contratos y mesa de ayuda con técnicos matriculados.
+        </p>
+
+        <div class="hero-actions">
+          <a href="app.html#register" class="btn btn-glow">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            Probar Kelvi Gratis
+          </a>
+          <a href="#inmobiliarias" class="btn btn-glass">
+            Ver Solución Inmobiliarias &rarr;
+          </a>
+        </div>
+
+        <!-- 4 Stat Badges -->
+        <div class="stat-strip">
+          <div class="stat-pill">
+            <div class="stat-title" style="color: var(--emerald);">100%</div>
+            <div class="stat-desc">Digital sin Papeles Físicos</div>
+          </div>
+          <div class="stat-pill">
+            <div class="stat-title" style="color: var(--cyan);">3 Clavijas</div>
+            <div class="stat-desc">Inquilino, Dueño, Inmobiliaria</div>
+          </div>
+          <div class="stat-pill">
+            <div class="stat-title" style="color: var(--amber);">En 1 Clic</div>
+            <div class="stat-desc">WhatsApp a Técnicos Matriculados</div>
+          </div>
+          <div class="stat-pill">
+            <div class="stat-title" style="color: var(--purple);">White-Label</div>
+            <div class="stat-desc">Tu Marca y Logotipo Propio</div>
+          </div>
+        </div>
+
+        <!-- Interactive 3D PropTech Mockup -->
+        <div class="mockup-container">
+          <div class="mockup-window">
+            <div class="mockup-bar">
+              <div class="mockup-dots" aria-hidden="true">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+              </div>
+              <div class="mockup-address">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                <span>app.kelvi.com.ar • Plataforma Operativa Integral</span>
+              </div>
+              <div class="mockup-badge">Modo Interactivo</div>
             </div>
 
-            <!-- Main Heading -->
-            <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mx-auto mb-6">
-                El alquiler, <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand via-emerald-600 to-teal-500">simple para todos.</span>
-            </h1>
+            <div class="mockup-body">
+              <div class="preview-cols">
+                <!-- Col 1: Marketplace -->
+                <div class="preview-card">
+                  <div>
+                    <div class="preview-card-header">
+                      <span class="preview-tag tag-market">🏢 Marketplace</span>
+                      <span style="font-size: 11px; color: var(--text-muted);">Palermo, CABA</span>
+                    </div>
+                    <h4>Dpto 2 Ambientes con Balcón</h4>
+                    <div class="price-tag-big">$420.000 <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">/ mes</span></div>
+                    <ul class="preview-detail-list">
+                      <li><span>🛏️ 1 dorm</span> <span>🛁 1 baño</span> <span>🐾 Mascotas OK</span></li>
+                    </ul>
+                  </div>
+                  <a href="app.html" class="btn btn-glass btn-sm" style="width: 100%; font-size: 12px;">Agendar Visita</a>
+                </div>
 
-            <!-- Subtitle -->
-            <p class="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed mb-10">
-                Chau a las planillas caóticas de Excel, visitas desorganizadas por WhatsApp y reclamos olvidados. 
-                Kelvi centraliza búsquedas en mapa, legajos de garantes, contratos y mesa de ayuda con técnicos matriculados.
+                <!-- Col 2: Legajos & Scoring IA -->
+                <div class="preview-card" id="card-scoring">
+                  <div>
+                    <div class="preview-card-header">
+                      <span class="preview-tag tag-scoring">📋 Legajo Digital</span>
+                      <span style="font-size: 11px; color: var(--emerald);" id="scoring-badge">Scoring: 98/100 ✓</span>
+                    </div>
+                    <h4>Martín Gómez (Inquilino)</h4>
+                    <ul class="preview-detail-list">
+                      <li><span>Recibo de Sueldo:</span> <strong>Ingreso x3 verificado</strong></li>
+                      <li><span>Garantía Propietaria:</span> <strong>CABA Dominio Libre</strong></li>
+                      <li><span>Seguro Caución:</span> <strong>Finaer Aprobado</strong></li>
+                    </ul>
+                  </div>
+                  <button type="button" class="btn-sim-score" id="btn-generate-contract">⚡ Generar Contrato Digital</button>
+                </div>
+
+                <!-- Col 3: Helpdesk & Mantenimiento -->
+                <div class="preview-card">
+                  <div>
+                    <div class="preview-card-header">
+                      <span class="preview-tag tag-help">🛠️ Helpdesk Urgente</span>
+                      <span style="font-size: 11px; color: var(--amber);">En Proceso</span>
+                    </div>
+                    <h4>Rotura de Caño Principal</h4>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Técnico: <strong>Plomería Rossi (Matrícula #4812)</strong></p>
+                    <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 10px; font-size: 11.5px; color: #a7f3d0; margin-bottom: 14px;">
+                      💬 Notificación lista para WhatsApp con foto y dirección del inmueble.
+                    </div>
+                  </div>
+                  <a href="app.html" class="btn btn-glow btn-sm" style="width: 100%; font-size: 12px;">Avisar a Técnico</a>
+                </div>
+              </div>
+
+              <div class="kelvi-toast" id="kelvi-toast">
+                🎉 ¡Contrato generado y firmado electrónicamente! Ambas partes han recibido el documento legal con código QR y fecha certificada.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Soluciones por Perfil -->
+    <section id="soluciones" class="section-pad" style="background: rgba(11, 17, 30, 0.4); border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-eyebrow">Diseñado para todo el Ecosistema</div>
+          <h2 class="section-title">Un ecosistema conectado para alquileres sin problemas</h2>
+          <p class="section-subtitle">
+            Los portales tradicionales te abandonan una vez que se firma el contrato. Kelvi une a inmobiliarias, dueños, inquilinos y técnicos matriculados en una sola plataforma colaborativa.
+          </p>
+        </div>
+
+        <div class="solutions-grid">
+          <article class="solution-card">
+            <div class="solution-icon" aria-hidden="true">🔑</div>
+            <h3>Para Inquilinos</h3>
+            <p>Buscá alquileres reales con mapa interactivo. Agendá visitas con 1 clic, subí tu legajo digital una sola vez y gestioná reclamos con técnicos verificados en minutos.</p>
+            <a href="app.html#register" class="btn btn-glass btn-sm" style="margin-top: auto; width: 100%;">Explorar Alquileres &rarr;</a>
+          </article>
+
+          <article class="solution-card">
+            <div class="solution-icon" aria-hidden="true">🏡</div>
+            <h3>Para Propietarios</h3>
+            <p>Dejá de renegar con recibos en papel y deudas sorpresas. Cobrá el alquiler con liquidaciones automáticas, scoring de inquilinos y seguimiento de expensas e impuestos al día.</p>
+            <a href="app.html#register" class="btn btn-glass btn-sm" style="margin-top: auto; width: 100%;">Publicar mi Propiedad &rarr;</a>
+          </article>
+
+          <article class="solution-card">
+            <div class="solution-icon" aria-hidden="true">🏢</div>
+            <h3>Para Inmobiliarias</h3>
+            <p>Multiplicá la productividad de tu equipo. Administrá cientos de contratos, automatizá la cobranza y dale a tus clientes un portal propio con tu marca y colores.</p>
+            <a href="#inmobiliarias" class="btn btn-glow btn-sm" style="margin-top: auto; width: 100%;">Ver Solución Marca Blanca &rarr;</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- White-Label Simulator -->
+    <section id="inmobiliarias" class="section-pad whitelabel-section">
+      <div class="container">
+        <div class="whitelabel-grid">
+          <div>
+            <div class="eyebrow-badge" style="margin-bottom: 14px;">Tecnología White-Label (Marca Blanca)</div>
+            <h2 style="font-size: var(--font-h2); line-height: 1.1; margin-bottom: 20px;">
+              Tu inmobiliaria, <br>
+              <span class="gradient-text">con su propia plataforma digital.</span>
+            </h2>
+            <p style="font-size: 15px; color: var(--text-body); line-height: 1.75; margin-bottom: 24px;">
+              No pierdas clientes redirigiéndolos a portales genéricos. Con Kelvi, podés aplicar tu Nombre Comercial, tu Logotipo y tus Colores Corporativos para que tus propietarios e inquilinos vean tu marca en cada pantalla.
             </p>
+            <div style="display: grid; gap: 12px; margin-bottom: 30px; font-size: 14px; color: #e2e8f0;">
+              <div>✓ Presencia de marca exclusiva sin menciones a terceros</div>
+              <div>✓ Configurable en 2 minutos desde el panel de administración</div>
+              <div>✓ Mayor fidelización y profesionalismo de cara a tus clientes</div>
+            </div>
+            <a href="#contacto" class="btn btn-glow">Solicitar Demo para Inmobiliarias</a>
+          </div>
 
-            <!-- Dual CTAs -->
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-                <a href="app.html#register" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-2xl text-base font-bold text-white bg-brand hover:bg-brand-dark shadow-lg shadow-emerald-500/25 transition-all transform hover:-translate-y-0.5">
-                    Probar Kelvi Gratis
-                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
-                </a>
-                <a href="#inmobiliarias" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-2xl text-base font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-all shadow-sm">
-                    Ver Solución Inmobiliarias
-                </a>
+          <!-- Live Simulator Box -->
+          <div class="whitelabel-card">
+            <div style="font-size: 12px; font-weight: 750; letter-spacing: 0.1em; text-transform: uppercase; color: var(--emerald); margin-bottom: 16px;">
+              Simulador de Marca Blanca en Vivo
+            </div>
+            <div style="margin-bottom: 14px;">
+              <label style="display: block; font-size: 12px; font-weight: 600; color: #ffffff; margin-bottom: 6px;">Nombre de tu Inmobiliaria</label>
+              <input type="text" id="sim-brand-input" value="Inmobiliaria Palermo Norte" style="width: 100%; padding: 10px 14px; border-radius: var(--radius-sm); background: #060911; border: 1px solid var(--border-subtle); color: #ffffff; font-size: 13.5px;">
+            </div>
+            <div style="margin-bottom: 20px;">
+              <label style="display: block; font-size: 12px; font-weight: 600; color: #ffffff; margin-bottom: 6px;">Color Corporativo</label>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <input type="color" id="sim-color-picker" value="#00a650" style="width: 44px; height: 36px; border: none; border-radius: 6px; cursor: pointer; background: transparent;">
+                <span id="sim-color-hex" style="font-family: monospace; font-size: 13px; color: var(--emerald);">#00a650</span>
+              </div>
             </div>
 
-            <!-- Value Metric Badges -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto pt-6 border-t border-slate-200/80 text-left">
-                <div class="p-3">
-                    <p class="text-2xl font-black text-slate-900">100%</p>
-                    <p class="text-xs text-slate-500 font-medium">Digital sin papeles físicos</p>
+            <!-- Preview Card -->
+            <div class="whitelabel-live-box" id="whitelabel-preview-box">
+              <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <div id="sim-logo-badge" style="width: 28px; height: 28px; border-radius: 6px; background: var(--emerald); color: #ffffff; font-weight: 800; font-size: 14px; display: grid; place-items: center;">K</div>
+                  <strong id="sim-brand-title" style="color: #ffffff; font-size: 14px;">Inmobiliaria Palermo Norte</strong>
                 </div>
-                <div class="p-3">
-                    <p class="text-2xl font-black text-brand">3 Clavijas</p>
-                    <p class="text-xs text-slate-500 font-medium">Inquilino, Dueño, Inmobiliaria</p>
-                </div>
-                <div class="p-3">
-                    <p class="text-2xl font-black text-slate-900">En 1 Clic</p>
-                    <p class="text-xs text-slate-500 font-medium">WhatsApp a técnicos matriculados</p>
-                </div>
-                <div class="p-3">
-                    <p class="text-2xl font-black text-brand">White-Label</p>
-                    <p class="text-xs text-slate-500 font-medium">Tu marca y logo propio</p>
-                </div>
+                <span style="font-size: 10px; font-weight: 700; background: rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 4px;">Portal Oficial</span>
+              </div>
+              <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">Así verán tus clientes el portal, recibos digitales y órdenes de pago con tu identidad.</p>
             </div>
-
-            <!-- Visual Preview Mockup Showcase -->
-            <div class="mt-14 relative max-w-5xl mx-auto">
-                <div class="relative rounded-2xl md:rounded-3xl p-3 bg-gradient-to-b from-slate-200 to-slate-300 shadow-2xl border border-slate-200/60">
-                    <div class="bg-white rounded-xl md:rounded-2xl overflow-hidden border border-slate-200 text-left shadow-inner">
-                        
-                        <!-- Mockup Topbar -->
-                        <div class="bg-slate-900 px-4 py-3 flex items-center justify-between border-b border-slate-800">
-                            <div class="flex items-center gap-2">
-                                <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                                <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                                <span class="text-xs text-slate-400 font-mono ml-2">app.kelvi.com.ar / dashboard</span>
-                            </div>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                                ● Sistema Activo
-                            </span>
-                        </div>
-
-                        <!-- Mockup Content UI Preview -->
-                        <div class="p-6 md:p-8 bg-slate-50 grid md:grid-cols-3 gap-6">
-                            <!-- Column 1: Marketplace Card -->
-                            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
-                                <div>
-                                    <div class="flex items-center justify-between mb-3">
-                                        <span class="text-xs font-bold px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-800">🏢 Marketplace</span>
-                                        <span class="text-xs font-semibold text-slate-400">Palermo, CABA</span>
-                                    </div>
-                                    <h4 class="font-bold text-slate-800 text-base mb-1">Dpto 2 Ambientes con Balcón</h4>
-                                    <p class="text-2xl font-black text-brand mb-3">$420.000 <span class="text-xs text-slate-400 font-normal">/mes</span></p>
-                                    <div class="flex items-center gap-3 text-xs text-slate-600 mb-4">
-                                        <span>🛏️ 1 dorm</span>
-                                        <span>🛁 1 baño</span>
-                                        <span>🐾 Mascotas OK</span>
-                                    </div>
-                                </div>
-                                <a href="app.html" class="w-full text-center py-2 px-3 rounded-xl bg-slate-100 hover:bg-emerald-50 text-emerald-700 text-xs font-bold border border-slate-200 transition-colors">
-                                    Agendar Visita Presencial
-                                </a>
-                            </div>
-
-                            <!-- Column 2: Legajos & Scoring -->
-                            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
-                                <div>
-                                    <div class="flex items-center justify-between mb-3">
-                                        <span class="text-xs font-bold px-2.5 py-1 rounded-md bg-blue-100 text-blue-800">📋 Legajo Digital</span>
-                                        <span class="text-xs font-semibold text-emerald-600">Aprobado ✓</span>
-                                    </div>
-                                    <h4 class="font-bold text-slate-800 text-base mb-2">Scoring de Garantes</h4>
-                                    <div class="space-y-2 text-xs text-slate-600 mb-4">
-                                        <div class="flex justify-between py-1 border-b border-slate-100">
-                                            <span>Recibo de Sueldo</span>
-                                            <span class="font-semibold text-slate-800">Ingreso x3 verificado</span>
-                                        </div>
-                                        <div class="flex justify-between py-1 border-b border-slate-100">
-                                            <span>Garantía Propietaria</span>
-                                            <span class="font-semibold text-slate-800">CABA / Dominio Libre</span>
-                                        </div>
-                                        <div class="flex justify-between py-1">
-                                            <span>Seguro de Caución</span>
-                                            <span class="font-semibold text-slate-800">Finaer / Hogar Seguro</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <span class="text-center py-2 text-xs font-semibold text-slate-500">
-                                    Generación automática de contrato
-                                </span>
-                            </div>
-
-                            <!-- Column 3: Helpdesk & Maintenance -->
-                            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
-                                <div>
-                                    <div class="flex items-center justify-between mb-3">
-                                        <span class="text-xs font-bold px-2.5 py-1 rounded-md bg-amber-100 text-amber-800">🛠 Helpdesk</span>
-                                        <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-700">Urgente</span>
-                                    </div>
-                                    <h4 class="font-bold text-slate-800 text-base mb-1">Rotura Caño Principal</h4>
-                                    <p class="text-xs text-slate-500 mb-3">Asignado a: <strong class="text-slate-700">Plomería Rossi (Matrícula #4812)</strong></p>
-                                    <div class="p-3 bg-emerald-50/70 border border-emerald-200/60 rounded-xl mb-4">
-                                        <p class="text-xs text-emerald-900 font-medium">💬 Mensaje listo para WhatsApp con foto y dirección del inmueble cargada.</p>
-                                    </div>
-                                </div>
-                                <a href="app.html" class="w-full text-center py-2 px-3 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors">
-                                    Enviar a Técnico en 1 Clic
-                                </a>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
+          </div>
         </div>
+      </div>
     </section>
 
-    <!-- ══════════════════════════════════════════════════ -->
-    <!--  3. SOLUCIONES POR PERFIL (INQUILINO/DUEÑO/INMOB)  -->
-    <!-- ══════════════════════════════════════════════════ -->
-    <section id="soluciones" class="py-24 bg-white border-t border-slate-200/80">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-16">
-                <h2 class="text-xs font-bold uppercase tracking-widest text-brand mb-2">Diseñado para todo el ecosistema</h2>
-                <h3 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Un ecosistema conectado para alquileres sin problemas</h3>
-                <p class="mt-4 text-slate-600 text-base sm:text-lg">
-                    Los portales inmobiliarios tradicionales te abandonan una vez que se firma el contrato. 
-                    Kelvi une a inmobiliarias, dueños, inquilinos y técnicos matriculados en una sola plataforma colaborativa.
-                </p>
-            </div>
-
-            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- Tarjeta Inmobiliarias -->
-                <div class="bg-slate-50 rounded-3xl p-8 border border-slate-200 card-hover flex flex-col justify-between">
-                    <div>
-                        <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-brand flex items-center justify-center text-2xl font-bold mb-6">
-                            🏢
-                        </div>
-                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-700">Para Inmobiliarias</span>
-                        <h4 class="text-xl font-bold text-slate-900 mt-1 mb-3">Automatizá tu cartera y escalá sin límites</h4>
-                        <p class="text-sm text-slate-600 mb-6 leading-relaxed">
-                            Ahorrá hasta 15 horas semanales de gestión manual en llamadas, papeles y coordinación de arreglos.
-                        </p>
-                        <ul class="space-y-3 text-sm text-slate-700">
-                            <li class="flex items-start gap-2.5">
-                                <span class="text-brand font-bold text-base">✓</span>
-                                <span><strong>Marca Blanca:</strong> personalizá con tu propio logo y colores.</span>
-                            </li>
-                            <li class="flex items-start gap-2.5">
-                                <span class="text-brand font-bold text-base">✓</span>
-                                <span>Recepción ordenada de legajos y recibos de garantes.</span>
-                            </li>
-                            <li class="flex items-start gap-2.5">
-                                <span class="text-brand font-bold text-base">✓</span>
-                                <span>Agenda de visitas sincronizada por franja horaria.</span>
-                            </li>
-                            <li class="flex items-start gap-2.5">
-                                <span class="text-brand font-bold text-base">✓</span>
-                                <span>Mesa de ayuda y derivación de reclamos a técnicos.</span>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="mt-8 pt-6 border-t border-slate-200">
-                        <a href="app.html#register" class="inline-flex items-center text-sm font-bold text-brand hover:text-brand-dark">
-                            Crear cuenta Inmobiliaria →
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Tarjeta Propietarios -->
-                <div class="bg-slate-50 rounded-3xl p-8 border border-slate-200 card-hover flex flex-col justify-between">
-                    <div>
-                        <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center text-2xl font-bold mb-6">
-                            🔑
-                        </div>
-                        <span class="text-xs font-bold uppercase tracking-wider text-blue-700">Para Propietarios Directos</span>
-                        <h4 class="text-xl font-bold text-slate-900 mt-1 mb-3">Tranquilidad absoluta y trazabilidad total</h4>
-                        <p class="text-sm text-slate-600 mb-6 leading-relaxed">
-                            Gestioná tus propiedades sin estrés ni sorpresas en el mantenimiento o pagos de alquiler.
-                        </p>
-                        <ul class="space-y-3 text-sm text-slate-700">
-                            <li class="flex items-start gap-2.5">
-                                <span class="text-brand font-bold text-base">✓</span>
-                                <span>Control de fechas de contratos y vencimientos.</span>
-                            </li>
-                            <li class="flex items-start gap-2.5">
-                                <span class="text-brand font-bold text-base">✓</span>
-                                <span>Seguimiento de gastos de reparación y presupuestos.</span>
-                            </li>
-                            <li class="flex items-start gap-2.5">
-                                <span class="text-brand font-bold text-base">✓</span>
-                                <span>Sin llamadas a la medianoche: todo registrado por ticket.</span>
-                            </li>
-                            <li class="flex items-start gap-2.5">
-                                <span class="text-brand font-bold text-base">✓</span>
-                                <span>Prueba gratuita de 1 a 3 meses para probar el sistema.</span>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="mt-8 pt-6 border-t border-slate-200">
-                        <a href="app.html#register" class="inline-flex items-center text-sm font-bold text-blue-600 hover:text-blue-800">
-                            Registrar mis propiedades →
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Tarjeta Inquilinos -->
-                <div class="bg-slate-50 rounded-3xl p-8 border border-slate-200 card-hover flex flex-col justify-between">
-                    <div>
-                        <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-2xl font-bold mb-6">
-                            🙋‍♂️
-                        </div>
-                        <span class="text-xs font-bold uppercase tracking-wider text-amber-700">Para Inquilinos</span>
-                        <h4 class="text-xl font-bold text-slate-900 mt-1 mb-3">Encontrá tu próximo hogar sin fricción</h4>
-                        <p class="text-sm text-slate-600 mb-6 leading-relaxed">
-                            Buscá en mapa, coordiná visitas sin idas y vueltas y solicitá arreglos con rapidez garantizada.
-                        </p>
-                        <ul class="space-y-3 text-sm text-slate-700">
-                            <li class="flex items-start gap-2.5">
-                                <span class="text-brand font-bold text-base">✓</span>
-                                <span>Búsqueda interactiva en mapa con OpenStreetMap.</span>
-                            </li>
-                            <li class="flex items-start gap-2.5">
-                                <span class="text-brand font-bold text-base">✓</span>
-                                <span>Agendamiento de visita con franja horaria preferida.</span>
-                            </li>
-                            <li class="flex items-start gap-2.5">
-                                <span class="text-brand font-bold text-base">✓</span>
-                                <span>Carga única de legajo de garantes en formato digital.</span>
-                            </li>
-                            <li class="flex items-start gap-2.5">
-                                <span class="text-brand font-bold text-base">✓</span>
-                                <span>Directorio de plomeros y electricistas con WhatsApp.</span>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="mt-8 pt-6 border-t border-slate-200">
-                        <a href="app.html" class="inline-flex items-center text-sm font-bold text-amber-600 hover:text-amber-800">
-                            Explorar Inmuebles →
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Tarjeta Profesionales & Técnicos -->
-                <div id="profesionales" class="bg-gradient-to-b from-white to-emerald-50/50 rounded-3xl p-8 border-2 border-emerald-300 card-hover flex flex-col justify-between shadow-sm relative overflow-hidden">
-                    <div class="absolute -right-12 -top-12 w-28 h-28 bg-emerald-100/60 rounded-full blur-xl pointer-events-none"></div>
-                    <div>
-                        <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-brand flex items-center justify-center text-2xl font-bold mb-6">
-                            🔧
-                        </div>
-                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-800">Para Técnicos y Oficios</span>
-                        <h4 class="text-xl font-bold text-slate-900 mt-1 mb-3">Trabajos asegurados en tu zona de cobertura</h4>
-                        <p class="text-sm text-slate-600 mb-6 leading-relaxed">
-                            Recibí pedidos de reparación directos de inquilinos e inmobiliarias con fotos, diagnóstico y datos precisos listos para presupuestar.
-                        </p>
-                        <ul class="space-y-3 text-sm text-slate-700">
-                            <li class="flex items-start gap-2.5">
-                                <span class="text-brand font-bold text-base">✓</span>
-                                <span><strong>Plomeros, electricistas, gasistas matriculados y cerrajeros.</strong></span>
-                            </li>
-                            <li class="flex items-start gap-2.5">
-                                <span class="text-brand font-bold text-base">✓</span>
-                                <span>Contacto directo por WhatsApp con la inmobiliaria o inquilino.</span>
-                            </li>
-                            <li class="flex items-start gap-2.5">
-                                <span class="text-brand font-bold text-base">✓</span>
-                                <span><strong>$0 cuota mensual:</strong> sin costo fijo ni cobros adelantados por publicar tu perfil.</span>
-                            </li>
-                            <li class="flex items-start gap-2.5">
-                                <span class="text-brand font-bold text-base">✓</span>
-                                <span><strong>Solo comisión por éxito:</strong> se abona un pequeño porcentaje únicamente cuando el trabajo es realizado y cobrado.</span>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="mt-8 pt-6 border-t border-slate-200">
-                        <a href="#contacto" class="inline-flex items-center text-sm font-bold text-emerald-700 hover:text-emerald-900">
-                            Sumarme a la Red de Oficios →
-                        </a>
-                    </div>
-                </div>
-            </div>
+    <!-- Características -->
+    <section id="caracteristicas" class="section-pad">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-eyebrow">Funcionalidades Destacadas</div>
+          <h2 class="section-title">Todo lo que necesitás para operar sin fricción</h2>
+          <p class="section-subtitle">Tecnología de última generación al servicio del sector inmobiliario.</p>
         </div>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon-box" aria-hidden="true">🗺️</div>
+            <h4>Mapa Interactivo Geolocalizado</h4>
+            <p>Búsquedas fluidas sobre mapa satelital. Filtros por precio, ambientes, barrio y admisión de mascotas sin recargar la página.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon-box" aria-hidden="true">📅</div>
+            <h4>Agendamiento de Visitas</h4>
+            <p>El inquilino elige fecha y turno. La inmobiliaria confirma con 1 clic en su calendario sin llamadas eternas ni desencuentros.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon-box" aria-hidden="true">📁</div>
+            <h4>Legajo Digital Inteligente</h4>
+            <p>Carga segura de recibos de sueldo, monotributo, escrituras y pólizas de caución con validación automatizada de ingresos.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon-box" aria-hidden="true">📄</div>
+            <h4>Gestión de Contratos</h4>
+            <p>Trazabilidad de contratos vigentes, ajuste por índices (ICL / IPC), depósitos en garantía y alertas de renovación anticipada.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon-box" aria-hidden="true">🛠️</div>
+            <h4>Helpdesk de Mantenimiento</h4>
+            <p>Tickets clasificados por urgencia con fotos de averías y seguimiento en vivo hasta la resolución del problema.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon-box" aria-hidden="true">📲</div>
+            <h4>Oficios con WhatsApp Directo</h4>
+            <p>Directorio verificado de plomeros, electricistas y gasistas con mensajes prediseñados listos para cotizar en segundos.</p>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <!-- ══════════════════════════════════════════════════ -->
-    <!--  4. WHITE-LABEL DESTACADO (ENTERPRISE / INMOB)     -->
-    <!-- ══════════════════════════════════════════════════ -->
-    <section id="inmobiliarias" class="py-20 bg-slate-900 text-white relative overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="grid lg:grid-cols-2 gap-12 items-center">
-                <div>
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-brand/20 text-brand border border-brand/30 mb-4">
-                        Tecnología White-Label (Marca Blanca)
-                    </span>
-                    <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight mb-6">
-                        Tu inmobiliaria, <br class="hidden sm:inline">con su propia plataforma digital.
-                    </h2>
-                    <p class="text-slate-300 text-base sm:text-lg mb-8 leading-relaxed">
-                        No pierdas clientes redirigiéndolos a portales genéricos. Con Kelvi, podés aplicar tu 
-                        <strong>Nombre Comercial</strong>, tu <strong>Logotipo</strong> y tu <strong>Paleta de Colores Corporativos</strong> 
-                        para que tus propietarios e inquilinos vean tu marca en cada pantalla.
-                    </p>
-                    
-                    <div class="space-y-4 mb-8">
-                        <div class="flex items-center gap-3">
-                            <div class="w-6 h-6 rounded-full bg-brand/20 text-brand flex items-center justify-center font-bold text-xs">✓</div>
-                            <span class="text-sm sm:text-base text-slate-200">Presencia de marca exclusiva sin menciones a terceros</span>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-6 h-6 rounded-full bg-brand/20 text-brand flex items-center justify-center font-bold text-xs">✓</div>
-                            <span class="text-sm sm:text-base text-slate-200">Configurable en 2 minutos desde el panel de administración</span>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-6 h-6 rounded-full bg-brand/20 text-brand flex items-center justify-center font-bold text-xs">✓</div>
-                            <span class="text-sm sm:text-base text-slate-200">Mayor fidelización y profesionalismo de cara a tus clientes</span>
-                        </div>
-                    </div>
-
-                    <a href="#contacto" class="inline-flex items-center px-6 py-3.5 rounded-xl font-bold bg-brand hover:bg-brand-dark text-white transition-all">
-                        Solicitar Demo para Inmobiliarias
-                    </a>
-                </div>
-
-                <!-- Interactive White Label Visual Sim -->
-                <div class="bg-slate-800/80 rounded-3xl p-6 sm:p-8 border border-slate-700 shadow-2xl backdrop-blur-sm">
-                    <h4 class="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Simulador de Marca Blanca</h4>
-                    
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre de tu Inmobiliaria</label>
-                            <input type="text" id="demo-brand-name" value="Inmobiliaria Palermo Norte" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-brand">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-1">Color Principal (HEX)</label>
-                            <div class="flex items-center gap-3">
-                                <input type="color" id="demo-color-picker" value="#00a650" class="h-10 w-16 rounded-lg cursor-pointer bg-transparent border-0">
-                                <span id="demo-color-hex" class="text-xs font-mono text-slate-400">#00a650</span>
-                            </div>
-                        </div>
-
-                        <!-- Live Mini Preview -->
-                        <div class="mt-6 p-4 rounded-2xl bg-white text-slate-900 border border-slate-200 shadow-md">
-                            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-                                <div class="flex items-center gap-2">
-                                    <div id="preview-logo-dot" class="w-6 h-6 rounded-lg bg-emerald-500 flex items-center justify-center text-white text-xs font-bold">K</div>
-                                    <span id="preview-brand-title" class="font-bold text-sm text-slate-900">Inmobiliaria Palermo Norte</span>
-                                </div>
-                                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">Portal Inmobiliario</span>
-                            </div>
-                            <p class="text-xs text-slate-500 mt-2">Así verán tus clientes el encabezado, botones y credenciales oficiales.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- Precios y Planes -->
+    <section id="precios" class="section-pad" style="background: rgba(11, 17, 30, 0.4); border-top: 1px solid var(--border-subtle);">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-eyebrow">Precios Claros y Flexibles</div>
+          <h2 class="section-title">Inversión pensada para que crezcas</h2>
+          <p class="section-subtitle">Sin comisiones ocultas ni costos de instalación. Elegí el plan según el tamaño de tu cartera.</p>
         </div>
+
+        <div class="pricing-grid">
+          <!-- Plan 1 -->
+          <article class="pricing-card">
+            <div class="plan-tier-label">Dueño Directo</div>
+            <h3 class="plan-title">Plan Propiedad</h3>
+            <p class="plan-desc">Para propietarios que administran sus propios inmuebles.</p>
+            <div class="price-wrap">
+              <div class="price-num">$30.000 <span class="price-unit">ARS / mes / prop</span></div>
+            </div>
+            <ul class="plan-features">
+              <li>1 a 5 propiedades activas</li>
+              <li>Seguimiento de contratos y cobros</li>
+              <li>Mesa de ayuda de mantenimiento</li>
+              <li>Directorio de oficios verificados</li>
+            </ul>
+            <a href="app.html#register" class="btn btn-glass" style="width: 100%;">Probar Gratis 30 Días</a>
+          </article>
+
+          <!-- Plan 2 -->
+          <article class="pricing-card">
+            <div class="plan-tier-label">Inmobiliarias</div>
+            <h3 class="plan-title">Starter</h3>
+            <p class="plan-desc">Para inmobiliarias boutique o carteras en desarrollo.</p>
+            <div class="price-wrap">
+              <div class="price-num">$350.000 <span class="price-unit">ARS / mes</span></div>
+            </div>
+            <ul class="plan-features">
+              <li>Hasta 15 propiedades activas</li>
+              <li>Módulo de Marca Blanca básica</li>
+              <li>Legajos de garantes centralizados</li>
+              <li>Agenda de visitas por turnos</li>
+            </ul>
+            <a href="app.html#register" class="btn btn-glass" style="width: 100%;">Seleccionar Starter</a>
+          </article>
+
+          <!-- Plan 3 (Destacado) -->
+          <article class="pricing-card is-popular">
+            <div class="popular-ribbon">⭐ MÁS ELEGIDO</div>
+            <div class="plan-tier-label" style="color: var(--emerald);">Inmobiliarias Pro</div>
+            <h3 class="plan-title">Pro</h3>
+            <p class="plan-desc">Para inmobiliarias medianas en plena expansión comercial.</p>
+            <div class="price-wrap">
+              <div class="price-num">$750.000 <span class="price-unit">ARS / mes</span></div>
+            </div>
+            <ul class="plan-features">
+              <li>Hasta 40 propiedades activas</li>
+              <li>Marca Blanca completa (colores y logo)</li>
+              <li>Scoring automático de legajos con IA</li>
+              <li>Gestión prioritaria de helpdesk</li>
+              <li>Soporte telefónico y WhatsApp directo</li>
+            </ul>
+            <a href="app.html#register" class="btn btn-glow" style="width: 100%;">Comenzar con Plan Pro</a>
+          </article>
+
+          <!-- Plan 4 -->
+          <article class="pricing-card">
+            <div class="plan-tier-label">Grandes Carteras</div>
+            <h3 class="plan-title">Enterprise</h3>
+            <p class="plan-desc">Para administradoras con más de 100 propiedades.</p>
+            <div class="price-wrap">
+              <div class="price-num">A medida <span class="price-unit">/ mes</span></div>
+            </div>
+            <ul class="plan-features">
+              <li>100+ propiedades activas</li>
+              <li>Servidor e instancia dedicada</li>
+              <li>Dominio propio personalizado</li>
+              <li>Integración con sistemas contables</li>
+            </ul>
+            <a href="#contacto" class="btn btn-glass" style="width: 100%;">Contactar Asesor</a>
+          </article>
+        </div>
+
+        <!-- Banner Red de Profesionales -->
+        <div class="pro-network-banner">
+          <div>
+            <div class="eyebrow-badge" style="margin-bottom: 12px;">⚡ RED DE PROVEEDORES Y TÉCNICOS</div>
+            <h3>¿Sos plomero, gasista, electricista o técnico matriculado?</h3>
+            <p style="font-size: 14px; color: var(--text-body); line-height: 1.7;">
+              Publicá tus servicios gratis en el catálogo de Kelvi. No pagás costos de ingreso ni abonos mensuales: <strong>solo se descuenta una pequeña comisión por cada trabajo concretado y cobrado</strong>.
+            </p>
+          </div>
+          <div style="text-align: center; border-left: 1px solid rgba(255,255,255,0.08); padding-left: 24px;">
+            <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Membresía</div>
+            <div style="font-size: 32px; font-weight: 850; color: var(--emerald); margin: 6px 0;">$0 <span style="font-size: 14px; color: var(--text-muted);">/ mes</span></div>
+            <a href="#contacto" class="btn btn-glow btn-sm" style="margin-top: 10px;">Sumarme a la Red &rarr;</a>
+          </div>
+        </div>
+
+      </div>
     </section>
 
-    <!-- ══════════════════════════════════════════════════ -->
-    <!--  5. CARACTERÍSTICAS TÉCNICAS Y OPERATIVAS          -->
-    <!-- ══════════════════════════════════════════════════ -->
-    <section id="caracteristicas" class="py-24 bg-slate-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-16">
-                <span class="text-xs font-bold uppercase tracking-widest text-brand">Funcionalidades Destacadas</span>
-                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2">Todo lo que necesitás para operar sin fricción</h2>
-            </div>
-
-            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Feature 1 -->
-                <div class="bg-white p-7 rounded-3xl border border-slate-200/80 shadow-sm">
-                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-brand flex items-center justify-center text-xl mb-4">🗺️</div>
-                    <h3 class="font-bold text-lg text-slate-900 mb-2">Mapa Interactivo Geolocalizado</h3>
-                    <p class="text-sm text-slate-600 leading-relaxed">
-                        Exploración fluida con Leaflet.js y OpenStreetMap. Filtros por precio, ambiente, ciudad y admisión de mascotas.
-                    </p>
-                </div>
-
-                <!-- Feature 2 -->
-                <div class="bg-white p-7 rounded-3xl border border-slate-200/80 shadow-sm">
-                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-brand flex items-center justify-center text-xl mb-4">📅</div>
-                    <h3 class="font-bold text-lg text-slate-900 mb-2">Agendamiento de Visitas</h3>
-                    <p class="text-sm text-slate-600 leading-relaxed">
-                        El inquilino elige fecha y turno (Mañana, Tarde, Sábado). La inmobiliaria confirma con 1 clic sin llamadas eternas.
-                    </p>
-                </div>
-
-                <!-- Feature 3 -->
-                <div class="bg-white p-7 rounded-3xl border border-slate-200/80 shadow-sm">
-                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-brand flex items-center justify-center text-xl mb-4">📁</div>
-                    <h3 class="font-bold text-lg text-slate-900 mb-2">Legajo Digital Inteligente</h3>
-                    <p class="text-sm text-slate-600 leading-relaxed">
-                        Subida segura de recibos de sueldo, comprobantes de monotributo, garantías propietarias y seguros de caución.
-                    </p>
-                </div>
-
-                <!-- Feature 4 -->
-                <div class="bg-white p-7 rounded-3xl border border-slate-200/80 shadow-sm">
-                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-brand flex items-center justify-center text-xl mb-4">📄</div>
-                    <h3 class="font-bold text-lg text-slate-900 mb-2">Gestión de Contratos</h3>
-                    <p class="text-sm text-slate-600 leading-relaxed">
-                        Trazabilidad de contratos vigentes, montos de alquiler, depósitos de garantía y estados de cobro actualizados.
-                    </p>
-                </div>
-
-                <!-- Feature 5 -->
-                <div class="bg-white p-7 rounded-3xl border border-slate-200/80 shadow-sm">
-                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-brand flex items-center justify-center text-xl mb-4">🛠️</div>
-                    <h3 class="font-bold text-lg text-slate-900 mb-2">Helpdesk de Mantenimiento</h3>
-                    <p class="text-sm text-slate-600 leading-relaxed">
-                        Tickets de soporte clasificados por severidad (Urgente, Alta, Media, Baja) con fotos y notas de seguimiento.
-                    </p>
-                </div>
-
-                <!-- Feature 6 -->
-                <div class="bg-white p-7 rounded-3xl border border-slate-200/80 shadow-sm">
-                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-brand flex items-center justify-center text-xl mb-4">📲</div>
-                    <h3 class="font-bold text-lg text-slate-900 mb-2">Oficios con WhatsApp Directo</h3>
-                    <p class="text-sm text-slate-600 leading-relaxed">
-                        Directorio verificado de plomeros, electricistas y gasistas con mensajes prediseñados listos para cotizar en segundos.
-                    </p>
-                </div>
-            </div>
+    <!-- Contacto -->
+    <section id="contacto" class="section-pad">
+      <div class="container" style="max-width: 820px;">
+        <div class="section-header">
+          <div class="section-eyebrow">Contacto Directo</div>
+          <h2 class="section-title">¿Querés una demo para tu inmobiliaria?</h2>
+          <p class="section-subtitle">Completá el formulario o escribinos directo para coordinar una prueba piloto sin costo.</p>
         </div>
+
+        <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 40px; box-shadow: var(--shadow-md);">
+          <form action="#" method="POST" style="display: grid; gap: 18px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #ffffff;">Nombre y Apellido</label>
+                <input type="text" placeholder="Ej: Lucas González" required style="width: 100%; padding: 12px 16px; border-radius: var(--radius-sm); background: #060911; border: 1px solid var(--border-subtle); color: #ffffff; font-size: 14px;">
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #ffffff;">Inmobiliaria / Empresa</label>
+                <input type="text" placeholder="Ej: Inmobiliaria Central" required style="width: 100%; padding: 12px 16px; border-radius: var(--radius-sm); background: #060911; border: 1px solid var(--border-subtle); color: #ffffff; font-size: 14px;">
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #ffffff;">Email Profesional</label>
+                <input type="email" placeholder="lucas@inmobiliaria.com" required style="width: 100%; padding: 12px 16px; border-radius: var(--radius-sm); background: #060911; border: 1px solid var(--border-subtle); color: #ffffff; font-size: 14px;">
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #ffffff;">WhatsApp / Teléfono</label>
+                <input type="tel" placeholder="+54 9 11..." required style="width: 100%; padding: 12px 16px; border-radius: var(--radius-sm); background: #060911; border: 1px solid var(--border-subtle); color: #ffffff; font-size: 14px;">
+              </div>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #ffffff;">Volumen de Propiedades que Administrás</label>
+              <select style="width: 100%; padding: 12px 16px; border-radius: var(--radius-sm); background: #060911; border: 1px solid var(--border-subtle); color: #ffffff; font-size: 14px;">
+                <option value="profesional">Soy Técnico / Oficio (Quiero sumarme a la red de servicios)</option>
+                <option value="1-5">1 a 5 propiedades (Dueño particular)</option>
+                <option value="6-20">6 a 20 propiedades (Cartera chica)</option>
+                <option value="21-50">21 a 50 propiedades (Inmobiliaria consolidada)</option>
+                <option value="50+">Más de 50 propiedades (Empresa inmobiliaria)</option>
+              </select>
+            </div>
+
+            <button type="submit" class="btn btn-glow" style="width: 100%; margin-top: 8px;">Solicitar Demostración Personalizada</button>
+          </form>
+        </div>
+      </div>
     </section>
+  </main>
 
-    <!-- ══════════════════════════════════════════════════ -->
-    <!--  6. PRECIOS Y PLANES (SAAS TRANSPARENTE)           -->
-    <!-- ══════════════════════════════════════════════════ -->
-    <section id="precios" class="py-24 bg-white border-t border-slate-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-16">
-                <span class="text-xs font-bold uppercase tracking-widest text-brand">Precios Claros y Flexibles</span>
-                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2">Inversión pensada para que crezcas</h2>
-                <p class="mt-4 text-slate-600 text-base sm:text-lg">
-                    Sin comisiones ocultas ni costos de instalación. Elegí el plan según el tamaño de tu cartera.
-                </p>
-            </div>
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div style="display: inline-flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+        <img src="img/logo.png" alt="Kelvi" width="32" height="32" style="border-radius: 8px;">
+        <span style="font-weight: 700; color: #ffffff;">Kelvi<span style="color: var(--emerald); margin-left: 4px;">PropTech</span></span>
+      </div>
 
-            <div class="grid lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-                
-                <!-- Plan 1: Propietario Directo -->
-                <div class="bg-slate-50 rounded-3xl p-6 border border-slate-200 flex flex-col justify-between">
-                    <div>
-                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Dueño Directo</span>
-                        <h3 class="text-xl font-bold text-slate-900 mt-1 mb-2">Plan Propiedad</h3>
-                        <p class="text-xs text-slate-500 mb-4">Para propietarios que administran sus propios inmuebles.</p>
-                        
-                        <div class="mb-6">
-                            <span class="text-3xl font-black text-slate-900">$30.000</span>
-                            <span class="text-xs text-slate-500">ARS / mes / prop</span>
-                            <p class="text-xs text-emerald-600 font-bold mt-1">🎁 Primer mes 100% Gratis</p>
-                        </div>
+      <div class="footer-links">
+        <a href="#soluciones">Soluciones</a>
+        <a href="#inmobiliarias">Inmobiliarias</a>
+        <a href="#caracteristicas">Características</a>
+        <a href="#precios">Precios</a>
+        <a href="app.html">Acceso a la App</a>
+      </div>
 
-                        <ul class="space-y-2.5 text-xs text-slate-600 mb-6">
-                            <li class="flex items-center gap-2"><span>✓</span> 1 a 5 propiedades</li>
-                            <li class="flex items-center gap-2"><span>✓</span> Seguimiento de contratos</li>
-                            <li class="flex items-center gap-2"><span>✓</span> Mesa de ayuda de mantenimiento</li>
-                            <li class="flex items-center gap-2"><span>✓</span> Directorio de profesionales</li>
-                        </ul>
-                    </div>
-                    <a href="app.html#register" class="w-full text-center py-3 rounded-xl bg-white border border-slate-300 text-slate-800 text-xs font-bold hover:bg-slate-100 transition-colors">
-                        Empezar con Prueba Gratis
-                    </a>
-                </div>
+      <p style="font-size: 12px; color: var(--text-faint);">
+        &copy; <span id="year">2026</span> Kelvi PropTech. El alquiler, simple para todos.
+      </p>
+    </div>
+  </footer>
 
-                <!-- Plan 2: Inmobiliaria Starter -->
-                <div class="bg-slate-50 rounded-3xl p-6 border border-slate-200 flex flex-col justify-between">
-                    <div>
-                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Inmobiliarias</span>
-                        <h3 class="text-xl font-bold text-slate-900 mt-1 mb-2">Starter</h3>
-                        <p class="text-xs text-slate-500 mb-4">Para inmobiliarias boutique o carteras en desarrollo.</p>
-                        
-                        <div class="mb-6">
-                            <span class="text-3xl font-black text-slate-900">$350.000</span>
-                            <span class="text-xs text-slate-500">ARS / mes</span>
-                            <p class="text-xs text-slate-500 font-medium mt-1">Hasta 15 propiedades activas</p>
-                        </div>
+  <!-- Vanilla JS -->
+  <script>
+    (() => {
+      'use strict';
 
-                        <ul class="space-y-2.5 text-xs text-slate-600 mb-6">
-                            <li class="flex items-center gap-2"><span>✓</span> Todo lo de Propietarios</li>
-                            <li class="flex items-center gap-2"><span>✓</span> Módulo de Marca Blanca básica</li>
-                            <li class="flex items-center gap-2"><span>✓</span> Legajos de garantes centralizados</li>
-                            <li class="flex items-center gap-2"><span>✓</span> Agenda de visitas por turnos</li>
-                        </ul>
-                    </div>
-                    <a href="app.html#register" class="w-full text-center py-3 rounded-xl bg-white border border-slate-300 text-slate-800 text-xs font-bold hover:bg-slate-100 transition-colors">
-                        Seleccionar Starter
-                    </a>
-                </div>
+      // 1. Reading Progress & Scrolled Header
+      const header = document.getElementById('cabecera');
+      const progressBar = document.getElementById('progress-bar');
+      let ticking = false;
 
-                <!-- Plan 3: Inmobiliaria Pro (Destacado) -->
-                <div class="bg-white rounded-3xl p-6 border-2 border-brand shadow-xl relative flex flex-col justify-between">
-                    <div class="absolute -top-3.5 left-1/2 transform -translate-x-1/2">
-                        <span class="bg-brand text-white text-[11px] font-extrabold uppercase px-3 py-1 rounded-full tracking-wider shadow-sm">
-                            ★ Más Elegido
-                        </span>
-                    </div>
-                    <div>
-                        <span class="text-xs font-bold uppercase tracking-wider text-brand">Inmobiliarias</span>
-                        <h3 class="text-xl font-bold text-slate-900 mt-1 mb-2">Pro</h3>
-                        <p class="text-xs text-slate-500 mb-4">Para inmobiliarias medianas en plena expansión.</p>
-                        
-                        <div class="mb-6">
-                            <span class="text-3xl font-black text-slate-900">$750.000</span>
-                            <span class="text-xs text-slate-500">ARS / mes</span>
-                            <p class="text-xs text-emerald-600 font-semibold mt-1">Hasta 40 propiedades activas</p>
-                        </div>
-
-                        <ul class="space-y-2.5 text-xs text-slate-700 mb-6">
-                            <li class="flex items-center gap-2"><span class="text-brand font-bold">✓</span> Marca Blanca completa con colores y logo</li>
-                            <li class="flex items-center gap-2"><span class="text-brand font-bold">✓</span> Scoring automático de legajos</li>
-                            <li class="flex items-center gap-2"><span class="text-brand font-bold">✓</span> Gestión prioritaria de tickets helpdesk</li>
-                            <li class="flex items-center gap-2"><span class="text-brand font-bold">✓</span> Soporte telefónico y WhatsApp directo</li>
-                        </ul>
-                    </div>
-                    <a href="app.html#register" class="w-full text-center py-3 rounded-xl bg-brand text-white text-xs font-bold hover:bg-brand-dark transition-colors shadow-md">
-                        Comenzar con Plan Pro
-                    </a>
-                </div>
-
-                <!-- Plan 4: Enterprise -->
-                <div class="bg-slate-50 rounded-3xl p-6 border border-slate-200 flex flex-col justify-between">
-                    <div>
-                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Grandes Carteras</span>
-                        <h3 class="text-xl font-bold text-slate-900 mt-1 mb-2">Enterprise</h3>
-                        <p class="text-xs text-slate-500 mb-4">Para administradoras con más de 100 propiedades.</p>
-                        
-                        <div class="mb-6">
-                            <span class="text-3xl font-black text-slate-900">A medida</span>
-                            <span class="text-xs text-slate-500">/ mes</span>
-                            <p class="text-xs text-slate-500 font-medium mt-1">100+ propiedades</p>
-                        </div>
-
-                        <ul class="space-y-2.5 text-xs text-slate-600 mb-6">
-                            <li class="flex items-center gap-2"><span>✓</span> Servidor e instancia dedicada</li>
-                            <li class="flex items-center gap-2"><span>✓</span> Dominio propio personalizado</li>
-                            <li class="flex items-center gap-2"><span>✓</span> Integración con sistemas contables</li>
-                            <li class="flex items-center gap-2"><span>✓</span> Onboarding presencial de equipo</li>
-                        </ul>
-                    </div>
-                    <a href="#contacto" class="w-full text-center py-3 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition-colors">
-                        Contactar Asesor
-                    </a>
-                </div>
-
-            </div>
-
-            <!-- Banner Exclusivo: Red de Profesionales & Modelo por Éxito -->
-            <div class="mt-12 bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 rounded-3xl p-8 sm:p-10 text-white border border-emerald-900/60 shadow-xl flex flex-col lg:flex-row items-center justify-between gap-8">
-                <div class="max-w-2xl">
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 mb-3">
-                        ⚡ Red de Proveedores y Técnicos de Confianza
-                    </span>
-                    <h3 class="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2">¿Sos plomero, gasista, electricista o técnico?</h3>
-                    <p class="text-slate-300 text-sm leading-relaxed">
-                        Publicá tus servicios gratis en el catálogo de Kelvi. No pagás ningún costo de ingreso ni mantenimiento mensual: 
-                        <strong>solo se descuenta una pequeña comisión por cada trabajo efectivamente realizado y cobrado a través de la app</strong>. Si no tenés pedidos, no pagás absolutamente nada.
-                    </p>
-                </div>
-                <div class="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
-                    <div class="text-center sm:text-right px-4">
-                        <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Membresía</p>
-                        <p class="text-3xl font-black text-emerald-400">$0 <span class="text-xs text-slate-300 font-normal">/mes</span></p>
-                        <p class="text-[11px] text-emerald-200">100% por trabajo concretado</p>
-                    </div>
-                    <a href="#contacto" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 rounded-xl font-bold bg-brand hover:bg-brand-dark text-white text-sm shadow-md transition-all whitespace-nowrap">
-                        Registrarme como Profesional
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ══════════════════════════════════════════════════ -->
-    <!--  7. FORMULARIO DE CONTACTO / LEAD CAPTURE          -->
-    <!-- ══════════════════════════════════════════════════ -->
-    <section id="contacto" class="py-24 bg-slate-100">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white rounded-3xl p-8 sm:p-12 shadow-xl border border-slate-200">
-                <div class="text-center mb-8">
-                    <span class="text-xs font-bold uppercase tracking-widest text-brand">Contacto Directo</span>
-                    <h2 class="text-3xl font-extrabold text-slate-900 mt-2">¿Querés una demo para tu inmobiliaria?</h2>
-                    <p class="text-slate-600 text-sm mt-2">Completá el formulario o escribinos directo para coordinar una prueba piloto sin costo.</p>
-                </div>
-
-                <form id="contact-form" onsubmit="handleContactSubmit(event)" class="space-y-4">
-                    <div class="grid sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nombre y Apellido</label>
-                            <input type="text" required id="contacto-nombre" placeholder="Ej: Lucas González" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Empresa / Inmobiliaria</label>
-                            <input type="text" id="contacto-empresa" placeholder="Ej: Inmobiliaria Central" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand">
-                        </div>
-                    </div>
-
-                    <div class="grid sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Email Profesional</label>
-                            <input type="email" required id="contacto-email" placeholder="lucas@inmobiliaria.com" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">WhatsApp / Teléfono</label>
-                            <input type="tel" required id="contacto-telefono" placeholder="+54 9 11..." class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Volumen de Propiedades que Administrás</label>
-                        <select id="contacto-volumen" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand">
-                            <option value="profesional">Soy Técnico / Oficio (Quiero sumarme a la red de servicios)</option>
-                            <option value="1-5">1 a 5 propiedades (Dueño particular)</option>
-                            <option value="6-20">6 a 20 propiedades (Cartera chica)</option>
-                            <option value="21-50">21 a 50 propiedades (Inmobiliaria consolidada)</option>
-                            <option value="50+">Más de 50 propiedades (Empresa inmobiliaria)</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Mensaje o Consulta</label>
-                        <textarea id="contacto-mensaje" rows="3" placeholder="Contanos qué te gustaría optimizar en tu gestión..." class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand"></textarea>
-                    </div>
-
-                    <div class="flex flex-col sm:flex-row items-center gap-4 pt-2">
-                        <button type="submit" class="w-full sm:flex-1 py-3.5 px-6 rounded-xl bg-brand hover:bg-brand-dark text-white font-bold text-sm transition-all shadow-md">
-                            Enviar Solicitud
-                        </button>
-                        <a href="https://wa.me/5491100000000?text=Hola%20Kelvi,%20quisiera%20recibir%20informaci%C3%B3n%20sobre%20la%20plataforma%20para%20mi%20inmobiliaria" target="_blank" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-300 font-bold text-sm hover:bg-emerald-100 transition-all">
-                            <span>💬 Contactar por WhatsApp</span>
-                        </a>
-                    </div>
-                </form>
-                <div id="contacto-success" class="hidden mt-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-center font-semibold text-sm">
-                    ¡Gracias por tu contacto! Te responderemos a la brevedad para coordinar la demo.
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ══════════════════════════════════════════════════ -->
-    <!--  8. FOOTER INSTITUCIONAL                           -->
-    <!-- ══════════════════════════════════════════════════ -->
-    <footer class="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-6 pb-8 border-b border-slate-800">
-                <div class="flex items-center gap-3">
-                    <img src="img/logo.png" alt="Kelvi" class="h-9 w-auto brightness-0 invert">
-                    <div>
-                        <span class="text-white font-extrabold text-lg tracking-tight">Kelvi</span>
-                        <p class="text-xs text-slate-400">El alquiler, simple para todos</p>
-                    </div>
-                </div>
-                <div class="flex flex-wrap gap-6 text-xs">
-                    <a href="#soluciones" class="hover:text-white transition-colors">Soluciones</a>
-                    <a href="#inmobiliarias" class="hover:text-white transition-colors">Inmobiliarias</a>
-                    <a href="#profesionales" class="hover:text-white transition-colors">Técnicos y Oficios</a>
-                    <a href="#precios" class="hover:text-white transition-colors">Precios</a>
-                    <a href="app.html" class="hover:text-white transition-colors">Acceso a la App</a>
-                    <a href="app.html#register" class="hover:text-white transition-colors">Registro</a>
-                </div>
-            </div>
-            <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-                <p>© 2026 Kelvi PropTech. Todos los derechos reservados.</p>
-                <p>Hecho para modernizar el mercado inmobiliario en Argentina y Latinoamérica.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Interactive script for demo & contact -->
-    <script>
-        // Simulador de Marca Blanca interactivo
-        const nameInput = document.getElementById('demo-brand-name');
-        const colorPicker = document.getElementById('demo-color-picker');
-        const colorHex = document.getElementById('demo-color-hex');
-        const brandTitle = document.getElementById('preview-brand-title');
-        const brandDot = document.getElementById('preview-logo-dot');
-
-        if (nameInput && brandTitle) {
-            nameInput.addEventListener('input', (e) => {
-                brandTitle.textContent = e.target.value.trim() || 'Tu Inmobiliaria';
-                brandDot.textContent = (e.target.value.trim().charAt(0) || 'K').toUpperCase();
-            });
-        }
-
-        if (colorPicker && colorHex && brandDot) {
-            colorPicker.addEventListener('input', (e) => {
-                const val = e.target.value;
-                colorHex.textContent = val;
-                brandDot.style.backgroundColor = val;
-            });
-        }
-
-        // Manejo simple del form de contacto
-        function handleContactSubmit(e) {
-            e.preventDefault();
-            const form = document.getElementById('contact-form');
-            const success = document.getElementById('contacto-success');
-            if (form && success) {
-                form.reset();
-                success.classList.remove('hidden');
-                setTimeout(() => {
-                    success.classList.add('hidden');
-                }, 6000);
+      window.addEventListener('scroll', () => {
+        if (!ticking) {
+          window.requestAnimationFrame(() => {
+            const y = window.scrollY;
+            const total = document.documentElement.scrollHeight - window.innerHeight;
+            if (progressBar && total > 0) {
+              progressBar.style.width = Math.min(100, Math.max(0, (y / total) * 100)) + '%';
             }
+            if (header) {
+              header.classList.toggle('is-scrolled', y > 25);
+            }
+            ticking = false;
+          });
+          ticking = true;
         }
-    </script>
+      }, { passive: true });
+
+      // 2. Mobile Drawer
+      const btnToggle = document.getElementById('btn-toggle-menu');
+      const mobileMenu = document.getElementById('mobile-menu');
+
+      if (btnToggle && mobileMenu) {
+        btnToggle.addEventListener('click', () => {
+          const isOpen = mobileMenu.classList.toggle('is-open');
+          btnToggle.setAttribute('aria-expanded', String(isOpen));
+        });
+        mobileMenu.querySelectorAll('a').forEach(link => {
+          link.addEventListener('click', () => {
+            mobileMenu.classList.remove('is-open');
+            btnToggle.setAttribute('aria-expanded', 'false');
+          });
+        });
+      }
+
+      // 3. Interactive Contract Simulation
+      const btnGenContract = document.getElementById('btn-generate-contract');
+      const kelviToast = document.getElementById('kelvi-toast');
+      const scoringBadge = document.getElementById('scoring-badge');
+
+      if (btnGenContract) {
+        btnGenContract.addEventListener('click', () => {
+          btnGenContract.textContent = '✅ ¡Contrato Certificado y Firmado!';
+          btnGenContract.style.background = 'linear-gradient(135deg, #059669, #10b981)';
+          if (scoringBadge) scoringBadge.textContent = 'Contrato Vigente • Legal QR ✓';
+          if (kelviToast) {
+            kelviToast.style.display = 'block';
+            kelviToast.textContent = '🎉 ¡Contrato generado con éxito! El inquilino y propietario han recibido el enlace para firma digital y depósito en garantía.';
+          }
+        });
+      }
+
+      // 4. White-Label Live Simulator
+      const brandInput = document.getElementById('sim-brand-input');
+      const colorPicker = document.getElementById('sim-color-picker');
+      const colorHex = document.getElementById('sim-color-hex');
+      const brandTitle = document.getElementById('sim-brand-title');
+      const logoBadge = document.getElementById('sim-logo-badge');
+      const previewBox = document.getElementById('whitelabel-preview-box');
+
+      if (brandInput && brandTitle) {
+        brandInput.addEventListener('input', () => {
+          const val = brandInput.value.trim() || 'Mi Inmobiliaria';
+          brandTitle.textContent = val;
+          if (logoBadge) logoBadge.textContent = val.charAt(0).toUpperCase();
+        });
+      }
+
+      if (colorPicker && colorHex && previewBox) {
+        colorPicker.addEventListener('input', () => {
+          const color = colorPicker.value;
+          colorHex.textContent = color;
+          previewBox.style.borderColor = color;
+          if (logoBadge) logoBadge.style.backgroundColor = color;
+        });
+      }
+
+      const yearEl = document.getElementById('year');
+      if (yearEl) yearEl.textContent = String(new Date().getFullYear());
+    })();
+  </script>
 </body>
 </html>
